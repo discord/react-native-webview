@@ -66,6 +66,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(({
   injectedJavaScriptForMainFrameOnly = true,
   injectedJavaScriptBeforeContentLoadedForMainFrameOnly = true,
   startInLoadingState,
+  enableMessaging,
   onNavigationStateChange,
   onLoadStart,
   onError,
@@ -174,7 +175,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(({
       useSharedProcessPool={useSharedProcessPool}
       textInteractionEnabled={textInteractionEnabled}
       decelerationRate={decelerationRate}
-      messagingEnabled={typeof onMessage === 'function'}
+      messagingEnabled={typeof onMessage === 'function' || (enableMessaging ?? false)}
       onLoadingError={onLoadingError}
       onLoadingFinish={onLoadingFinish}
       onLoadingProgress={onLoadingProgress}
