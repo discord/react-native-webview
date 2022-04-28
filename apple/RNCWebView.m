@@ -407,23 +407,25 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
 
 
-      NSLog(@"pikachu. calling RNCWebView didMoveToWindow. webViewKey: %@", _webViewKey);
-      NSLog(@"pikachu. calling RNCWebView didMoveToWindow. keepWebViewInstanceAfterUnmount: %@", _keepWebViewInstanceAfterUnmount ? @"YES" : @"NO");
+//      NSLog(@"pikachu. calling RNCWebView didMoveToWindow. webViewKey: %@", _webViewKey);
+//      NSLog(@"pikachu. calling RNCWebView didMoveToWindow. keepWebViewInstanceAfterUnmount: %@", _keepWebViewInstanceAfterUnmount ? @"YES" : @"NO");
 
       
       if (_keepWebViewInstanceAfterUnmount && _webViewKey != nil) {
 //        WKWebView *webViewForKey = [sharedWKWebViewTable objectForKey: _webViewKey];
-          WKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey]; //[sharedWKWebViewDictionary objectForKey:_webViewKey];
-        _webView = webViewForKey;
-//        [_webView removeFromSuperview];
+        WKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey]; //[sharedWKWebViewDictionary objectForKey:_webViewKey];
+        NSLog(@"pikachu didMoveToWindow. getting webview from dictionary : %p", webViewForKey);
 
-        NSLog(@"pikachu. calling RNCWebView didMoveToWindow. tried getting WKWebView from map");
+        _webView = webViewForKey;
+        [_webView removeFromSuperview];
+
+//        NSLog(@"pikachu. calling RNCWebView didMoveToWindow. tried getting WKWebView from map");
       }
       
       bool reusedWebView = _webView != nil;
 
       if (_webView == nil) {
-          NSLog(@"pikachu. calling RNCWebView didMoveToWindow. creating new WKWebView");
+//          NSLog(@"pikachu. calling RNCWebView didMoveToWindow. creating new WKWebView");
 
 #if !TARGET_OS_OSX
         _webView = [[WKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
@@ -432,7 +434,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 #endif // !TARGET_OS_OSX
           
           if (_webView != nil && _webViewKey != nil) {
-              NSLog(@"pikachu. calling RNCWebView didMoveToWindow. setting WKWebView on map");
+//              NSLog(@"pikachu. calling RNCWebView didMoveToWindow. setting WKWebView on map");
 
               sharedWKWebViewDictionary[_webViewKey] = _webView;
 //              [sharedWKWebViewDictionary setObject:_webView forKey:_webViewKey];
@@ -505,11 +507,13 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 
 - (void)removeFromSuperview
 {
-    if (!_keepWebViewInstanceAfterUnmount || _webViewKey == nil) {
+  bool keepWebViewInstance = _keepWebViewInstanceAfterUnmount && _webViewKey != nil;
+    if (!keepWebViewInstance) {
         [self cleanUpWebView];
     } else {
 //      [_webView removeFromSuperview];
     }
+    // TODO: add back observer
 //    [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
 //    [_webView removeFromSuperview];
 //    _webView = nil;
@@ -1451,7 +1455,16 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 
 - (void)releaseWebView
 {
+  NSLog(@"pikachu RNCWebView release webview 0000");
+  if (_webViewKey != nil) {
+    NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+    WKWebView *wkWebView = sharedWKWebViewDictionary[_webViewKey];
+    NSLog(@"pikachu RNCWebView release webview 1111. removing webview pointer : %p", wkWebView);
+    sharedWKWebViewDictionary[_webViewKey] = nil;
+  }
   [self cleanUpWebView];
+
+
 //  NSMapTable *sharedWKWebViewTable = [[RNCWKWebViewTableManager sharedManager] sharedWKWebViewTable];
 //  if (_webViewKey != nil) {
 //    [sharedWKWebViewTable removeObjectForKey:_webViewKey];

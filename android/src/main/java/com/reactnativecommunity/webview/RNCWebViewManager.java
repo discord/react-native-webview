@@ -138,7 +138,9 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public static final int COMMAND_INJECT_JAVASCRIPT = 6;
   public static final int COMMAND_LOAD_URL = 7;
   public static final int COMMAND_FOCUS = 8;
-  public static final int COMMAND_RELEASE = 9;
+
+  // commands added by Discord
+  public static final int COMMAND_RELEASE = 4001;
 
   // android commands
   public static final int COMMAND_CLEAR_FORM_DATA = 1000;

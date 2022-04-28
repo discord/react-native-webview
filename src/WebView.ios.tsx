@@ -162,11 +162,12 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     );
   };
 
-  release = (webViewKey: string) => {
+  release = (data: string) => {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().release,
-      [String(webViewKey)],
+      undefined
+      // [String(data)],
     );
   }
 

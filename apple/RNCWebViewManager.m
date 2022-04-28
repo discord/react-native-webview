@@ -245,14 +245,14 @@ RCT_EXPORT_METHOD(stopLoading:(nonnull NSNumber *)reactTag)
   }];
 }
 
-RCT_EXPORT_METHOD(release:(nonnull NSNumber *)reactTag webViewKey:(NSString *)webViewKey)
+RCT_EXPORT_METHOD(release:(nonnull NSNumber *)reactTag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCWebView *> *viewRegistry) {
     RNCWebView *view = viewRegistry[reactTag];
     if (![view isKindOfClass:[RNCWebView class]]) {
       RCTLogError(@"Invalid view returned from registry, expecting RNCWebView, got: %@", view);
     } else {
-      NSLog(@"pikachu. 111~ calling RNCWebViewManager release with webViewKey: %@", webViewKey);
+      NSLog(@"pikachu. 222 calling RNCWebViewManager release with webViewKey");
       [view releaseWebView];
     }
   }];
