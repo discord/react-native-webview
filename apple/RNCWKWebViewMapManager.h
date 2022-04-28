@@ -1,6 +1,6 @@
 #import <WebKit/WebKit.h>
 
-@interface RNCWKWebViewTableManager : NSObject
+@interface RNCWKWebViewMapManager : NSObject
 
 + (instancetype) sharedManager;
 - (NSMapTable *)sharedWKWebViewTable;

@@ -1,17 +1,17 @@
 #import <Foundation/Foundation.h>
-#import "RNCWKWebViewTableManager.h"
+#import "RNCWKWebViewMapManager.h"
 
-@interface RNCWKWebViewTableManager() {
+@interface RNCWKWebViewMapManager() {
     NSMapTable *_sharedWKWebViewTable;
     NSMutableDictionary *_sharedWKWebViewDictionary;
 
 }
 @end
 
-@implementation RNCWKWebViewTableManager
+@implementation RNCWKWebViewMapManager
 
 + (id) sharedManager {
-    static RNCWKWebViewTableManager *_sharedManager = nil;
+    static RNCWKWebViewMapManager *_sharedManager = nil;
     @synchronized(self) {
         if(_sharedManager == nil) {
             _sharedManager = [[super alloc] init];

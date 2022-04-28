@@ -9,7 +9,7 @@
 #import <React/RCTConvert.h>
 #import <React/RCTAutoInsetsProtocol.h>
 #import "RNCWKProcessPoolManager.h"
-#import "RNCWKWebViewTableManager.h"
+#import "RNCWKWebViewMapManager.h"
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
 #else
@@ -404,7 +404,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if (self.window != nil && _webView == nil) {
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
 //      NSMapTable *sharedWKWebViewTable = [[RNCWKWebViewTableManager sharedManager] sharedWKWebViewTable];
-      NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewTableManager sharedManager] sharedWKWebViewDictionary];
+      NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
 
 
       NSLog(@"pikachu. calling RNCWebView didMoveToWindow. webViewKey: %@", _webViewKey);
