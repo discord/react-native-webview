@@ -2,7 +2,6 @@
 #import "RNCWKWebViewMapManager.h"
 
 @interface RNCWKWebViewMapManager() {
-    NSMapTable *_sharedWKWebViewTable;
     NSMutableDictionary *_sharedWKWebViewDictionary;
 
 }
@@ -20,19 +19,9 @@
     }
 }
 
-- (NSMapTable *)sharedWKWebViewTable {
-    if (!_sharedWKWebViewTable) {
-//        _sharedWKWebViewTable = [[NSMapTable alloc] init];
-        _sharedWKWebViewTable = [NSMapTable strongToStrongObjectsMapTable];
-    }
-    return _sharedWKWebViewTable;
-}
-
 - (NSMutableDictionary *)sharedWKWebViewDictionary {
     if (!_sharedWKWebViewDictionary) {
-//        _sharedWKWebViewTable = [[NSMapTable alloc] init];
         _sharedWKWebViewDictionary = [[NSMutableDictionary alloc] init];
-//        _sharedWKWebViewTable = [NSMapTable strongToStrongObjectsMapTable];
     }
     return _sharedWKWebViewDictionary;
 }
