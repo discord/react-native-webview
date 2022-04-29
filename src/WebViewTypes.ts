@@ -723,20 +723,21 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   onCustomMenuSelection?: (event: WebViewEvent) => void;
 
   /**
-   * By default, if this is undefined or false, the native WKWebView will get released when
-   * the React component unmounts. TODO: confirm if that's correct.
+   * By default, if this is undefined or false, the native WebView will get released when
+   * the React component unmounts.
    * 
-   * When this is true, the native WKWebView will not get released when the React component
-   * unmounts. When a React component remounts, it can use a previous WKWebView instance
+   * When this is true, the native WebView will not get released when the React component
+   * unmounts. When a React component remounts, it can use a previous native WebView instance
    * by using the same webViewKey prop that the previous React component used.
    * 
-   * It's important to call <insert method name here> with the corresponding webViewKey.
+   * It's important to call `release` on the React WebView with the corresponding webViewKey
+   * when the native WebView is no longer needed.
    */
   keepWebViewInstanceAfterUnmount?: boolean;
 
   /**
    * When keepWebViewInstanceAfterUnmount is true, if two React components use the same
-   * key for the WebView, they will use the same instance of WKWebView.
+   * key for the WebView, they will use the same native WebView instance.
    */
   webViewKey?: string;
 }
