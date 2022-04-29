@@ -437,9 +437,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     
     [self setBackgroundColor: _savedBackgroundColor];
     
-    if (reusedWebViewInstance) {
-      [_webView setFrame:self.bounds];
-    } else {
+    if (!reusedWebViewInstance) {
 #if !TARGET_OS_OSX
       _webView.scrollView.delegate = self;
 #endif // !TARGET_OS_OSX
