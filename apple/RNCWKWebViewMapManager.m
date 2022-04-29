@@ -3,7 +3,6 @@
 
 @interface RNCWKWebViewMapManager() {
     NSMutableDictionary *_sharedWKWebViewDictionary;
-
 }
 @end
 
@@ -27,4 +26,3 @@
 }
 
 @end
-
