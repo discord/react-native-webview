@@ -10,6 +10,8 @@
 #import <React/RCTAutoInsetsProtocol.h>
 #import "RNCWKProcessPoolManager.h"
 #import "RNCWKWebViewMapManager.h"
+#import "RNCWebViewMapManager.h"
+
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
 #else
@@ -410,7 +412,13 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         NSLog(@"pikachu didMoveToWindow. getting webview from dictionary : %p", webViewForKey);
         if (webViewForKey != nil) {
           _webView = webViewForKey;
-          [_webView removeFromSuperview];
+          NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
+          RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
+          if (rncWebView != nil) {
+            [self removeWKWebViewFromSuperView:rncWebView];
+          }
+          
+//          [_webView removeFromSuperview];
         }
       }
       
@@ -424,7 +432,9 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 #endif // !TARGET_OS_OSX
           
           if (_webView != nil && _webViewKey != nil) {
-              sharedWKWebViewDictionary[_webViewKey] = _webView;
+            sharedWKWebViewDictionary[_webViewKey] = _webView;
+            NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
+            sharedRNCWebViewDictionary[_webViewKey] = self;
           }
       }
     
@@ -450,7 +460,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 #endif // !TARGET_OS_OSX
       _webView.allowsLinkPreview = _allowsLinkPreview;
       // todo
-//      [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
       _webView.allowsBackForwardNavigationGestures = _allowsBackForwardNavigationGestures;
 
       _webView.customUserAgent = _userAgent;
@@ -465,6 +474,11 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       }
 #endif
     }
+    
+    // We have to remove the old observer via removeWKWebViewFromSuperView when reusing the WKWebView instance,
+    // so whether we're reusing the instance or not, we always have to add the observer that references the new
+    // RNCWebView instance.
+    [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
 
     [self addSubview:_webView];
     [self setHideKeyboardAccessoryView: _savedHideKeyboardAccessoryView];
@@ -497,11 +511,16 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)removeFromSuperview
 {
   bool keepWebViewInstance = _keepWebViewInstanceAfterUnmount && _webViewKey != nil;
-    if (!keepWebViewInstance) {
-      [self cleanUpWebView];
-    }
+  if (!keepWebViewInstance) {
+    [self cleanUpWebView];
+  }
+  
+  if (_webViewKey != nil) {
+    NSMutableDictionary *sharedRNCWebViewDictionary = [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
+    sharedRNCWebViewDictionary[_webViewKey] = nil;
+  }
 
-    [super removeFromSuperview];
+  [super removeFromSuperview];
 }
 
 - (void)cleanUpWebView
@@ -510,7 +529,8 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:HistoryShimName];
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:MessageHandlerName];
 //    [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
-    [_webView removeFromSuperview];
+//    [_webView removeFromSuperview];
+    [self removeWKWebViewFromSuperView:self];
 #if !TARGET_OS_OSX
     _webView.scrollView.delegate = nil;
 #endif // !TARGET_OS_OSX
@@ -520,6 +540,13 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       _onContentProcessDidTerminate(event);
     }
   }
+}
+
+- (void)removeWKWebViewFromSuperView:(RNCWebView *)webViewObserver
+{
+  // We need to also remove the observer before adding _webView to a new super view.
+  [_webView removeObserver:webViewObserver forKeyPath:@"estimatedProgress"];
+  [_webView removeFromSuperview];
 }
 
 #if !TARGET_OS_OSX
@@ -1442,6 +1469,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   NSLog(@"pikachu RNCWebView release webview 0000");
   if (_webViewKey != nil) {
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+
     WKWebView *wkWebView = sharedWKWebViewDictionary[_webViewKey];
     NSLog(@"pikachu RNCWebView release webview 1111. removing webview pointer : %p", wkWebView);
     sharedWKWebViewDictionary[_webViewKey] = nil;

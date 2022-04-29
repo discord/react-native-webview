@@ -1,13 +1,6 @@
-//
-//  RNCWebViewMapManager.h
-//  RNCWebView
-//
-//  Created by Donald Chen on 4/29/22.
-//  Copyright © 2022 Facebook. All rights reserved.
-//
+#import <WebKit/WebKit.h>
 
-#ifndef RNCWebViewMapManager_h
-#define RNCWebViewMapManager_h
-
-
-#endif /* RNCWebViewMapManager_h */
+@interface RNCWebViewMapManager : NSObject
++ (instancetype) sharedManager;
+- (NSMutableDictionary *)sharedRNCWebViewDictionary;
+@end
