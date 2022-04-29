@@ -56,7 +56,6 @@ function PortalGates() {
   const teleportToBlueGate = React.useCallback(() => {
     teleport(gates, GREEN_GATE_NAME, undefined);
     teleport(gates, BLUE_GATE_NAME, webView);
-
   }, [teleport, webView]);
 
   const teleportToGreenGate = React.useCallback(() => {
@@ -66,7 +65,7 @@ function PortalGates() {
 
   const release = React.useCallback(() => {
     teleport(gates, GREEN_GATE_NAME, undefined);
-    teleport(gates, BLUE_GATE_NAME, undefined); 
+    teleport(gates, BLUE_GATE_NAME, undefined);
     setReleaseCounter(releaseCounter + 1);
     webViewRef.current?.release();
   }, []);
