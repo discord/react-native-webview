@@ -61,7 +61,9 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
     clearHistory?: () => void;
 
     /**
-     * release the native WebView instance after the react WebView unmounts.
+     * (iOS only)
+     * Explicitly release the native WebView instance if it hasn't released after the React
+     * component unmounts;
      */
     release: () => void;
 }

@@ -11,14 +11,14 @@
 + (id) sharedManager {
     static RNCWebViewMapManager *_sharedManager = nil;
     @synchronized(self) {
-        if(_sharedManager == nil) {
-            _sharedManager = [[super alloc] init];
-        }
-        return _sharedManager;
+      if(_sharedManager == nil) {
+        _sharedManager = [[super alloc] init];
+      }
+      return _sharedManager;
     }
 }
 
-- (NSMapTable *)sharedRNCWebViewDictionary; {
+- (NSMutableDictionary *)sharedRNCWebViewDictionary; {
   if (!_sharedRNCWebViewDictionary) {
     _sharedRNCWebViewDictionary = [[NSMutableDictionary alloc] init];
     }
