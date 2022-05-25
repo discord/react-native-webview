@@ -1720,7 +1720,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if ([self shouldReuseWebView]) {
     
     // TODO: remove in cleanup
-    NSMutableDictionary *sharedWKWebViewDictionary= [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
+    [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
     
   } else {
     [userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
