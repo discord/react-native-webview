@@ -381,7 +381,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   // Shim the HTML5 history API:
   [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                             name:HistoryShimName];
-  NSLog(@"pikachu add script message handler setUpWkWebViewConfig");
+//  NSLog(@"pikachu add script message handler setUpWkWebViewConfig");
   
   [self resetupScripts:wkWebViewConfig];
 
@@ -407,7 +407,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)didMoveToWindow
 {
   if (self.window != nil && _webView == nil) {
-    NSLog(@"pikachu didMoveToWindow. _webView was nil");
+//    NSLog(@"pikachu didMoveToWindow. _webView was nil");
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
     NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
       
@@ -528,7 +528,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 {
   if (_webView) {
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:HistoryShimName];
-    [_webView.configuration.userContentController removeScriptMessageHandlerForName:MessageHandlerName];
+    [self removeScriptHandlerForMessages:_webView.configuration.userContentController];
     NSLog(@"pikachu removing script handler in clean up webview");
     [self removeWKWebViewFromSuperView:self];
 #if !TARGET_OS_OSX
@@ -1577,16 +1577,14 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 }
 
 - (void)resetupScripts:(WKWebViewConfiguration *)wkWebViewConfig {
-  NSLog(@"pikachu resetup Scripts");
   [wkWebViewConfig.userContentController removeAllUserScripts];
-  [wkWebViewConfig.userContentController removeScriptMessageHandlerForName:MessageHandlerName];
+  [self removeScriptHandlerForMessages:wkWebViewConfig.userContentController];
   NSLog(@"pikachu removing script message handler in resetup script ");
 
   if(self.enableApplePay){
     if (self.postMessageScript){
       NSLog(@"pikachu add script message handler resetup script");
-      [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
-                                                                       name:MessageHandlerName];
+      [self addScriptHandlerForMessages:wkWebViewConfig.userContentController];
     }
     return;
   }
@@ -1676,8 +1674,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 
   if(_messagingEnabled){
     if (self.postMessageScript){
-      [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
-                                                                       name:MessageHandlerName];
+      [self addScriptHandlerForMessages:wkWebViewConfig.userContentController];
       NSLog(@"pikachu add script message handler resetup script 222");
 
       [wkWebViewConfig.userContentController addUserScript:self.postMessageScript];
@@ -1719,12 +1716,20 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void) addScriptHandlerForMessages: (WKUserContentController *)userContentController {
   if ([self shouldReuseWebView]) {
     
-    // TODO: remove in cleanup
     [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
     
   } else {
     [userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                                      name:MessageHandlerName];
+  }
+}
+
+- (void) removeScriptHandlerForMessages: (WKUserContentController *)userContentController {
+  if ([self shouldReuseWebView]) {
+    [[RNCScriptMessageManager sharedManager] removeScriptMessageHandlerWithUserContentController:userContentController withWebViewKey:_webViewKey];
+    
+  } else {
+    [userContentController removeScriptMessageHandlerForName:MessageHandlerName];
   }
 }
 

@@ -3,10 +3,10 @@
 
 @implementation RNCScriptMessageHandler
 
-- (instancetype)initWithWebViewKey:(NSString *)webViewKey {
+- (instancetype)initWithName:(NSString *)name {
   self = [super init];
   if (self) {
-    _webViewKey = webViewKey;
+    _name = name;
   }
   return self;
 }
@@ -53,8 +53,19 @@
 }
 
 - (void)addScriptMessageHandlerWithName:(NSString *)name withUserContentController:(WKUserContentController *)userContentController withWebViewKey:(NSString *)webViewKey {
-  RNCScriptMessageHandler* scriptMessageHandler = [[RNCScriptMessageHandler alloc] initWithWebViewKey:webViewKey];
+  RNCScriptMessageHandler* scriptMessageHandler = [[RNCScriptMessageHandler alloc] initWithName:name];
   [userContentController addScriptMessageHandler: scriptMessageHandler name:name];
+  
+  [self sharedMessageHandlerDictionary][webViewKey] = scriptMessageHandler;
+}
+
+-(void)removeScriptMessageHandlerWithUserContentController:(WKUserContentController *)userContentController withWebViewKey:(NSString *)webViewKey {
+  RNCScriptMessageHandler* scriptMessageHandler = [self sharedMessageHandlerDictionary][webViewKey];
+  
+  if (scriptMessageHandler != nil) {
+    [userContentController removeScriptMessageHandlerForName: [scriptMessageHandler name]];
+    [self sharedMessageHandlerDictionary][webViewKey] = nil;
+  }
 }
 
 @end
