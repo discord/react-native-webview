@@ -11,6 +11,7 @@
 #import "RNCWKProcessPoolManager.h"
 #import "RNCWKWebViewMapManager.h"
 #import "RNCWebViewMapManager.h"
+#import "RNCScriptMessageManager.h"
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
@@ -380,6 +381,8 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   // Shim the HTML5 history API:
   [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                             name:HistoryShimName];
+  NSLog(@"pikachu add script message handler setUpWkWebViewConfig");
+  
   [self resetupScripts:wkWebViewConfig];
 
 #if !TARGET_OS_OSX
@@ -404,10 +407,11 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)didMoveToWindow
 {
   if (self.window != nil && _webView == nil) {
+    NSLog(@"pikachu didMoveToWindow. _webView was nil");
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
     NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
       
-    if (_keepWebViewInstanceAfterUnmount && _webViewKey != nil) {
+    if ([self shouldReuseWebView]) {
       WKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey];
       if (webViewForKey != nil) {
         _webView = webViewForKey;
@@ -525,6 +529,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if (_webView) {
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:HistoryShimName];
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:MessageHandlerName];
+    NSLog(@"pikachu removing script handler in clean up webview");
     [self removeWKWebViewFromSuperView:self];
 #if !TARGET_OS_OSX
     _webView.scrollView.delegate = nil;
@@ -676,6 +681,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)userContentController:(WKUserContentController *)userContentController
        didReceiveScriptMessage:(WKScriptMessage *)message
 {
+  NSLog(@"pikachu RNCWebView handling message 000");
   if ([message.name isEqualToString:HistoryShimName]) {
     if (_onLoadingFinish) {
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
@@ -683,7 +689,10 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       _onLoadingFinish(event);
     }
   } else if ([message.name isEqualToString:MessageHandlerName]) {
+    NSLog(@"pikachu RNCWebView handling message 111");
     if (_onMessage) {
+      NSLog(@"pikachu RNCWebView handling message 222");
+
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
       [event addEntriesFromDictionary: @{@"data": message.body}];
       _onMessage(event);
@@ -1568,10 +1577,14 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 }
 
 - (void)resetupScripts:(WKWebViewConfiguration *)wkWebViewConfig {
+  NSLog(@"pikachu resetup Scripts");
   [wkWebViewConfig.userContentController removeAllUserScripts];
   [wkWebViewConfig.userContentController removeScriptMessageHandlerForName:MessageHandlerName];
+  NSLog(@"pikachu removing script message handler in resetup script ");
+
   if(self.enableApplePay){
     if (self.postMessageScript){
+      NSLog(@"pikachu add script message handler resetup script");
       [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                                        name:MessageHandlerName];
     }
@@ -1665,6 +1678,8 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     if (self.postMessageScript){
       [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                                        name:MessageHandlerName];
+      NSLog(@"pikachu add script message handler resetup script 222");
+
       [wkWebViewConfig.userContentController addUserScript:self.postMessageScript];
     }
     if (self.atEndScript) {
@@ -1695,6 +1710,22 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     }
   }
   return request;
+}
+
+- (BOOL) shouldReuseWebView {
+  return _keepWebViewInstanceAfterUnmount && _webViewKey != nil;
+}
+
+- (void) addScriptHandlerForMessages: (WKUserContentController *)userContentController {
+  if ([self shouldReuseWebView]) {
+    
+    // TODO: remove in cleanup
+    NSMutableDictionary *sharedWKWebViewDictionary= [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
+    
+  } else {
+    [userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
+                                                                     name:MessageHandlerName];
+  }
 }
 
 @end
