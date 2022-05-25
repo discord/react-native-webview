@@ -22,8 +22,7 @@
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
   // TODO: send message to event emitter.
   // TODO: include web view key in message.
-  NSLog(@"pikachu handling message in RNCScriptMessageHandler. message: %@", message);
-//    [self.scriptDelegate userContentController:userContentController didReceiveScriptMessage:message];
+//  NSLog(@"pikachu handling message in RNCScriptMessageHandler. message: %@", message);
 }
 
 @end

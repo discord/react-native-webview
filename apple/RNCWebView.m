@@ -418,6 +418,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
         RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
         if (rncWebView != nil) {
+          NSLog(@"pikachu removeWKWebViewFromSuperView in didMoveToWindow");
           [self removeWKWebViewFromSuperView:rncWebView];
         }
       }
@@ -518,6 +519,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if (_webViewKey != nil) {
     NSMutableDictionary *sharedRNCWebViewDictionary = [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
     sharedRNCWebViewDictionary[_webViewKey] = nil;
+    NSLog(@"pikachu removeWKWebViewFromSuperView in removeFromSuperView");
     [self removeWKWebViewFromSuperView:self];
   }
 

@@ -296,17 +296,19 @@ RCT_EXPORT_METHOD(startLoadWithResult:(BOOL)result lockIdentifier:(NSInteger)loc
 
 RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
 {
-  NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
-  NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
-  
-  sharedWKWebViewDictionary[webViewKey] = nil;
-  
-  RNCWebView *rncWebView = sharedRNCWebViewDictionary[webViewKey];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+    NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
     
-  if (rncWebView != nil) {
-    [rncWebView cleanUpWebView];
-    sharedRNCWebViewDictionary[webViewKey] = nil;
-  }
+    sharedWKWebViewDictionary[webViewKey] = nil;
+    
+    RNCWebView *rncWebView = sharedRNCWebViewDictionary[webViewKey];
+      
+    if (rncWebView != nil) {
+      [rncWebView cleanUpWebView];
+      sharedRNCWebViewDictionary[webViewKey] = nil;
+    }
+  });
 }
 
 @end
