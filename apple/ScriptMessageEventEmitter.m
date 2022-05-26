@@ -24,23 +24,24 @@ RCT_EXPORT_MODULE();
   NSLog(@"pikachu ScriptMessageEventEmitter startObserving");
   _hasListeners = YES;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMessageNotification:)  name:kScriptMessageNotificationName object:nil];
-
+  
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
 - (void)stopObserving
 {
   _hasListeners = NO;
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kScriptMessageNotificationName object:nil];
 }
 
 - (void) onMessageNotification:(NSNotification *) notification
 {
-    // [notification name] should always be @"TestNotification"
-    // unless you use this method for observation of other notifications
-    // as well.
+  if (_hasListeners && [[notification name] isEqualToString:kScriptMessageNotificationName]) {
+    NSLog (@"pikachu Successfully received the test notification!");
 
-    if ([[notification name] isEqualToString:kScriptMessageNotificationName])
-        NSLog (@"Successfully received the test notification!");
+    NSDictionary* userInfo = notification.userInfo;
+    [self sendEventWithName:@"onMessage" body:@{ @"webViewKey": userInfo[@"webViewKey"], @"message": userInfo[@"message"]}];
+  }
 }
 
 //- (void)onMessage: (nonnull NSString *)webViewKey :(nonnull NSString *)message

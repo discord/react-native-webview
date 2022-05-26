@@ -23,9 +23,12 @@
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
   NSLog(@"@pikachu RNCScriptMessageManager. received message. now posting to notification center");
-  [[NSNotificationCenter defaultCenter]
-          postNotificationName:kScriptMessageNotificationName
-   object:@{ @"webViewKey": _webViewKey, @"message": message}];
+  NSDictionary* userInfo = @{ @"webViewKey": _webViewKey, @"message": message};
+  [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:userInfo];
+//  [[NSNotificationCenter defaultCenter]
+//          postNotificationName:kScriptMessageNotificationName object:self
+//   userInfo:userInfo
+//   object:@{ @"webViewKey": _webViewKey, @"message": message}];
   // TODO: send message to event emitter.
   // TODO: include web view key in message.
 //  NSLog(@"pikachu handling message in RNCScriptMessageHandler. message: %@", message);
