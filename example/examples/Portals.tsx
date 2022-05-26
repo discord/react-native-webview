@@ -6,8 +6,6 @@ import PortalProvider from '../portals/PortalProvider';
 import { PortalContext } from '../portals/PortalContext';
 
 const scriptMessageEmitter = new NativeEventEmitter(NativeModules.ScriptMessageEventEmitter);
-// const subscription = scriptMessageEmitter.addListener('onMessage', (data) => console.log(data.progress))
-// TODO: unsubscribe when Portals unmounts
 
 const IFRAME_URI = 'https://www.usaswimming.org';
 const BLUE_GATE_NAME = 'blueGate';
@@ -95,7 +93,6 @@ const source = {
       <body>
         <script type="text/javascript">
           function incrementSecondsCounter() {
-            console.log('pikachu incrementing seconds counter from WebView');
             window.ReactNativeWebView.postMessage('${INCREMENT_SECONDS_COUNTER_MESSAGE}');
           }
 
@@ -110,21 +107,11 @@ const source = {
 
 const secondsCounter = new GlobalState(0);
 
-function handleMessage(event: WebViewMessageEvent) {
-  // const {nativeEvent} = event;
-  // if (nativeEvent.data === INCREMENT_SECONDS_COUNTER_MESSAGE) {
-  //   secondsCounter.setValue(secondsCounter.getValue() + 1);
-  // }
-  // // const eventData = JSON.parse(nativeEvent.data);
-  // console.log(`pikachu eventData in handle message. ${JSON.stringify(nativeEvent.data)}`);
-}
-
 export default function Portals() {
   const [pageNumber, setPageNumber] = React.useState(PORTALS_PAGE);
 
   React.useEffect(() => {
     const subscription = scriptMessageEmitter.addListener('onMessage', (data) => {
-      console.log(`pikachu JS onMessage: ${JSON.stringify(data)}`);
       secondsCounter.setValue(secondsCounter.getValue() + 1);
     });
     
@@ -173,7 +160,6 @@ function PortalGatesPage() {
           source={source}
           webViewKey={WEB_VIEW_KEY}
           keepWebViewInstanceAfterUnmount
-          onMessage={handleMessage}
           ref={webViewRef}
         />
     );

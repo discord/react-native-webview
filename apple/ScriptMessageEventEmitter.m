@@ -21,7 +21,6 @@ RCT_EXPORT_MODULE();
 // Will be called when this module's first listener is added.
 - (void)startObserving
 {
-  NSLog(@"pikachu ScriptMessageEventEmitter startObserving");
   _hasListeners = YES;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMessageNotification:)  name:kScriptMessageNotificationName object:nil];
   
@@ -37,18 +36,9 @@ RCT_EXPORT_MODULE();
 - (void) onMessageNotification:(NSNotification *) notification
 {
   if (_hasListeners && [[notification name] isEqualToString:kScriptMessageNotificationName]) {
-    NSLog (@"pikachu Successfully received the test notification!");
-
     NSDictionary* userInfo = notification.userInfo;
     [self sendEventWithName:@"onMessage" body:@{ @"webViewKey": userInfo[@"webViewKey"], @"message": userInfo[@"message"]}];
   }
 }
-
-//- (void)onMessage: (nonnull NSString *)webViewKey :(nonnull NSString *)message
-//{
-//  if (_hasListeners) {
-//    [self sendEventWithName:@"onMessage" body:@{ @"webViewKey": webViewKey, @"message": message}];
-//  }
-//}
 
 @end

@@ -381,8 +381,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   // Shim the HTML5 history API:
   [wkWebViewConfig.userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                             name:HistoryShimName];
-//  NSLog(@"pikachu add script message handler setUpWkWebViewConfig");
-  
   [self resetupScripts:wkWebViewConfig];
 
 #if !TARGET_OS_OSX
@@ -407,7 +405,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)didMoveToWindow
 {
   if (self.window != nil && _webView == nil) {
-//    NSLog(@"pikachu didMoveToWindow. _webView was nil");
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
     NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
       
@@ -418,7 +415,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
         RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
         if (rncWebView != nil) {
-          NSLog(@"pikachu removeWKWebViewFromSuperView in didMoveToWindow");
           [self removeWKWebViewFromSuperView:rncWebView];
         }
       }
@@ -519,7 +515,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if (_webViewKey != nil) {
     NSMutableDictionary *sharedRNCWebViewDictionary = [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
     sharedRNCWebViewDictionary[_webViewKey] = nil;
-    NSLog(@"pikachu removeWKWebViewFromSuperView in removeFromSuperView");
     [self removeWKWebViewFromSuperView:self];
   }
 
@@ -531,7 +526,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if (_webView) {
     [_webView.configuration.userContentController removeScriptMessageHandlerForName:HistoryShimName];
     [self removeScriptHandlerForMessages:_webView.configuration.userContentController];
-    NSLog(@"pikachu removing script handler in clean up webview");
     [self removeWKWebViewFromSuperView:self];
 #if !TARGET_OS_OSX
     _webView.scrollView.delegate = nil;
@@ -683,7 +677,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)userContentController:(WKUserContentController *)userContentController
        didReceiveScriptMessage:(WKScriptMessage *)message
 {
-  NSLog(@"pikachu RNCWebView handling message 000");
   if ([message.name isEqualToString:HistoryShimName]) {
     if (_onLoadingFinish) {
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
@@ -691,10 +684,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       _onLoadingFinish(event);
     }
   } else if ([message.name isEqualToString:MessageHandlerName]) {
-    NSLog(@"pikachu RNCWebView handling message 111");
     if (_onMessage) {
-      NSLog(@"pikachu RNCWebView handling message 222");
-
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
       [event addEntriesFromDictionary: @{@"data": message.body}];
       _onMessage(event);
@@ -1581,11 +1571,9 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void)resetupScripts:(WKWebViewConfiguration *)wkWebViewConfig {
   [wkWebViewConfig.userContentController removeAllUserScripts];
   [self removeScriptHandlerForMessages:wkWebViewConfig.userContentController];
-  NSLog(@"pikachu removing script message handler in resetup script ");
 
   if(self.enableApplePay){
     if (self.postMessageScript){
-      NSLog(@"pikachu add script message handler resetup script");
       [self addScriptHandlerForMessages:wkWebViewConfig.userContentController];
     }
     return;
@@ -1677,8 +1665,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   if(_messagingEnabled){
     if (self.postMessageScript){
       [self addScriptHandlerForMessages:wkWebViewConfig.userContentController];
-      NSLog(@"pikachu add script message handler resetup script 222");
-
       [wkWebViewConfig.userContentController addUserScript:self.postMessageScript];
     }
     if (self.atEndScript) {

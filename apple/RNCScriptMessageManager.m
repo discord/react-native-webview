@@ -13,25 +13,9 @@
   return self;
 }
 
-//- (instancetype)initWithWebViewKey:(NSString *)webViewKey:(id<WKScriptMessageHandler>)scriptDelegate {
-//    self = [super init];
-//    if (self) {
-//        _scriptDelegate = scriptDelegate;
-//    }
-//    return self;
-//}
-
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-  NSLog(@"@pikachu RNCScriptMessageManager. received message. now posting to notification center");
   NSDictionary* userInfo = @{ @"webViewKey": _webViewKey, @"message": message};
   [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:userInfo];
-//  [[NSNotificationCenter defaultCenter]
-//          postNotificationName:kScriptMessageNotificationName object:self
-//   userInfo:userInfo
-//   object:@{ @"webViewKey": _webViewKey, @"message": message}];
-  // TODO: send message to event emitter.
-  // TODO: include web view key in message.
-//  NSLog(@"pikachu handling message in RNCScriptMessageHandler. message: %@", message);
 }
 
 @end
