@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, Button, Text, NativeEventEmitter, NativeModules} from 'react-native';
-import {WebView, WebViewMessageEvent, releaseWebView} from 'react-native-webview';
+import {WebView, releaseWebView, injectJavaScript} from 'react-native-webview';
 import PortalGate from '../portals/PortalGate';
 import PortalProvider from '../portals/PortalProvider';
 import { PortalContext } from '../portals/PortalContext';
@@ -93,6 +93,7 @@ const source = {
       <body>
         <script type="text/javascript">
           function incrementSecondsCounter() {
+            console.log('pikachu increment seconds counter');
             window.ReactNativeWebView.postMessage('${INCREMENT_SECONDS_COUNTER_MESSAGE}');
           }
 
@@ -112,7 +113,10 @@ export default function Portals() {
 
   React.useEffect(() => {
     const subscription = scriptMessageEmitter.addListener('onMessage', (data) => {
-      secondsCounter.setValue(secondsCounter.getValue() + 1);
+      console.log(`pikachu portals data. ${JSON.stringify(data)}`)
+      // if (data === INCREMENT_SECONDS_COUNTER_MESSAGE) {
+        secondsCounter.setValue(secondsCounter.getValue() + 1);
+      // }
     });
     
     return () => {
@@ -161,6 +165,7 @@ function PortalGatesPage() {
           webViewKey={WEB_VIEW_KEY}
           keepWebViewInstanceAfterUnmount
           ref={webViewRef}
+          enableMessaging
         />
     );
   }, [releaseCounter]);
@@ -216,6 +221,10 @@ function NonPortalsPage() {
     releaseWebView(WEB_VIEW_KEY);
   };
 
+  // const injectJavaScript = ({
+
+  // });
+
   const [seconds] = useGlobalState(secondsCounter);
   const secondsText = `seconds incremented by WebView: ${seconds};`;
 
@@ -225,6 +234,10 @@ function NonPortalsPage() {
         title="Release WebView"
         onPress={release}
       />
+      {/* <Button
+        title="Inject JavaScript that console logs in the WebView"
+        onPress={release}
+      /> */}
       <Text>{secondsText}</Text>
     </>
 
