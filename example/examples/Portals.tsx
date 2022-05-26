@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {View, Button, Text, NativeEventEmitter, NativeModule} from 'react-native';
+import {View, Button, Text, NativeEventEmitter, NativeModules} from 'react-native';
 import {WebView, WebViewMessageEvent, releaseWebView} from 'react-native-webview';
 import PortalGate from '../portals/PortalGate';
 import PortalProvider from '../portals/PortalProvider';
 import { PortalContext } from '../portals/PortalContext';
 
-// const scriptMessageEmitter = new NativeEventEmitter(NativeModules.ScriptMessage)
+const scriptMessageEmitter = new NativeEventEmitter(NativeModules.ScriptMessageEventEmitter);
 // const subscription = scriptMessageEmitter.addListener('onMessage', (data) => console.log(data.progress))
 // TODO: unsubscribe when Portals unmounts
 
@@ -121,6 +121,14 @@ function handleMessage(event: WebViewMessageEvent) {
 
 export default function Portals() {
   const [pageNumber, setPageNumber] = React.useState(PORTALS_PAGE);
+
+  React.useEffect(() => {
+    const subscription = scriptMessageEmitter.addListener('onMessage', (data) => console.log(`pikachu JS onMessage: ${JSON.stringify(data)}`));
+    
+    return () => {
+
+    };
+  }, []);
 
   const togglePages = () => {
     const nextPage =  pageNumber === PORTALS_PAGE ? NONPORTALS_PAGE : PORTALS_PAGE;

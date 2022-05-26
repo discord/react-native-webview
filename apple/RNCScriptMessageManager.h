@@ -1,8 +1,9 @@
 #import <WebKit/WebKit.h>
 
 @interface RNCScriptMessageHandler : NSObject<WKScriptMessageHandler>
+@property (strong, nonatomic) NSString *webViewKey;
 @property (strong, nonatomic) NSString *name;
-- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name withWebViewKey: (NSString *)webViewKey;
 @end
 
 
