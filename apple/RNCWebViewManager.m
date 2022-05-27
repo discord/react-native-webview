@@ -204,8 +204,6 @@ RCT_EXPORT_METHOD(injectJavaScriptWithWebViewKey:(nonnull NSString *)webViewKey 
 {
   dispatch_async(dispatch_get_main_queue(), ^{
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
-    NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
-    
     WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
 
     if (wkWebView != nil) {
