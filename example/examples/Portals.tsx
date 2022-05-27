@@ -229,8 +229,6 @@ function NonPortalsPage() {
     releaseWebView(WEB_VIEW_KEY);
   };
 
-
-
   const [seconds] = useGlobalState(secondsCounter);
   const secondsText = `seconds incremented by WebView: ${seconds};`;
 
