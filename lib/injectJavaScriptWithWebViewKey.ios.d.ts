@@ -1,2 +1,2 @@
-export default function injectJavaScript(webViewKey: string, script: string): void;
+export default function injectJavaScriptWithWebViewKey(webViewKey: string, script: string): void;
 //# sourceMappingURL=injectJavaScriptWithWebViewKey.ios.d.ts.map
