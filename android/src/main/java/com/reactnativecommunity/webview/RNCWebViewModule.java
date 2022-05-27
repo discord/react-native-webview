@@ -155,7 +155,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
   }
 
   @ReactMethod
-  public void injectJavaScript(final String webViewKey) {
+  public void injectJavaScriptWithWebViewKey(final String webViewKey, final String script) {
     // no-op for now
   }
 

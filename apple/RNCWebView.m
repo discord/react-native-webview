@@ -12,6 +12,7 @@
 #import "RNCWKWebViewMapManager.h"
 #import "RNCWebViewMapManager.h"
 #import "RNCScriptMessageManager.h"
+#import "ScriptMessageEventEmitter.h"
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
@@ -670,6 +671,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
        }
 }
 #endif
+
 /**
  * This method is called whenever JavaScript running within the web view calls:
  *   - window.webkit.messageHandlers[MessageHandlerName].postMessage
@@ -679,14 +681,12 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 {
   if ([message.name isEqualToString:HistoryShimName]) {
     if (_onLoadingFinish) {
-      NSMutableDictionary<NSString *, id> *event = [self baseEvent];
-      [event addEntriesFromDictionary: @{@"navigationType": message.body}];
+      NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey: @"navigationType" withWebView:_webView];
       _onLoadingFinish(event);
     }
   } else if ([message.name isEqualToString:MessageHandlerName]) {
     if (_onMessage) {
-      NSMutableDictionary<NSString *, id> *event = [self baseEvent];
-      [event addEntriesFromDictionary: @{@"data": message.body}];
+      NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey: kMessageHandlerBodyKey withWebView:_webView];
       _onMessage(event);
     }
   }
@@ -978,16 +978,29 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 #endif // !TARGET_OS_OSX
 }
 
-- (NSMutableDictionary<NSString *, id> *)baseEvent
++ (NSMutableDictionary<NSString *, id> *)baseEventWithWebView:(WKWebView *)webView
 {
   NSDictionary *event = @{
-    @"url": _webView.URL.absoluteString ?: @"",
-    @"title": _webView.title ?: @"",
-    @"loading" : @(_webView.loading),
-    @"canGoBack": @(_webView.canGoBack),
-    @"canGoForward" : @(_webView.canGoForward)
+    @"url": webView.URL.absoluteString ?: @"",
+    @"title": webView.title ?: @"",
+    @"loading" : @(webView.loading),
+    @"canGoBack": @(webView.canGoBack),
+    @"canGoForward" : @(webView.canGoForward)
   };
   return [[NSMutableDictionary alloc] initWithDictionary: event];
+}
+
+- (NSMutableDictionary<NSString *, id> *)baseEvent {
+  return [RNCWebView baseEventWithWebView:_webView];
+}
+
+
++ (NSMutableDictionary<NSString *, id>*)createEventFromMessage:(WKScriptMessage *_Nonnull)message
+        withMessageBodyKey: (NSString *_Nonnull)messageBodyKey withWebView:(WKWebView *)webView {
+  NSMutableDictionary<NSString *, id> *event = [RNCWebView baseEventWithWebView:webView];
+  [event addEntriesFromDictionary: @{messageBodyKey: message.body}];
+  
+  return event;
 }
 
 + (void)setClientAuthenticationCredential:(nullable NSURLCredential*)credential {
@@ -1703,7 +1716,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 
 - (void) addScriptHandlerForMessages: (WKUserContentController *)userContentController {
   if ([self shouldReuseWebView]) {
-    
     [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
     
   } else {

@@ -1,6 +1,6 @@
 import WebView from './WebView';
 import releaseWebView from './releaseWebView';
-import injectJavaScript from './injectJavaScript';
+import injectJavaScriptWithWebViewKey from './injectJavaScriptWithWebViewKey';
 
-export { WebView, releaseWebView, injectJavaScript };
+export { WebView, releaseWebView, injectJavaScriptWithWebViewKey };
 export default WebView;

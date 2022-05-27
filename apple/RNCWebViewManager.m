@@ -12,6 +12,7 @@
 #import "RNCWebView.h"
 #import "RNCWKWebViewMapManager.h"
 #import "RNCWebViewMapManager.h"
+#import <WebKit/WebKit.h>
 
 @interface RNCWebViewManager () <RNCWebViewDelegate>
 @end
@@ -199,18 +200,19 @@ RCT_EXPORT_METHOD(injectJavaScript:(nonnull NSNumber *)reactTag script:(NSString
   }];
 }
 
-// TODO
-//RCT_EXPORT_METHOD(injectJavaScript:(nonnull NSNumber *)webViewKey script:(NSString *)script)
-//{
-//  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCWebView *> *viewRegistry) {
-//    RNCWebView *view = viewRegistry[reactTag];
-//    if (![view isKindOfClass:[RNCWebView class]]) {
-//      RCTLogError(@"Invalid view returned from registry, expecting RNCWebView, got: %@", view);
-//    } else {
-//      [view injectJavaScript:script];
-//    }
-//  }];
-//}
+RCT_EXPORT_METHOD(injectJavaScriptWithWebViewKey:(nonnull NSString *)webViewKey script:(NSString *)script)
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+    NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
+    
+    WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
+
+    if (wkWebView != nil) {
+      [wkWebView evaluateJavaScript:script completionHandler:nil];
+    }
+  });
+}
 
 RCT_EXPORT_METHOD(goBack:(nonnull NSNumber *)reactTag)
 {

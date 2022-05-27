@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "RNCScriptMessageManager.h"
 #import "ScriptMessageEventEmitter.h"
+#import "RNCWebView.h"
+#import "RNCWKWebViewMapManager.h"
 
 @implementation RNCScriptMessageHandler
 
@@ -14,8 +16,14 @@
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-  NSDictionary* userInfo = @{ @"webViewKey": _webViewKey, @"message": message};
-  [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:userInfo];
+  WKWebView *webView = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary][_webViewKey];
+  if (webView != nil) {
+    NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey:kMessageHandlerBodyKey withWebView:webView];
+    event[@"webViewKey"] = _webViewKey;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:event];
+  }
+
 }
 
 @end
