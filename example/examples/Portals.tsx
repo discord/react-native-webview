@@ -112,8 +112,7 @@ export default function Portals() {
 
   React.useEffect(() => {
     const subscription = scriptMessageEmitter.addListener('onMessage', (eventData) => {
-
-      if (eventData.data === INCREMENT_SECONDS_COUNTER_MESSAGE) {
+      if (eventData.data === INCREMENT_SECONDS_COUNTER_MESSAGE && eventData.webViewKey === WEB_VIEW_KEY) {
         secondsCounter.setValue(secondsCounter.getValue() + 1);
       }
     });
