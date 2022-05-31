@@ -20,10 +20,8 @@
   if (webView != nil) {
     NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey:kMessageHandlerBodyKey withWebView:webView];
     event[@"webViewKey"] = _webViewKey;
-
     [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:event];
   }
-
 }
 
 @end

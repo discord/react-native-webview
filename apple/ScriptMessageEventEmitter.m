@@ -24,7 +24,6 @@ RCT_EXPORT_MODULE();
 {
   _hasListeners = YES;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMessageNotification:)  name:kScriptMessageNotificationName object:nil];
-  
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
