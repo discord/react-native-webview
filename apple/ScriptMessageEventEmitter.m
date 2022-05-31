@@ -39,7 +39,6 @@ RCT_EXPORT_MODULE();
   if (_hasListeners && [[notification name] isEqualToString:kScriptMessageNotificationName]) {
     NSDictionary* userInfo = notification.userInfo;
     [self sendEventWithName:@"onMessage" body:userInfo];
-//    [self sendEventWithName:@"onMessage" body:@{ @"webViewKey": userInfo[@"webViewKey"], @"message": userInfo[@"message"]}];
   }
 }
 

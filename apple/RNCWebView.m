@@ -1717,7 +1717,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void) addScriptHandlerForMessages: (WKUserContentController *)userContentController {
   if ([self shouldReuseWebView]) {
     [[RNCScriptMessageManager sharedManager] addScriptMessageHandlerWithName:MessageHandlerName withUserContentController:userContentController withWebViewKey: _webViewKey];
-    
   } else {
     [userContentController addScriptMessageHandler:[[RNCWeakScriptMessageDelegate alloc] initWithDelegate:self]
                                                                      name:MessageHandlerName];
@@ -1727,7 +1726,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (void) removeScriptHandlerForMessages: (WKUserContentController *)userContentController {
   if ([self shouldReuseWebView]) {
     [[RNCScriptMessageManager sharedManager] removeScriptMessageHandlerWithUserContentController:userContentController withWebViewKey:_webViewKey];
-    
   } else {
     [userContentController removeScriptMessageHandlerForName:MessageHandlerName];
   }
