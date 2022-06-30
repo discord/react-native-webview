@@ -435,6 +435,9 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
           NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
           sharedRNCWebViewDictionary[_webViewKey] = self;
         }
+    } else if (_webViewKey != nil) {
+        NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
+        sharedRNCWebViewDictionary[_webViewKey] = self;
     }
     
     [self setBackgroundColor: _savedBackgroundColor];
