@@ -267,6 +267,7 @@ export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
     limitsNavigationsToAppBoundDomains?: boolean;
     textInteractionEnabled?: boolean;
     mediaCapturePermissionGrantType?: MediaCapturePermissionGrantType;
+    flexibleAutoResizingEnabled?: boolean;
 }
 export interface MacOSNativeWebViewProps extends CommonNativeWebViewProps {
     allowingReadAccessToURL?: string;
@@ -604,6 +605,10 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * webViewKey.
      */
     enableMessaging?: boolean;
+    /**
+    * When true, this makes the native WebView's auto resizing mask use flexible config options.
+    */
+    flexibleAutoResizingEnabled?: boolean;
 }
 export interface MacOSWebViewProps extends WebViewSharedProps {
     /**

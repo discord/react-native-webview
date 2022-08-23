@@ -121,6 +121,10 @@ RCT_CUSTOM_VIEW_PROPERTY(keepWebViewInstanceAfterUnmount, BOOL, RNCWebView) {
 
 RCT_EXPORT_VIEW_PROPERTY(webViewKey, NSString)
 
+RCT_CUSTOM_VIEW_PROPERTY(flexibleAutoResizingEnabled, BOOL, RNCWebView) {
+    view.flexibleAutoResizingEnabled = json == nil ? false : [RCTConvert BOOL: json];
+}
+
 /**
  * Expose methods to enable messaging the webview.
  */

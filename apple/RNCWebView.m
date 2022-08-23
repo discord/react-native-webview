@@ -430,6 +430,15 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
       _webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
 #endif // !TARGET_OS_OSX
     }
+    
+    if (_webView != nil) {
+      // This fixes WebView content resizing on orientation change.
+      // https://stackoverflow.com/questions/35042412/wkwebview-displays-content-wrong-after-orientation-change
+      if (_flexibleAutoResizingEnabled) {
+        _webView.translatesAutoresizingMaskIntoConstraints = NO;
+        _webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+      }
+    }
       
     if (_webViewKey != nil) {
         NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
