@@ -104,7 +104,6 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 @property (nonatomic, copy) NSString * _Nullable webViewKey;
 @property (nonatomic, assign) BOOL flexibleAutoResizingEnabled;
 
-
 + (void)setClientAuthenticationCredential:(nullable NSURLCredential*)credential;
 + (void)setCustomCertificatesForHost:(nullable NSDictionary *)certificates;
 + (NSMutableDictionary<NSString *, id> *)baseEventWithWebView: (WKWebView *)webView;
