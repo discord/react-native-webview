@@ -434,10 +434,10 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     if (_webView != nil) {
       // This fixes WebView content resizing on orientation change.
       // https://stackoverflow.com/questions/35042412/wkwebview-displays-content-wrong-after-orientation-change
-      if (_flexibleAutoResizingEnabled) {
+//      if (_flexibleAutoResizingEnabled) {
         _webView.translatesAutoresizingMaskIntoConstraints = NO;
         _webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-      }
+//      }
     }
       
     if (_webViewKey != nil) {
