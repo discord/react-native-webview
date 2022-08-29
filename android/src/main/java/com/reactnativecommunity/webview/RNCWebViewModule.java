@@ -29,9 +29,11 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,7 +153,17 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
 
   @ReactMethod
   public void releaseWebView(final String webViewKey) {
-    // no-op for now
+    UiThreadUtil.runOnUiThread(() -> {
+      RNCWebView view = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+      if (view != null) {
+        RNCWebViewManager.InternalWebView webView = view.detachWebView();
+        if (webView.keepWebViewInstanceAfterUnmount) {
+          ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
+          webView.cleanupCallbacksAndDestroy();
+        }
+        RNCWebViewMapManager.INSTANCE.getRncWebViewMap().remove(webViewKey);
+      }
+    });
   }
 
   @ReactMethod
