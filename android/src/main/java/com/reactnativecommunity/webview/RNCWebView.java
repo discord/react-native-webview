@@ -13,9 +13,8 @@ public class RNCWebView extends FrameLayout {
   }
 
   public void attachWebView(RNCWebViewManager.InternalWebView webView) {
-    // TODO - figure out details with removal and stuff after
-    addView(webView);
     this.internalWebView = webView;
+    addView(webView);
   }
 
   public RNCWebViewManager.InternalWebView detachWebView() {
