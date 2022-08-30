@@ -54,7 +54,7 @@ public class RNCWebView extends FrameLayout {
     return internalWebView;
   }
 
-  public void ifPresent(Action action) {
+  public void ifHasInternalWebView(Action action) {
     if (internalWebView != null) {
       action.apply(internalWebView);
     } else {
