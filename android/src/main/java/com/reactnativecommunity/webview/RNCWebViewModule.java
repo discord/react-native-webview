@@ -159,8 +159,9 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       RNCWebView rncWebView = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
       RNCWebViewManager.InternalWebView webView = (RNCWebViewManager.InternalWebView) RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
 
-      if (rncWebView == null || webView == null) {
+      if (webView == null) {
         FLog.w(TAG, "Failed to release webview with webViewKey: " + webViewKey);
+        return;
       }
 
       // Detach internal webview from the wrapper RNCWebView
@@ -172,7 +173,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       }
 
       // Perform webview cleanup
-      if (webView != null && webView.webViewKey != null && webView.keepWebViewInstanceAfterUnmount) {
+      if (webView.webViewKey != null || webView.keepWebViewInstanceAfterUnmount) {
         ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
         webView.cleanupCallbacksAndDestroy();
       }
