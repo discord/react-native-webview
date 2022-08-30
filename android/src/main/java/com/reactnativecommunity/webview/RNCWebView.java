@@ -58,8 +58,7 @@ public class RNCWebView extends FrameLayout {
     if (internalWebView != null) {
       action.apply(internalWebView);
     } else {
-      String currentMethod = Thread.currentThread().getStackTrace()[1].getMethodName();
-      FLog.w(TAG, "Internal Webview is null. Unable to call " + currentMethod);
+      FLog.e(TAG, new Throwable(), "Internal WebView is null");
     }
   }
 }
