@@ -260,22 +260,22 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
   @ReactProp(name = "javaScriptEnabled")
   public void setJavaScriptEnabled(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setJavaScriptEnabled(enabled);
+    view.ifPresent(webView -> webView.getSettings().setJavaScriptEnabled(enabled));
   }
 
   @ReactProp(name = "setBuiltInZoomControls")
   public void setBuiltInZoomControls(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setBuiltInZoomControls(enabled);
+    view.ifPresent(webView -> webView.getSettings().setBuiltInZoomControls(enabled));
   }
 
   @ReactProp(name = "setDisplayZoomControls")
   public void setDisplayZoomControls(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setDisplayZoomControls(enabled);
+    view.ifPresent(webView -> webView.getSettings().setDisplayZoomControls(enabled));
   }
 
   @ReactProp(name = "setSupportMultipleWindows")
   public void setSupportMultipleWindows(RNCWebView view, boolean enabled){
-    view.getWebView().getSettings().setSupportMultipleWindows(enabled);
+    view.ifPresent(webView -> webView.getSettings().setSupportMultipleWindows(enabled));
   }
 
   @ReactProp(name = "webViewKey")
@@ -293,23 +293,23 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       // Not entirely sure why there is a single instance of the webchrome client for all webviews?
       setupWebChromeClient((ThemedReactContext) existingWebView.getContext(), existingWebView);
     }
-    view.getWebView().setWebViewKey(webViewKey);
+    view.ifPresent(webView -> webView.setWebViewKey(webViewKey));
     rncWebViewMap.put(webViewKey, view);
   }
 
   @ReactProp(name = "keepWebViewInstanceAfterUnmount")
-  public void setKeepWebViewInstanceAfterUnmount(RNCWebView wrapper, boolean keepWebViewInstanceAfterUnmount) {
-    wrapper.getWebView().setKeepWebViewInstanceAfterUnmount(keepWebViewInstanceAfterUnmount);
+  public void setKeepWebViewInstanceAfterUnmount(RNCWebView view, boolean keepWebViewInstanceAfterUnmount) {
+    view.ifPresent(webView -> webView.setKeepWebViewInstanceAfterUnmount(keepWebViewInstanceAfterUnmount));
   }
 
   @ReactProp(name = "showsHorizontalScrollIndicator")
   public void setShowsHorizontalScrollIndicator(RNCWebView view, boolean enabled) {
-    view.getWebView().setHorizontalScrollBarEnabled(enabled);
+    view.ifPresent(webView -> webView.setHorizontalScrollBarEnabled(enabled));
   }
 
   @ReactProp(name = "showsVerticalScrollIndicator")
   public void setShowsVerticalScrollIndicator(RNCWebView view, boolean enabled) {
-    view.getWebView().setVerticalScrollBarEnabled(enabled);
+    view.ifPresent(webView -> webView.setVerticalScrollBarEnabled(enabled));
   }
 
   @ReactProp(name = "cacheEnabled")
@@ -317,13 +317,18 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     if (enabled) {
       Context ctx = view.getContext();
       if (ctx != null) {
-        view.getWebView().getSettings().setAppCachePath(ctx.getCacheDir().getAbsolutePath());
-        view.getWebView().getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-        view.getWebView().getSettings().setAppCacheEnabled(true);
+        view.ifPresent(webView -> {
+          webView.getSettings().setAppCachePath(ctx.getCacheDir().getAbsolutePath());
+          webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+          webView.getSettings().setAppCacheEnabled(true);
+        });
       }
     } else {
-      view.getWebView().getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-      view.getWebView().getSettings().setAppCacheEnabled(false);
+      view.ifPresent(webView -> {
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setAppCacheEnabled(false);
+      });
+
     }
   }
 
@@ -345,19 +350,19 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
         cacheMode = WebSettings.LOAD_DEFAULT;
         break;
     }
-    view.getWebView().getSettings().setCacheMode(cacheMode);
+    view.ifPresent(webView -> webView.getSettings().setCacheMode(cacheMode));
   }
 
   @ReactProp(name = "androidHardwareAccelerationDisabled")
   public void setHardwareAccelerationDisabled(RNCWebView view, boolean disabled) {
     if (disabled) {
-      view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+      view.ifPresent(webView -> webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null));
     }
   }
 
   @ReactProp(name = "androidLayerType")
   public void setLayerType(RNCWebView view, String layerTypeString) {
-    int layerType = View.LAYER_TYPE_NONE;
+    final int layerType;
     switch (layerTypeString) {
         case "hardware":
           layerType = View.LAYER_TYPE_HARDWARE;
@@ -365,14 +370,16 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
         case "software":
           layerType = View.LAYER_TYPE_SOFTWARE;
           break;
+      default:
+        layerType = View.LAYER_TYPE_NONE;
     }
-    view.setLayerType(layerType, null);
+    view.ifPresent(webView -> webView.setLayerType(layerType, null));
   }
 
 
   @ReactProp(name = "overScrollMode")
   public void setOverScrollMode(RNCWebView view, String overScrollModeString) {
-    Integer overScrollMode;
+    final Integer overScrollMode;
     switch (overScrollModeString) {
       case "never":
         overScrollMode = View.OVER_SCROLL_NEVER;
@@ -385,35 +392,39 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
         overScrollMode = View.OVER_SCROLL_ALWAYS;
         break;
     }
-    view.getWebView().setOverScrollMode(overScrollMode);
+    view.ifPresent(webView -> webView.setOverScrollMode(overScrollMode));
   }
 
   @ReactProp(name = "nestedScrollEnabled")
   public void setNestedScrollEnabled(RNCWebView view, boolean enabled) {
-    view.getWebView().setNestedScrollEnabled(enabled);
+    view.ifPresent(webView -> webView.setNestedScrollEnabled(enabled));
   }
 
   @ReactProp(name = "thirdPartyCookiesEnabled")
   public void setThirdPartyCookiesEnabled(RNCWebView view, boolean enabled) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      CookieManager.getInstance().setAcceptThirdPartyCookies(view.getWebView(), enabled);
-    }
+    view.ifPresent(webView -> {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, enabled);
+      }
+    });
   }
 
   @ReactProp(name = "textZoom")
   public void setTextZoom(RNCWebView view, int value) {
-    view.getWebView().getSettings().setTextZoom(value);
+    view.ifPresent(webView -> webView.getSettings().setTextZoom(value));
   }
 
   @ReactProp(name = "scalesPageToFit")
   public void setScalesPageToFit(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setLoadWithOverviewMode(enabled);
-    view.getWebView().getSettings().setUseWideViewPort(enabled);
+    view.ifPresent(webView -> {
+      webView.getSettings().setLoadWithOverviewMode(enabled);
+      webView.getSettings().setUseWideViewPort(enabled);
+    });
   }
 
   @ReactProp(name = "domStorageEnabled")
   public void setDomStorageEnabled(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setDomStorageEnabled(enabled);
+    view.ifPresent(webView -> webView.getSettings().setDomStorageEnabled(enabled));
   }
 
   @ReactProp(name = "userAgent")
@@ -423,7 +434,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     } else {
       mUserAgent = null;
     }
-    this.setUserAgentString(view.getWebView());
+    view.ifPresent(this::setUserAgentString);
   }
 
   @ReactProp(name = "applicationNameForUserAgent")
@@ -436,7 +447,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     } else {
       mUserAgentWithApplicationName = null;
     }
-    this.setUserAgentString(view.getWebView());
+    view.ifPresent(this::setUserAgentString);
   }
 
   protected void setUserAgentString(WebView view) {
@@ -453,61 +464,61 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @ReactProp(name = "mediaPlaybackRequiresUserAction")
   public void setMediaPlaybackRequiresUserAction(RNCWebView view, boolean requires) {
-    view.getWebView().getSettings().setMediaPlaybackRequiresUserGesture(requires);
+    view.ifPresent(webView -> webView.getSettings().setMediaPlaybackRequiresUserGesture(requires));
   }
 
   @ReactProp(name = "javaScriptCanOpenWindowsAutomatically")
   public void setJavaScriptCanOpenWindowsAutomatically(RNCWebView view, boolean enabled) {
-    view.getWebView().getSettings().setJavaScriptCanOpenWindowsAutomatically(enabled);
+    view.ifPresent(webView -> webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(enabled));
   }
 
   @ReactProp(name = "allowFileAccessFromFileURLs")
   public void setAllowFileAccessFromFileURLs(RNCWebView view, boolean allow) {
-    view.getWebView().getSettings().setAllowFileAccessFromFileURLs(allow);
+    view.ifPresent(webView -> webView.getSettings().setAllowFileAccessFromFileURLs(allow));
   }
 
   @ReactProp(name = "allowUniversalAccessFromFileURLs")
   public void setAllowUniversalAccessFromFileURLs(RNCWebView view, boolean allow) {
-    view.getWebView().getSettings().setAllowUniversalAccessFromFileURLs(allow);
+    view.ifPresent(webView -> webView.getSettings().setAllowUniversalAccessFromFileURLs(allow));
   }
 
   @ReactProp(name = "saveFormDataDisabled")
   public void setSaveFormDataDisabled(RNCWebView view, boolean disable) {
-    view.getWebView().getSettings().setSaveFormData(!disable);
+    view.ifPresent(webView -> webView.getSettings().setSaveFormData(!disable));
   }
 
   @ReactProp(name = "injectedJavaScript")
   public void setInjectedJavaScript(RNCWebView view, @Nullable String injectedJavaScript) {
-    view.getWebView().setInjectedJavaScript(injectedJavaScript);
+    view.ifPresent(webView -> webView.setInjectedJavaScript(injectedJavaScript));
   }
 
   @ReactProp(name = "injectedJavaScriptBeforeContentLoaded")
   public void setInjectedJavaScriptBeforeContentLoaded(RNCWebView view, @Nullable String injectedJavaScriptBeforeContentLoaded) {
-    view.getWebView().setInjectedJavaScriptBeforeContentLoaded(injectedJavaScriptBeforeContentLoaded);
+    view.ifPresent(webView -> webView.setInjectedJavaScriptBeforeContentLoaded(injectedJavaScriptBeforeContentLoaded));
   }
 
   @ReactProp(name = "injectedJavaScriptForMainFrameOnly")
   public void setInjectedJavaScriptForMainFrameOnly(RNCWebView view, boolean enabled) {
-    view.getWebView().setInjectedJavaScriptForMainFrameOnly(enabled);
+    view.ifPresent(webView -> webView.setInjectedJavaScriptForMainFrameOnly(enabled));
   }
 
   @ReactProp(name = "injectedJavaScriptBeforeContentLoadedForMainFrameOnly")
   public void setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(RNCWebView view, boolean enabled) {
-    view.getWebView().setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(enabled);
+    view.ifPresent(webView -> webView.setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(enabled));
   }
 
   @ReactProp(name = "messagingEnabled")
   public void setMessagingEnabled(RNCWebView view, boolean enabled) {
-    view.getWebView().setMessagingEnabled(enabled);
+    view.ifPresent(webView -> webView.setMessagingEnabled(enabled));
   }
 
   @ReactProp(name = "messagingModuleName")
   public void setMessagingModuleName(RNCWebView view, String moduleName) {
-    view.getWebView().setMessagingModuleName(moduleName);
+    view.ifPresent(webView -> webView.setMessagingModuleName(moduleName));
   }
 
   @ReactProp(name = "incognito")
-  public void setIncognito(RNCWebView wrapper, boolean enabled) {
+  public void setIncognito(RNCWebView view, boolean enabled) {
     // Don't do anything when incognito is disabled
     if (!enabled) {
       return;
@@ -520,112 +531,115 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       CookieManager.getInstance().removeAllCookie();
     }
 
-    WebView view = wrapper.getWebView();
-    // Disable caching
-    view.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-    view.getSettings().setAppCacheEnabled(false);
-    view.clearHistory();
-    view.clearCache(true);
+    view.ifPresent(webView -> {
+      // Disable caching
+      webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+      webView.getSettings().setAppCacheEnabled(false);
+      webView.clearHistory();
+      webView.clearCache(true);
 
-    // No form data or autofill enabled
-    view.clearFormData();
-    view.getSettings().setSavePassword(false);
-    view.getSettings().setSaveFormData(false);
+      // No form data or autofill enabled
+      webView.clearFormData();
+      webView.getSettings().setSavePassword(false);
+      webView.getSettings().setSaveFormData(false);
+    });
   }
 
   @ReactProp(name = "source")
-  public void setSource(RNCWebView wrapper, @Nullable ReadableMap source) {
-    WebView view = wrapper.getWebView();
-
-    // TODO Note: If the 'source' prop is changed and the webView has a webViewKey
-    // the webview will not reload.
-    // We can fix this by checking to see by caching the previous source map
-    // and checking if the value has changed.
-    if (wrapper.getWebView().webViewKey != null && view.getUrl() != null) {
-      return;
-    }
-
-    if (source != null) {
-      if (source.hasKey("html")) {
-        String html = source.getString("html");
-        String baseUrl = source.hasKey("baseUrl") ? source.getString("baseUrl") : "";
-        view.loadDataWithBaseURL(baseUrl, html, HTML_MIME_TYPE, HTML_ENCODING, null);
+  public void setSource(RNCWebView view, @Nullable ReadableMap source) {
+    view.ifPresent(webView -> {
+      // TODO Note: If the 'source' prop is changed and the webView has a webViewKey
+      // the webview will not reload.
+      // We can fix this by checking to see by caching the previous source map
+      // and checking if the value has changed.
+      if (webView.webViewKey != null && webView.getUrl() != null) {
         return;
       }
-      if (source.hasKey("uri")) {
-        String url = source.getString("uri");
-        String previousUrl = view.getUrl();
-        if (previousUrl != null && previousUrl.equals(url)) {
+
+      if (source != null) {
+        if (source.hasKey("html")) {
+          String html = source.getString("html");
+          String baseUrl = source.hasKey("baseUrl") ? source.getString("baseUrl") : "";
+          webView.loadDataWithBaseURL(baseUrl, html, HTML_MIME_TYPE, HTML_ENCODING, null);
           return;
         }
-        if (source.hasKey("method")) {
-          String method = source.getString("method");
-          if (method.equalsIgnoreCase(HTTP_METHOD_POST)) {
-            byte[] postData = null;
-            if (source.hasKey("body")) {
-              String body = source.getString("body");
-              try {
-                postData = body.getBytes("UTF-8");
-              } catch (UnsupportedEncodingException e) {
-                postData = body.getBytes();
-              }
-            }
-            if (postData == null) {
-              postData = new byte[0];
-            }
-            view.postUrl(url, postData);
+        if (source.hasKey("uri")) {
+          String url = source.getString("uri");
+          String previousUrl = webView.getUrl();
+          if (previousUrl != null && previousUrl.equals(url)) {
             return;
           }
-        }
-        HashMap<String, String> headerMap = new HashMap<>();
-        if (source.hasKey("headers")) {
-          ReadableMap headers = source.getMap("headers");
-          ReadableMapKeySetIterator iter = headers.keySetIterator();
-          while (iter.hasNextKey()) {
-            String key = iter.nextKey();
-            if ("user-agent".equals(key.toLowerCase(Locale.ENGLISH))) {
-              if (view.getSettings() != null) {
-                view.getSettings().setUserAgentString(headers.getString(key));
+          if (source.hasKey("method")) {
+            String method = source.getString("method");
+            if (method.equalsIgnoreCase(HTTP_METHOD_POST)) {
+              byte[] postData = null;
+              if (source.hasKey("body")) {
+                String body = source.getString("body");
+                try {
+                  postData = body.getBytes("UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                  postData = body.getBytes();
+                }
               }
-            } else {
-              headerMap.put(key, headers.getString(key));
+              if (postData == null) {
+                postData = new byte[0];
+              }
+              webView.postUrl(url, postData);
+              return;
             }
           }
+          HashMap<String, String> headerMap = new HashMap<>();
+          if (source.hasKey("headers")) {
+            ReadableMap headers = source.getMap("headers");
+            ReadableMapKeySetIterator iter = headers.keySetIterator();
+            while (iter.hasNextKey()) {
+              String key = iter.nextKey();
+              if ("user-agent".equals(key.toLowerCase(Locale.ENGLISH))) {
+                if (webView.getSettings() != null) {
+                  webView.getSettings().setUserAgentString(headers.getString(key));
+                }
+              } else {
+                headerMap.put(key, headers.getString(key));
+              }
+            }
+          }
+          webView.loadUrl(url, headerMap);
+          return;
         }
-        view.loadUrl(url, headerMap);
-        return;
       }
-    }
-    //view.loadUrl(BLANK_URL);
+      webView.loadUrl(BLANK_URL);
+    });
   }
 
   @ReactProp(name = "basicAuthCredential")
   public void setBasicAuthCredential(RNCWebView view, @Nullable ReadableMap credential) {
-    @Nullable BasicAuthCredential basicAuthCredential = null;
-    if (credential != null) {
-      if (credential.hasKey("username") && credential.hasKey("password")) {
-        String username = credential.getString("username");
-        String password = credential.getString("password");
-        basicAuthCredential = new BasicAuthCredential(username, password);
+    view.ifPresent(webView -> {
+      @Nullable BasicAuthCredential basicAuthCredential = null;
+      if (credential != null) {
+        if (credential.hasKey("username") && credential.hasKey("password")) {
+          String username = credential.getString("username");
+          String password = credential.getString("password");
+          basicAuthCredential = new BasicAuthCredential(username, password);
+        }
       }
-    }
-    view.getWebView().setBasicAuthCredential(basicAuthCredential);
+      webView.setBasicAuthCredential(basicAuthCredential);
+    });
   }
 
   @ReactProp(name = "onContentSizeChange")
   public void setOnContentSizeChange(RNCWebView view, boolean sendContentSizeChangeEvents) {
-    view.getWebView().setSendContentSizeChangeEvents(sendContentSizeChangeEvents);
+    view.ifPresent(webView -> webView.setSendContentSizeChangeEvents(sendContentSizeChangeEvents));
   }
 
   @ReactProp(name = "mixedContentMode")
   public void setMixedContentMode(RNCWebView view, @Nullable String mixedContentMode) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       if (mixedContentMode == null || "never".equals(mixedContentMode)) {
-        view.getWebView().getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        view.ifPresent(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW));
       } else if ("always".equals(mixedContentMode)) {
-        view.getWebView().getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        view.ifPresent(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW));
       } else if ("compatibility".equals(mixedContentMode)) {
-        view.getWebView().getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        view.ifPresent(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE));
       }
     }
   }
@@ -634,10 +648,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   public void setUrlPrefixesForDefaultIntent(
     RNCWebView view,
     @Nullable ReadableArray urlPrefixesForDefaultIntent) {
-    RNCWebViewClient client = view.getWebView().getRNCWebViewClient();
-    if (client != null && urlPrefixesForDefaultIntent != null) {
-      client.setUrlPrefixesForDefaultIntent(urlPrefixesForDefaultIntent);
-    }
+    view.ifPresent(webView -> {
+      RNCWebViewClient client = webView.getRNCWebViewClient();
+      if (client != null && urlPrefixesForDefaultIntent != null) {
+        client.setUrlPrefixesForDefaultIntent(urlPrefixesForDefaultIntent);
+      }
+    });
   }
 
   @ReactProp(name = "allowsFullscreenVideo")
@@ -645,58 +661,60 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     RNCWebView view,
     @Nullable Boolean allowsFullscreenVideo) {
     mAllowsFullscreenVideo = allowsFullscreenVideo != null && allowsFullscreenVideo;
-    setupWebChromeClient((ReactContext)view.getContext(), view.getWebView());
+    view.ifPresent(webView -> setupWebChromeClient((ReactContext)view.getContext(), webView));
   }
 
   @ReactProp(name = "allowFileAccess")
   public void setAllowFileAccess(
     RNCWebView view,
     @Nullable Boolean allowFileAccess) {
-    view.getWebView().getSettings().setAllowFileAccess(allowFileAccess != null && allowFileAccess);
+    view.ifPresent(webView -> webView.getSettings().setAllowFileAccess(allowFileAccess != null && allowFileAccess));
   }
 
   @ReactProp(name = "geolocationEnabled")
   public void setGeolocationEnabled(
     RNCWebView view,
     @Nullable Boolean isGeolocationEnabled) {
-    view.getWebView().getSettings().setGeolocationEnabled(isGeolocationEnabled != null && isGeolocationEnabled);
+    view.ifPresent(webView -> webView.getSettings().setGeolocationEnabled(isGeolocationEnabled != null && isGeolocationEnabled));
   }
 
   @ReactProp(name = "onScroll")
   public void setOnScroll(RNCWebView view, boolean hasScrollEvent) {
-    view.getWebView().setHasScrollEvent(hasScrollEvent);
+    view.ifPresent(webView -> webView.setHasScrollEvent(hasScrollEvent));
   }
 
   @ReactProp(name = "forceDarkOn")
   public void setForceDarkOn(RNCWebView view, boolean enabled) {
-    // Only Android 10+ support dark mode
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-      // Switch WebView dark mode
-      if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-        int forceDarkMode = enabled ? WebSettingsCompat.FORCE_DARK_ON : WebSettingsCompat.FORCE_DARK_OFF;
-        WebSettingsCompat.setForceDark(view.getWebView().getSettings(), forceDarkMode);
-      }
+    view.ifPresent(webView -> {
+      // Only Android 10+ support dark mode
+      if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+        // Switch WebView dark mode
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+          int forceDarkMode = enabled ? WebSettingsCompat.FORCE_DARK_ON : WebSettingsCompat.FORCE_DARK_OFF;
+          WebSettingsCompat.setForceDark(webView.getSettings(), forceDarkMode);
+        }
 
-      // Set how WebView content should be darkened.
-      // PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING:  checks for the "color-scheme" <meta> tag.
-      // If present, it uses media queries. If absent, it applies user-agent (automatic)
-      // More information about Force Dark Strategy can be found here:
-      // https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setForceDarkStrategy(android.webkit.WebSettings)
-      if (enabled && WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
-        WebSettingsCompat.setForceDarkStrategy(view.getWebView().getSettings(), WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
+        // Set how WebView content should be darkened.
+        // PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING:  checks for the "color-scheme" <meta> tag.
+        // If present, it uses media queries. If absent, it applies user-agent (automatic)
+        // More information about Force Dark Strategy can be found here:
+        // https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setForceDarkStrategy(android.webkit.WebSettings)
+        if (enabled && WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
+          WebSettingsCompat.setForceDarkStrategy(webView.getSettings(), WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
+        }
       }
-    }
+    });
   }
 
   @ReactProp(name = "minimumFontSize")
   public void setMinimumFontSize(RNCWebView view, int fontSize) {
-    view.getWebView().getSettings().setMinimumFontSize(fontSize);
+    view.ifPresent(webView -> webView.getSettings().setMinimumFontSize(fontSize));
   }
 
   @Override
   protected void addEventEmitters(ThemedReactContext reactContext, RNCWebView view) {
     // Do not register default touch emitter and let WebView implementation handle touches
-    view.getWebView().setWebViewClient(new RNCWebViewClient());
+    view.ifPresent(webView -> webView.setWebViewClient(new RNCWebViewClient()));
   }
 
   @Override
@@ -733,88 +751,90 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   }
 
   @Override
-  public void receiveCommand(RNCWebView wrapper, int commandId, @Nullable ReadableArray args) {
-    WebView root = wrapper.getWebView();
-
-    switch (commandId) {
-      case COMMAND_GO_BACK:
-        root.goBack();
-        break;
-      case COMMAND_GO_FORWARD:
-        root.goForward();
-        break;
-      case COMMAND_RELOAD:
-        root.reload();
-        break;
-      case COMMAND_STOP_LOADING:
-        root.stopLoading();
-        break;
-      case COMMAND_POST_MESSAGE:
-        try {
+  public void receiveCommand(RNCWebView view, int commandId, @Nullable ReadableArray args) {
+    view.ifPresent(root -> {
+      switch (commandId) {
+        case COMMAND_GO_BACK:
+          root.goBack();
+          break;
+        case COMMAND_GO_FORWARD:
+          root.goForward();
+          break;
+        case COMMAND_RELOAD:
+          root.reload();
+          break;
+        case COMMAND_STOP_LOADING:
+          root.stopLoading();
+          break;
+        case COMMAND_POST_MESSAGE:
+          try {
+            InternalWebView reactWebView = (InternalWebView) root;
+            JSONObject eventInitDict = new JSONObject();
+            eventInitDict.put("data", args.getString(0));
+            reactWebView.evaluateJavascriptWithFallback("(function () {" +
+              "var event;" +
+              "var data = " + eventInitDict.toString() + ";" +
+              "try {" +
+              "event = new MessageEvent('message', data);" +
+              "} catch (e) {" +
+              "event = document.createEvent('MessageEvent');" +
+              "event.initMessageEvent('message', true, true, data.data, data.origin, data.lastEventId, data.source);" +
+              "}" +
+              "document.dispatchEvent(event);" +
+              "})();");
+          } catch (JSONException e) {
+            throw new RuntimeException(e);
+          }
+          break;
+        case COMMAND_INJECT_JAVASCRIPT:
           InternalWebView reactWebView = (InternalWebView) root;
-          JSONObject eventInitDict = new JSONObject();
-          eventInitDict.put("data", args.getString(0));
-          reactWebView.evaluateJavascriptWithFallback("(function () {" +
-            "var event;" +
-            "var data = " + eventInitDict.toString() + ";" +
-            "try {" +
-            "event = new MessageEvent('message', data);" +
-            "} catch (e) {" +
-            "event = document.createEvent('MessageEvent');" +
-            "event.initMessageEvent('message', true, true, data.data, data.origin, data.lastEventId, data.source);" +
-            "}" +
-            "document.dispatchEvent(event);" +
-            "})();");
-        } catch (JSONException e) {
-          throw new RuntimeException(e);
-        }
-        break;
-      case COMMAND_INJECT_JAVASCRIPT:
-        InternalWebView reactWebView = (InternalWebView) root;
-        reactWebView.evaluateJavascriptWithFallback(args.getString(0));
-        break;
-      case COMMAND_LOAD_URL:
-        if (args == null) {
-          throw new RuntimeException("Arguments for loading an url are null!");
-        }
-        ((InternalWebView) root).progressChangedFilter.setWaitingForCommandLoadUrl(false);
-        root.loadUrl(args.getString(0));
-        break;
-      case COMMAND_FOCUS:
-        root.requestFocus();
-        break;
-      case COMMAND_CLEAR_FORM_DATA:
-        root.clearFormData();
-        break;
-      case COMMAND_CLEAR_CACHE:
-        boolean includeDiskFiles = args != null && args.getBoolean(0);
-        root.clearCache(includeDiskFiles);
-        break;
-      case COMMAND_CLEAR_HISTORY:
-        root.clearHistory();
-        break;
-      case COMMAND_RELEASE:
-        // no-op for now
-        break;
-    }
+          reactWebView.evaluateJavascriptWithFallback(args.getString(0));
+          break;
+        case COMMAND_LOAD_URL:
+          if (args == null) {
+            throw new RuntimeException("Arguments for loading an url are null!");
+          }
+          ((InternalWebView) root).progressChangedFilter.setWaitingForCommandLoadUrl(false);
+          root.loadUrl(args.getString(0));
+          break;
+        case COMMAND_FOCUS:
+          root.requestFocus();
+          break;
+        case COMMAND_CLEAR_FORM_DATA:
+          root.clearFormData();
+          break;
+        case COMMAND_CLEAR_CACHE:
+          boolean includeDiskFiles = args != null && args.getBoolean(0);
+          root.clearCache(includeDiskFiles);
+          break;
+        case COMMAND_CLEAR_HISTORY:
+          root.clearHistory();
+          break;
+        case COMMAND_RELEASE:
+          // no-op for now
+          break;
+      }
+    });
   }
 
   @Override
-  public void onDropViewInstance(RNCWebView wrapper) {
-    super.onDropViewInstance(wrapper);
+  public void onDropViewInstance(RNCWebView view) {
+    super.onDropViewInstance(view);
 
-    // View has already been reattached, do nothing
-    if (wrapper.getWebView() == null) {
+    // The internal webview can be null since the view may have been already reattached
+    if (view.getWebView() == null) {
       return;
     }
 
-    if (wrapper.getWebView().webViewKey == null && !wrapper.getWebView().keepWebViewInstanceAfterUnmount) {
-      ((ThemedReactContext) wrapper.getWebView().getContext()).removeLifecycleEventListener(wrapper.getWebView());
-      wrapper.getWebView().cleanupCallbacksAndDestroy();
-      mWebChromeClient = null;
-    } else {
-      wrapper.removeWebViewFromParent();
-    }
+    view.ifPresent(webView -> {
+      if (webView.webViewKey == null || !webView.keepWebViewInstanceAfterUnmount) {
+        ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
+        webView.cleanupCallbacksAndDestroy();
+        mWebChromeClient = null;
+      } else {
+        view.removeWebViewFromParent();
+      }
+    });
   }
 
   public static RNCWebViewModule getModule(ReactContext reactContext) {
