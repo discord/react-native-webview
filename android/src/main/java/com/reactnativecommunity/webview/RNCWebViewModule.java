@@ -24,6 +24,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.widget.Toast;
 
+import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -46,6 +47,7 @@ import static android.app.Activity.RESULT_OK;
 
 @ReactModule(name = RNCWebViewModule.MODULE_NAME)
 public class RNCWebViewModule extends ReactContextBaseJavaModule implements ActivityEventListener {
+  private static final String TAG = "RNCWebViewModule";
   public static final String MODULE_NAME = "RNCWebView";
   private static final int PICKER = 1;
   private static final int PICKER_LEGACY = 3;
@@ -154,21 +156,40 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
   @ReactMethod
   public void releaseWebView(final String webViewKey) {
     UiThreadUtil.runOnUiThread(() -> {
-      RNCWebView view = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
-      if (view != null) {
-        RNCWebViewManager.InternalWebView webView = view.detachWebView();
-        if (webView.keepWebViewInstanceAfterUnmount) {
-          ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
-          webView.cleanupCallbacksAndDestroy();
-        }
-        RNCWebViewMapManager.INSTANCE.getRncWebViewMap().remove(webViewKey);
+      RNCWebView rncWebView = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+      RNCWebViewManager.InternalWebView webView = (RNCWebViewManager.InternalWebView) RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
+
+      if (rncWebView == null || webView == null) {
+        FLog.w(TAG, "Failed to release webview with webViewKey: " + webViewKey);
       }
+
+      // Detach internal webview from the wrapper RNCWebView
+      if (rncWebView != null) {
+        RNCWebViewManager.InternalWebView internalWebView = rncWebView.detachWebView();
+        if (internalWebView != webView) {
+          throw new IllegalStateException("internalWebViewMap has a mismatched webview with key: " + webViewKey);
+        }
+      }
+
+      // Perform webview cleanup
+      if (webView != null && webView.webViewKey != null && webView.keepWebViewInstanceAfterUnmount) {
+        ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
+        webView.cleanupCallbacksAndDestroy();
+      }
+
+      RNCWebViewMapManager.INSTANCE.getRncWebViewMap().remove(webViewKey);
+      RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().remove(webViewKey);
     });
   }
 
   @ReactMethod
   public void injectJavaScriptWithWebViewKey(final String webViewKey, final String script) {
-    // no-op for now
+    UiThreadUtil.runOnUiThread(() -> {
+      RNCWebView view = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+      if (view != null) {
+        view.getWebView().setInjectedJavaScript(script);
+      }
+    });
   }
 
   public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {

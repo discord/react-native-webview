@@ -280,11 +280,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
   @ReactProp(name = "webViewKey")
   public void setWebViewKey(RNCWebView view, String webViewKey) {
+    Map<String, WebView> internalWebViewMap = RNCWebViewMapManager.INSTANCE.getInternalWebViewMap();
     Map<String, RNCWebView> rncWebViewMap = RNCWebViewMapManager.INSTANCE.getRncWebViewMap();
 
+    // If there is an existing RNCWebView that has an internal webview, re-attach it to this view
     if (rncWebViewMap.containsKey(webViewKey)) {
       RNCWebView existingView = rncWebViewMap.get(webViewKey);
-
       InternalWebView existingWebView = existingView.detachWebView();
       view.attachWebView(existingWebView);
 
@@ -292,9 +293,20 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       // so it's reset here.
       // Not entirely sure why there is a single instance of the webchrome client for all webviews?
       setupWebChromeClient((ThemedReactContext) existingWebView.getContext(), existingWebView);
+
+    // If there is a detached internal webview attach it to this RNCWebView
+    } else if (internalWebViewMap.containsKey(webViewKey)) {
+      InternalWebView webView = (InternalWebView) internalWebViewMap.get(webViewKey);
+      view.attachWebView(webView);
     }
-    view.ifPresent(webView -> webView.setWebViewKey(webViewKey));
-    rncWebViewMap.put(webViewKey, view);
+
+    // Update all maps with the view + set/update key
+    // This means an existing webview can update it's own key
+    view.ifPresent(webView -> {
+      webView.setWebViewKey(webViewKey);
+      internalWebViewMap.put(webViewKey, webView);
+      rncWebViewMap.put(webViewKey, view);
+    });
   }
 
   @ReactProp(name = "keepWebViewInstanceAfterUnmount")
@@ -833,6 +845,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
         mWebChromeClient = null;
       } else {
         view.removeWebViewFromParent();
+        RNCWebViewMapManager.INSTANCE.getRncWebViewMap().remove(webView.webViewKey);
       }
     });
   }
