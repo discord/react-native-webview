@@ -173,7 +173,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       }
 
       // Perform webview cleanup
-      if (webView.webViewKey != null || webView.keepWebViewInstanceAfterUnmount) {
+      if (webView.webViewKey != null && webView.keepWebViewInstanceAfterUnmount) {
         ((ThemedReactContext) webView.getContext()).removeLifecycleEventListener(webView);
         webView.cleanupCallbacksAndDestroy();
       }
