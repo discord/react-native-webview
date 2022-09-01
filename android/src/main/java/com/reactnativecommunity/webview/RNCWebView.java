@@ -1,5 +1,6 @@
 package com.reactnativecommunity.webview;
 
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
@@ -60,5 +61,13 @@ public class RNCWebView extends FrameLayout {
     } else {
       FLog.e(TAG, new Throwable(), "Internal WebView is null");
     }
+  }
+
+  public static int getRNCWebViewId(WebView webView) {
+    Integer id = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
+    if (id == null) {
+      return webView.getId();
+    }
+    return id;
   }
 }
