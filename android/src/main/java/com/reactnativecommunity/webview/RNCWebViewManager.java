@@ -1849,6 +1849,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     }
 
     protected void dispatchEvent(WebView webView, Event event) {
+      if (event.getViewTag() == RNCWebView.INVALID_VIEW_ID) {
+        FLog.w(TAG, "Unable to dispatch event: ", event.getEventName() + "due to InternalWebView not being attached.");
+        return;
+      }
+
       ReactContext reactContext = (ReactContext) webView.getContext();
       EventDispatcher eventDispatcher =
         reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();

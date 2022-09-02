@@ -10,6 +10,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 public class RNCWebView extends FrameLayout {
   private static final String TAG = "RNCWebView";
+  public static final int INVALID_VIEW_ID = -1;
 
   private RNCWebViewManager.InternalWebView internalWebView;
 
@@ -66,7 +67,7 @@ public class RNCWebView extends FrameLayout {
   public static int getRNCWebViewId(WebView webView) {
     Integer id = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
     if (id == null) {
-      return webView.getId();
+      return INVALID_VIEW_ID;
     }
     return id;
   }
