@@ -209,7 +209,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     setMixedContentMode(wrapper, "never");
 
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    if (ReactBuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
 
