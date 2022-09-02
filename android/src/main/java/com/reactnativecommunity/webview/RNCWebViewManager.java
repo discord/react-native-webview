@@ -1772,14 +1772,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       WebView webView = this;
 
       if (webViewKey != null && mRNCWebViewClient != null) {
-        reactContext.runOnUiQueueThread(new Runnable() {
-          @Override
-          public void run() {
-            WritableMap data = mRNCWebViewClient.createWebViewEvent(webView, webView.getUrl());
-            data.putString("webViewKey", webViewKey);
-            data.putString("data", message);
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onMessage", data);
-          }
+        reactContext.runOnUiQueueThread(() -> {
+          WritableMap data = mRNCWebViewClient.createWebViewEvent(webView, webView.getUrl());
+          data.putString("webViewKey", webViewKey);
+          data.putString("data", message);
+          reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onMessage", data);
         });
       } else if (mRNCWebViewClient != null) {
         webView.post(new Runnable() {
