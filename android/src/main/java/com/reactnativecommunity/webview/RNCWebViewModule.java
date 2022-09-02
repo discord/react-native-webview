@@ -189,6 +189,8 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       RNCWebViewManager.InternalWebView webView = (RNCWebViewManager.InternalWebView) RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
       if (webView != null) {
         webView.evaluateJavascriptWithFallback(script);
+      } else {
+        FLog.w(TAG, "Failed to inject javascript with webViewKey: " + webViewKey + ". WebView is null.");
       }
     });
   }
