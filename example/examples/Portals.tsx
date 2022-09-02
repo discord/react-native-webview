@@ -169,7 +169,6 @@ function PortalGatesPage() {
           keepWebViewInstanceAfterUnmount
           ref={webViewRef}
           enableMessaging
-          onMessage={(message) => console.log('got message')}
         />
     );
   }, [releaseCounter]);
