@@ -22,6 +22,11 @@ public class RNCWebView extends FrameLayout {
     void apply(RNCWebViewManager.InternalWebView webView);
   }
 
+  /**
+   * Attaches a {@link RNCWebViewManager.InternalWebView} to the RNCWebView parent
+   * Throws an exception if the provided internal webView is already attached to a parent
+   * @param webView
+   */
   public void attachWebView(RNCWebViewManager.InternalWebView webView) {
     this.internalWebView = webView;
 
@@ -34,6 +39,10 @@ public class RNCWebView extends FrameLayout {
     addView(webView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
   }
 
+  /**
+   * Detaches the internal webview from the RNCWebview parent and returns a reference to it
+   * @return internalWebView
+   */
   public RNCWebViewManager.InternalWebView detachWebView() {
     if (internalWebView == null) {
       throw new IllegalStateException("Webview is null");
@@ -56,6 +65,10 @@ public class RNCWebView extends FrameLayout {
     return internalWebView;
   }
 
+  /**
+   * Applies an action if the internal webview is non null
+   * @param action
+   */
   public void ifHasInternalWebView(Action action) {
     if (internalWebView != null) {
       action.apply(internalWebView);
@@ -64,6 +77,12 @@ public class RNCWebView extends FrameLayout {
     }
   }
 
+  /**
+   * Provides the associated parent RNCWebView viewId for the provided
+   * webView view id.
+   * @param webView
+   * @return viewId
+   */
   public static int getRNCWebViewId(WebView webView) {
     Integer id = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
     if (id == null) {
