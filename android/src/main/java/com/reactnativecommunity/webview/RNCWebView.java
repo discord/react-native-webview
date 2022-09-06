@@ -84,10 +84,10 @@ public class RNCWebView extends FrameLayout {
    * @return viewId
    */
   public static int getRNCWebViewId(WebView webView) {
-    Integer id = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
-    if (id == null) {
+    Integer rncViewId = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
+    if (rncViewId == null) {
       return INVALID_VIEW_ID;
     }
-    return id;
+    return rncViewId;
   }
 }
