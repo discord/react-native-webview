@@ -748,7 +748,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * to true, and use ScriptMessageEventEmitter to listen to messages for a given
    * webViewKey.
    */
-   enableMessaging?: boolean;
+  enableMessaging?: boolean;
 }
 
 export interface MacOSWebViewProps extends WebViewSharedProps {
