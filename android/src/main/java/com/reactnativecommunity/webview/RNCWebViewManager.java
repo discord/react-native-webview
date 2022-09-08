@@ -1627,8 +1627,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       this.source = source;
     }
 
-    public boolean isNewSource(ReadableMap newSource) {
-      if (source == null) {
+    public boolean isNewSource(@Nullable ReadableMap newSource) {
+      if (source == null || newSource == null) {
         return true;
       }
 
