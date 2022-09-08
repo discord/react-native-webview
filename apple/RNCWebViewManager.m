@@ -212,9 +212,9 @@ RCT_EXPORT_METHOD(injectJavaScriptWithWebViewKey:(nonnull NSString *)webViewKey
 
     if (wkWebView != nil) {
       [wkWebView evaluateJavaScript:script completionHandler:nil];
-      resolve();
+      resolve(nil);
     } else {
-      reject(@"Failed to inject JavaScript. WKWebView for webViewKey is nil");
+      reject("@err", @"Failed to inject JavaScript. WKWebView for webViewKey is nil", nil);
     }
   }];
 }
