@@ -1,4 +1,3 @@
-
 import { NativeModules, Platform, EmitterSubscription, NativeEventEmitter } from "react-native";
 
 const scriptMessageEmitter = new NativeEventEmitter(
