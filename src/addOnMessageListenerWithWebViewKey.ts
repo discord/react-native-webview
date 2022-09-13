@@ -3,7 +3,7 @@ import { NativeModules, Platform, EmitterSubscription, NativeEventEmitter } from
 const scriptMessageEmitter = new NativeEventEmitter(
   Platform.select({
     ios: NativeModules.ScriptMessageEventEmitter,
-    android: null
+    default: null
   })
 );
 
