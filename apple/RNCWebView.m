@@ -317,39 +317,37 @@ RCTAutoInsetsProtocol>
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
   if (!navigationAction.targetFrame.isMainFrame) {
-    //[webView loadRequest:navigationAction.request];
+    if (_onOpenedWindow) {
+      // The configuration passed to createWebViewWithConfiguration is that of the parent WebView.. but we don't want to use
+      // the same userContentController!
+      // (first, we don't necessarily want the same injected javascript... second, when the child WebView closes and performs cleanup,
+      //  that was prematurely cleaning up the parent WebView's userContentController and breaking it!)
+      //
+      configuration.userContentController = [WKUserContentController new];
       
-      if (_onOpenedWindow) {
-          
-//          [configuration.userContentController removeAllUserScripts];
-          
-          // The configuration passed to createWebViewWithConfiguration is that of the parent WebView.. but we don't want to use
-          // the same userContentController!
-          // (first, we don't necessarily want the same injected javascript... second, when the child WebView closes and performs cleanup,
-          //  that was prematurely cleaning up the parent WebView's userContentController and breaking it!)
-          //
-          configuration.userContentController = [WKUserContentController new];
-
       WKWebView *webView = nil;
-  #if !TARGET_OS_OSX
-        webView = [[WKWebView alloc] initWithFrame:self.bounds configuration: configuration];
-  #else
-        webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: configuration];
-  #endif // !TARGET_OS_OSX
+#if !TARGET_OS_OSX
+      webView = [[WKWebView alloc] initWithFrame:self.bounds configuration: configuration];
+#else
+      webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: configuration];
+#endif // !TARGET_OS_OSX
       
-          // Unfortunately we do not appear to have access here to the "name" property that was passed to window.open...?
-          // seems we need to generate our own key...
+      // Unfortunately we do not appear to have access here to the "name" property that was passed to window.open...?
+      // seems we need to generate our own key...
+      // TODO: generate unique keys
       NSString* webViewKey = @"Popup";
       
       NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
-    sharedWKWebViewDictionary[webViewKey] = webView;
-          
-          NSMutableDictionary<NSString *, id> *event = [self baseEvent];
-          [event addEntriesFromDictionary: @{@"webViewKey": webViewKey}];
-          _onOpenedWindow(event);
-          
+      sharedWKWebViewDictionary[webViewKey] = webView;
+      
+      NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+      [event addEntriesFromDictionary: @{@"webViewKey": webViewKey}];
+      _onOpenedWindow(event);
+      
       return webView;
-      }
+    } else {
+      [webView loadRequest:navigationAction.request];
+    }
   }
   return nil;
 }
@@ -359,6 +357,8 @@ RCTAutoInsetsProtocol>
   if (_onClosedWindow) {
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     
+    // Checking this "just in case," but webViewDidClose should only get called for popup windows
+    // that were created via createWebViewWithConfiguration, which should have webViewKeys.
     if (_webViewKey != nil) {
       [event addEntriesFromDictionary: @{@"webViewKey": _webViewKey}];
     }

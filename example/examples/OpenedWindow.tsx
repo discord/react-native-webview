@@ -112,6 +112,8 @@ export default class OpenedWindow extends Component<Props, State> {
 
   closeWebView = () => {
     if (this.popupWebView) {
+      // This is actually expected/intended to fail. The purpose of this test is to make sure that
+      // the original WebView's injected javascript isn't bleeding into the popup window.
       this.popupWebView.current.injectJavaScript('closeWindow();');
     }
   };
