@@ -43,7 +43,7 @@
 		E91B351921446E6C00F9801F /* RNCWebViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNCWebViewManager.h; path = ../apple/RNCWebViewManager.h; sourceTree = "<group>"; };
 		E91B351A21446E6C00F9801F /* RNCWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNCWebView.h; path = ../apple/RNCWebView.h; sourceTree = "<group>"; };
 		E91B351B21446E6C00F9801F /* RNCWebViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNCWebViewManager.m; path = ../apple/RNCWebViewManager.m; sourceTree = "<group>"; };
-		E91B351C21446E6C00F9801F /* RNCWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNCWebView.m; path = ../apple/RNCWebView.m; sourceTree = "<group>"; };
+		E91B351C21446E6C00F9801F /* RNCWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; name = RNCWebView.m; path = ../apple/RNCWebView.m; sourceTree = "<group>"; tabWidth = 2; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
