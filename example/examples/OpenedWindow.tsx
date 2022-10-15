@@ -88,10 +88,16 @@ export default class OpenedWindow extends Component<Props, State> {
   interceptClosedWindow = (syntheticEvent) => {
     const { nativeEvent } = syntheticEvent;
     const { webViewKey } = nativeEvent;
+    const { popupKey } = this.state;
+
     this.setState({
       text: `Intercepted ClosedWindow event for ${webViewKey} at ${Date.now()}`,
       popupKey: undefined,
     });
+
+    if (popupKey) {
+      releaseWebView(popupKey);
+    }
   };
 
   toggleShouldInterceptOpenedWindow = () => {
