@@ -85,6 +85,8 @@ RCTAutoInsetsProtocol>
 @property (nonatomic, copy) RCTDirectEventBlock onMessage;
 @property (nonatomic, copy) RCTDirectEventBlock onScroll;
 @property (nonatomic, copy) RCTDirectEventBlock onContentProcessDidTerminate;
+@property (nonatomic, copy) RCTDirectEventBlock onOpenedWindow;
+@property (nonatomic, copy) RCTDirectEventBlock onClosedWindow;
 #if !TARGET_OS_OSX
 @property (nonatomic, copy) WKWebView *webView;
 #else
@@ -315,9 +317,53 @@ RCTAutoInsetsProtocol>
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
   if (!navigationAction.targetFrame.isMainFrame) {
-    [webView loadRequest:navigationAction.request];
+    //[webView loadRequest:navigationAction.request];
+      
+      if (_onOpenedWindow) {
+          
+//          [configuration.userContentController removeAllUserScripts];
+          
+          // The configuration passed to createWebViewWithConfiguration is that of the parent WebView.. but we don't want to use
+          // the same userContentController!
+          // (first, we don't necessarily want the same injected javascript... second, when the child WebView closes and performs cleanup,
+          //  that was prematurely cleaning up the parent WebView's userContentController and breaking it!)
+          //
+          configuration.userContentController = [WKUserContentController new];
+
+      WKWebView *webView = nil;
+  #if !TARGET_OS_OSX
+        webView = [[WKWebView alloc] initWithFrame:self.bounds configuration: configuration];
+  #else
+        webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: configuration];
+  #endif // !TARGET_OS_OSX
+      
+          // Unfortunately we do not appear to have access here to the "name" property that was passed to window.open...?
+          // seems we need to generate our own key...
+      NSString* webViewKey = @"Popup";
+      
+      NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+    sharedWKWebViewDictionary[webViewKey] = webView;
+          
+          NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+          [event addEntriesFromDictionary: @{@"webViewKey": webViewKey}];
+          _onOpenedWindow(event);
+          
+      return webView;
+      }
   }
   return nil;
+}
+
+- (void)webViewDidClose:(WKWebView *)webView
+{
+  if (_onClosedWindow) {
+    NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+    
+    if (_webViewKey != nil) {
+      [event addEntriesFromDictionary: @{@"webViewKey": _webViewKey}];
+    }
+    _onClosedWindow(event);
+  }
 }
 
 - (WKWebViewConfiguration *)setUpWkWebViewConfig
@@ -413,6 +459,8 @@ RCTAutoInsetsProtocol>
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
     NSMutableDictionary *sharedWKWebViewDictionary= [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
       
+      bool wasParented = false;
+      
     if ([self shouldReuseWebView]) {
       WKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey];
       if (webViewForKey != nil) {
@@ -420,6 +468,7 @@ RCTAutoInsetsProtocol>
         NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
         RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
         if (rncWebView != nil) {
+            wasParented = true;
           [self removeWKWebViewFromSuperView:rncWebView];
         }
       }
@@ -445,7 +494,11 @@ RCTAutoInsetsProtocol>
     
     [self setBackgroundColor: _savedBackgroundColor];
     
-    if (!reusedWebViewInstance) {
+      // If the "reused" webview was just opened as a popup, it may have never gone through didMoveToWindow before,
+      // and thus these delegates were never hooked up.
+      // (using "wasParented" as a clue for this, but that's probably not reliable... it may have been parented before but just not currently)
+      // (question though: why don't we want to reassign the delegates if it's moving to a different parent?)
+    if (!reusedWebViewInstance || !wasParented) {
 #if !TARGET_OS_OSX
       _webView.scrollView.delegate = self;
 #endif // !TARGET_OS_OSX

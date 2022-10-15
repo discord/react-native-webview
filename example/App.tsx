@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -21,6 +21,7 @@ import Messaging from './examples/Messaging';
 import NativeWebpage from './examples/NativeWebpage';
 import ApplePay from './examples/ApplePay';
 import Portals from './examples/Portals';
+import OpenedWindow from './examples/OpenedWindow';
 
 const TESTS = {
   Messaging: {
@@ -111,10 +112,18 @@ const TESTS = {
       return <Portals />;
     },
   },
+  OpenedWindow: {
+    title: 'Opened Window',
+    testId: 'OpenedWindow',
+    description: 'Test to intercept new window events',
+    render() {
+      return <OpenedWindow />;
+    },
+  },
 };
 
 type Props = {};
-type State = {restarting: boolean; currentTest: Object};
+type State = { restarting: boolean; currentTest: Object };
 
 export default class App extends Component<Props, State> {
   state = {
@@ -123,15 +132,17 @@ export default class App extends Component<Props, State> {
   };
 
   _simulateRestart = () => {
-    this.setState({restarting: true}, () => this.setState({restarting: false}));
+    this.setState({ restarting: true }, () =>
+      this.setState({ restarting: false }),
+    );
   };
 
   _changeTest = (testName) => {
-    this.setState({currentTest: TESTS[testName]});
+    this.setState({ currentTest: TESTS[testName] });
   };
 
   render() {
-    const {restarting, currentTest} = this.state;
+    const { restarting, currentTest } = this.state;
     return (
       <SafeAreaView style={styles.container}>
         <TouchableOpacity
@@ -144,7 +155,8 @@ export default class App extends Component<Props, State> {
           testID="restart_button"
           onPress={this._simulateRestart}
           style={styles.restartButton}
-          activeOpacity={0.6}>
+          activeOpacity={0.6}
+        >
           <Text>Simulate Restart</Text>
         </TouchableOpacity>
 
@@ -199,26 +211,32 @@ export default class App extends Component<Props, State> {
             onPress={() => this._changeTest('NativeWebpage')}
           />
           {Platform.OS === 'ios' && (
-              <Button
-                  testID="testType_applePay"
-                  title="ApplePay"
-                  onPress={() => this._changeTest('ApplePay')}
-              />
+            <Button
+              testID="testType_applePay"
+              title="ApplePay"
+              onPress={() => this._changeTest('ApplePay')}
+            />
           )}
-          {(
+          {
             <Button
               testID="testType_portals"
               title="Portals"
               onPress={() => this._changeTest('Portals')}
             />
-          )}
+          }
+          <Button
+            testID="testType_openedwindow"
+            title="OpenedWindow"
+            onPress={() => this._changeTest('OpenedWindow')}
+          />
         </View>
 
         {restarting ? null : (
           <View
             testID={`example-${currentTest.testId}`}
             key={currentTest.title}
-            style={styles.exampleContainer}>
+            style={styles.exampleContainer}
+          >
             <Text style={styles.exampleTitle}>{currentTest.title}</Text>
             <Text style={styles.exampleDescription}>
               {currentTest.description}
