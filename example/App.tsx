@@ -20,6 +20,7 @@ import LocalPageLoad from './examples/LocalPageLoad';
 import Messaging from './examples/Messaging';
 import NativeWebpage from './examples/NativeWebpage';
 import ApplePay from './examples/ApplePay';
+import AssetLoadedWebpage from './examples/AssetLoadedWebpage';
 
 const TESTS = {
   Messaging: {
@@ -100,6 +101,14 @@ const TESTS = {
     description: 'Test to open a apple pay supported page',
     render() {
       return <ApplePay />;
+    },
+  },
+  AssetLoaded: {
+    title: 'Asset Loaded Webpage ',
+    testId: 'AssetLoaded',
+    description: 'Test to open a webpage that is mapped to an android asset',
+    render() {
+      return <AssetLoadedWebpage />;
     },
   }
 };
@@ -194,6 +203,13 @@ export default class App extends Component<Props, State> {
                   testID="testType_applePay"
                   title="ApplePay"
                   onPress={() => this._changeTest('ApplePay')}
+              />
+          )}
+          {Platform.OS === 'android' && (
+              <Button
+                  testID="testType_assetLoaded"
+                  title="AssetLoaded"
+                  onPress={() => this._changeTest('AssetLoaded')}
               />
           )}
         </View>

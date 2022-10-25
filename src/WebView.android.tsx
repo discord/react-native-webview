@@ -73,6 +73,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
   source,
   nativeConfig,
   onShouldStartLoadWithRequest: onShouldStartLoadWithRequestProp,
+  androidAssetLoaderConfig,
   ...otherProps
 }, ref) => {
   const messagingModuleName = useRef<string>(`WebViewMessageHandler${uniqueRef += 1}`).current;
@@ -188,6 +189,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     allowFileAccess={allowFileAccess}
     saveFormDataDisabled={saveFormDataDisabled}
     cacheEnabled={cacheEnabled}
+    androidAssetLoaderConfig={androidAssetLoaderConfig}
     androidHardwareAccelerationDisabled={androidHardwareAccelerationDisabled}
     androidLayerType={androidLayerType}
     setSupportMultipleWindows={setSupportMultipleWindows}
