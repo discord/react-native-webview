@@ -245,5 +245,5 @@ export const useWebWiewLogic = ({
     viewState,
     setViewState,
     lastErrorEvent,
-  };
+  }
 };

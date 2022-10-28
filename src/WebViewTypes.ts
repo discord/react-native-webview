@@ -779,11 +779,11 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   /**
    * If two React components use the same
    * key for the WebView, they will use the same native WebView instance.
-   *
+   * 
    * When this is set, the native WebView will not get released when the React component
    * unmounts. When a React component remounts, it can use a previous native WebView instance
    * by using the same webViewKey prop that the previous React component used.
-   *
+   * 
    * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
    * will re-attach to the newly mounted react view.
    *
@@ -1178,11 +1178,11 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
   /**
    * By default, if this is undefined or false, the native WebView will get released when
    * the React component unmounts.
-   *
+   * 
    * When this is set, the native WebView will not get released when the React component
    * unmounts. When a React component remounts, it can use a previous native WebView instance
    * by using the same webViewKey prop that the previous React component used.
-   *
+   * 
    * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
    * will re-attach to the newly mounted react view.
    *
@@ -1191,7 +1191,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    */
   webViewKey?: string;
 
-  /**
+ /**
    * If a webViewKey is set, the onMessage callback will not work.
    * Instead, to handle messages, set messagingWithWebViewKeyEnabled
    * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
