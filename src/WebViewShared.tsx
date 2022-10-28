@@ -28,9 +28,12 @@ const extractOrigin = (url: string): string => {
 const originWhitelistToRegex = (originWhitelist: string): string =>
   `^${escapeStringRegexp(originWhitelist).replace(/\\\*/g, '.*')}`;
 
-const passesWhitelist = (compiledWhitelist: readonly string[], url: string) => {
+const passesWhitelist = (
+  compiledWhitelist: readonly string[],
+  url: string,
+) => {
   const origin = extractOrigin(url);
-  return compiledWhitelist.some((x) => new RegExp(x).test(origin));
+  return compiledWhitelist.some(x => new RegExp(x).test(origin));
 };
 
 const compileWhitelist = (
@@ -52,17 +55,15 @@ const createOnShouldStartLoadWithRequest = (
     const { url, lockIdentifier } = nativeEvent;
 
     if (!passesWhitelist(compileWhitelist(originWhitelist), url)) {
-      Linking.canOpenURL(url)
-        .then((supported) => {
-          if (supported) {
-            return Linking.openURL(url);
-          }
-          console.warn(`Can't open url: ${url}`);
-          return undefined;
-        })
-        .catch((e) => {
-          console.warn('Error opening URL: ', e);
-        });
+      Linking.canOpenURL(url).then((supported) => {
+        if (supported) {
+          return Linking.openURL(url);
+        }
+        console.warn(`Can't open url: ${url}`);
+        return undefined;
+      }).catch(e => {
+        console.warn('Error opening URL: ', e);
+      });
       shouldStart = false;
     } else if (onShouldStartLoadWithRequest) {
       shouldStart = onShouldStartLoadWithRequest(nativeEvent);
@@ -115,7 +116,7 @@ export const useWebWiewLogic = ({
   onShouldStartLoadWithRequestProp,
   onShouldStartLoadWithRequestCallback,
 }: {
-  startInLoadingState?: boolean;
+  startInLoadingState?: boolean
   onNavigationStateChange?: (event: WebViewNavigation) => void;
   onLoadStart?: (event: WebViewNavigationEvent) => void;
   onLoad?: (event: WebViewNavigationEvent) => void;
@@ -130,11 +131,7 @@ export const useWebWiewLogic = ({
   onContentProcessDidTerminateProp?: (event: WebViewTerminatedEvent) => void;
   originWhitelist: readonly string[];
   onShouldStartLoadWithRequestProp?: OnShouldStartLoadWithRequest;
-  onShouldStartLoadWithRequestCallback: (
-    shouldStart: boolean,
-    url: string,
-    lockIdentifier?: number | undefined,
-  ) => void;
+  onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
 }) => {
   const [viewState, setViewState] = useState<'IDLE' | 'LOADING' | 'ERROR'>(
     startInLoadingState ? 'LOADING' : 'IDLE',
