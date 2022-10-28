@@ -133,130 +133,86 @@ export const useWebWiewLogic = ({
   onShouldStartLoadWithRequestProp?: OnShouldStartLoadWithRequest;
   onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
 }) => {
-  const [viewState, setViewState] = useState<'IDLE' | 'LOADING' | 'ERROR'>(
-    startInLoadingState ? 'LOADING' : 'IDLE',
-  );
-  const [lastErrorEvent, setLastErrorEvent] = useState<WebViewError | null>(
-    null,
-  );
-  const startUrl = useRef<string | null>(null);
 
-  const updateNavigationState = useCallback(
-    (event: WebViewNavigationEvent) => {
-      onNavigationStateChange?.(event.nativeEvent);
-    },
-    [onNavigationStateChange],
-  );
+  const [viewState, setViewState] = useState<'IDLE' | 'LOADING' | 'ERROR'>(startInLoadingState ? "LOADING" : "IDLE");
+  const [lastErrorEvent, setLastErrorEvent] = useState<WebViewError | null>(null);
+  const startUrl = useRef<string | null>(null)
 
-  const onLoadingStart = useCallback(
-    (event: WebViewNavigationEvent) => {
-      // Needed for android
-      startUrl.current = event.nativeEvent.url;
-      // !Needed for android
 
-      onLoadStart?.(event);
-      updateNavigationState(event);
-    },
-    [onLoadStart, updateNavigationState],
-  );
+  const updateNavigationState = useCallback((event: WebViewNavigationEvent) => {
+    onNavigationStateChange?.(event.nativeEvent);
+  }, [onNavigationStateChange]);
 
-  const onLoadingError = useCallback(
-    (event: WebViewErrorEvent) => {
-      event.persist();
-      if (onError) {
-        onError(event);
-      } else {
-        console.warn('Encountered an error loading page', event.nativeEvent);
-      }
-      onLoadEnd?.(event);
-      if (event.isDefaultPrevented()) {
-        return;
-      }
-      setViewState('ERROR');
-      setLastErrorEvent(event.nativeEvent);
-    },
-    [onError, onLoadEnd],
-  );
+  const onLoadingStart = useCallback((event: WebViewNavigationEvent) => {
+    // Needed for android
+    startUrl.current = event.nativeEvent.url;
+    // !Needed for android
 
-  const onHttpError = useCallback(
-    (event: WebViewHttpErrorEvent) => {
-      onHttpErrorProp?.(event);
-    },
-    [onHttpErrorProp],
-  );
+    onLoadStart?.(event);
+    updateNavigationState(event);
+  }, [onLoadStart, updateNavigationState]);
+
+  const onLoadingError = useCallback((event: WebViewErrorEvent) => {
+    event.persist();
+    if (onError) {
+      onError(event);
+    } else {
+      console.warn('Encountered an error loading page', event.nativeEvent);
+    }
+    onLoadEnd?.(event);
+    if (event.isDefaultPrevented()) { return };
+    setViewState('ERROR');
+    setLastErrorEvent(event.nativeEvent);
+  }, [onError, onLoadEnd]);
+
+  const onHttpError = useCallback((event: WebViewHttpErrorEvent) => {
+    onHttpErrorProp?.(event);
+  }, [onHttpErrorProp]);
 
   // Android Only
-  const onRenderProcessGone = useCallback(
-    (event: WebViewRenderProcessGoneEvent) => {
-      onRenderProcessGoneProp?.(event);
-    },
-    [onRenderProcessGoneProp],
-  );
+  const onRenderProcessGone = useCallback((event: WebViewRenderProcessGoneEvent) => {
+    onRenderProcessGoneProp?.(event);
+  }, [onRenderProcessGoneProp]);
   // !Android Only
 
   // iOS Only
-  const onContentProcessDidTerminate = useCallback(
-    (event: WebViewTerminatedEvent) => {
+  const onContentProcessDidTerminate = useCallback((event: WebViewTerminatedEvent) => {
       onContentProcessDidTerminateProp?.(event);
-    },
-    [onContentProcessDidTerminateProp],
-  );
+  }, [onContentProcessDidTerminateProp]);
   // !iOS Only
 
-  const onLoadingFinish = useCallback(
-    (event: WebViewNavigationEvent) => {
-      onLoad?.(event);
-      onLoadEnd?.(event);
-      const {
-        nativeEvent: { url },
-      } = event;
-      // on Android, only if url === startUrl
-      if (Platform.OS !== 'android' || url === startUrl.current) {
-        setViewState('IDLE');
-      }
-      // !on Android, only if url === startUrl
-      updateNavigationState(event);
-    },
-    [onLoad, onLoadEnd, updateNavigationState],
-  );
+  const onLoadingFinish = useCallback((event: WebViewNavigationEvent) => {
+    onLoad?.(event);
+    onLoadEnd?.(event);
+    const { nativeEvent: { url } } = event;
+    // on Android, only if url === startUrl
+    if (Platform.OS !== "android" || url === startUrl.current) {
+      setViewState('IDLE');
+    }
+    // !on Android, only if url === startUrl
+    updateNavigationState(event);
+  }, [onLoad, onLoadEnd, updateNavigationState]);
 
-  const onMessage = useCallback(
-    (event: WebViewMessageEvent) => {
-      onMessageProp?.(event);
-    },
-    [onMessageProp],
-  );
+  const onMessage = useCallback((event: WebViewMessageEvent) => {
+    onMessageProp?.(event);
+  }, [onMessageProp]);
 
-  const onLoadingProgress = useCallback(
-    (event: WebViewProgressEvent) => {
-      const {
-        nativeEvent: { progress },
-      } = event;
-      // patch for Android only
-      if (Platform.OS === 'android' && progress === 1) {
-        setViewState((prevViewState) =>
-          prevViewState === 'LOADING' ? 'IDLE' : prevViewState,
-        );
-      }
-      // !patch for Android only
-      onLoadProgress?.(event);
-    },
-    [onLoadProgress],
-  );
+  const onLoadingProgress = useCallback((event: WebViewProgressEvent) => {
+    const { nativeEvent: { progress } } = event;
+    // patch for Android only
+    if (Platform.OS === "android" && progress === 1) {
+      setViewState(prevViewState => prevViewState === 'LOADING' ? 'IDLE' : prevViewState);
+    }
+    // !patch for Android only
+    onLoadProgress?.(event);
+  }, [onLoadProgress]);
 
-  const onShouldStartLoadWithRequest = useMemo(
-    () =>
-      createOnShouldStartLoadWithRequest(
-        onShouldStartLoadWithRequestCallback,
-        originWhitelist,
-        onShouldStartLoadWithRequestProp,
-      ),
-    [
+  const onShouldStartLoadWithRequest = useMemo(() =>  createOnShouldStartLoadWithRequest(
+      onShouldStartLoadWithRequestCallback,
       originWhitelist,
       onShouldStartLoadWithRequestProp,
-      onShouldStartLoadWithRequestCallback,
-    ],
-  );
+    )
+  , [originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback])
 
   // Android and iOS Only
   const onOpenedWindow = useCallback(
