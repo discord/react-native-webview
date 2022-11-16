@@ -1,5 +1,6 @@
 package com.reactnativecommunity.webview;
 
+import android.graphics.Color;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -16,6 +17,8 @@ public class RNCWebView extends FrameLayout {
 
   public RNCWebView(ThemedReactContext reactContext) {
     super(reactContext);
+
+    setBackgroundColor(Color.parseColor("#ff0000"));
   }
 
   public interface Action {
