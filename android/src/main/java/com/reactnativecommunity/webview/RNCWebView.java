@@ -23,17 +23,6 @@ public class RNCWebView extends FrameLayout {
     void apply(RNCWebViewManager.InternalWebView webView);
   }
 
-  @Override
-  public void onAttachedToWindow() {
-    super.onAttachedToWindow();
-
-    ifHasInternalWebView(webView ->
-      webView.setBackgroundColor(
-        ((ColorDrawable)this.getBackground()).getColor()
-      )
-    );
-  }
-
   /**
    * Attaches a {@link RNCWebViewManager.InternalWebView} to the RNCWebView parent
    * Throws an exception if the provided internal webView is already attached to a parent
