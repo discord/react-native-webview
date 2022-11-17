@@ -1676,10 +1676,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       progressChangedFilter = new ProgressChangedFilter();
 
       /**
-       * When RNCWebView attaches to the window, we set the InternalWebView background color to
-       * RNCWebView's background color which should match the CSS styles in React. Before that
-       * happens, we first default the InternalWebView background color to Color.TRNANSPARENT to
-       * avoid flashing a white frame before switching to the RNCWebView background color.
+       * Default the background color to transparent to avoid flashing a white frame
+       * when initializing the WebView. The React CSS background color will get applied
+       * to the RNCWebView whose background should show behind this transparent background
+       * until the WebView has non-transparent content.
        */
       setBackgroundColor(Color.TRANSPARENT);
     }
