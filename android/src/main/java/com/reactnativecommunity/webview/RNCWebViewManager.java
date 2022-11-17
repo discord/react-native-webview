@@ -326,7 +326,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   public void setWebViewBackgroundColor(RNCWebView view, @Nullable String colorString) {
     if (colorString != null) {
       String message = "setWebViewBackgroundColor. colorString: " + colorString + " internalWebView == null: " + (view.internalWebView == null);
-      Log.d("pikachu", message)
+      Log.d("pikachu", message);
       view.ifHasInternalWebView(webView -> webView.setBackgroundColor(Color.parseColor(colorString)));
     }
   }
