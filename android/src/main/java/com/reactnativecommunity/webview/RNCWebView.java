@@ -1,6 +1,7 @@
 package com.reactnativecommunity.webview;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -21,6 +22,16 @@ public class RNCWebView extends FrameLayout {
 
   public interface Action {
     void apply(RNCWebViewManager.InternalWebView webView);
+  }
+
+  @Override
+  public void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    ifHasInternalWebView(
+      webView -> webView.setBackgroundColor(
+        ((ColorDrawable)this.getBackground()).getColor()
+      )
+    );
   }
 
   /**
