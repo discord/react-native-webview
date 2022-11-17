@@ -385,6 +385,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   readonly urlPrefixesForDefaultIntent?: string[];
   forceDarkOn?: boolean;
   minimumFontSize?: number;
+  webViewBackgroundColorString?: string;
 }
 
 export declare type ContentInsetAdjustmentBehavior = 'automatic' | 'scrollableAxes' | 'never' | 'always';
@@ -1186,6 +1187,11 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * webViewKey
    */
   messagingWithWebViewKeyEnabled?: boolean;
+
+  /**
+   * The background color of the WebView as a color string (e.g. '#ffffff').
+   */
+  webViewBackgroundColorString?: string;
 }
 
 export interface WebViewSharedProps extends ViewProps {

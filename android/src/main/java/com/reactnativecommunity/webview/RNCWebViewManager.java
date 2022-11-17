@@ -322,6 +322,13 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     });
   }
 
+  @ReactProp(name = "webViewBackgroundColorString")
+  public void setWebViewBackgroundColor(RNCWebView view, @Nullable String colorString) {
+    if (colorString != null) {
+      view.ifHasInternalWebView(webView -> webView.setBackgroundColor(Color.parseColor(colorString)));
+    }
+  }
+
   @ReactProp(name = "showsHorizontalScrollIndicator")
   public void setShowsHorizontalScrollIndicator(RNCWebView view, boolean enabled) {
     view.ifHasInternalWebView(webView -> webView.setHorizontalScrollBarEnabled(enabled));

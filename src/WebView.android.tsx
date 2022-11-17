@@ -310,6 +310,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
       containerStyle,
       messagingWithWebViewKeyEnabled,
       nativeConfig = {},
+      webViewBackgroundColorString ,
       ...otherProps
     } = this.props;
 
@@ -372,6 +373,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
         // TODO: find a better way to type this.
         source={resolveAssetSource(source as ImageSourcePropType)}
         style={webViewStyles}
+        webViewBackgroundColorString={webViewBackgroundColorString}
         {...nativeConfig.props}
       />
     );
