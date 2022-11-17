@@ -325,9 +325,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   @ReactProp(name = "webViewBackgroundColorString")
   public void setWebViewBackgroundColor(RNCWebView view, @Nullable String colorString) {
     if (colorString != null) {
-      String message = "setWebViewBackgroundColor. colorString: " + colorString + " internalWebView == null: " + (view.internalWebView == null);
-      Log.d("pikachu", message);
-      view.ifHasInternalWebView(webView -> webView.setBackgroundColor(Color.parseColor(colorString)));
+//      String message = "setWebViewBackgroundColor. colorString: " + colorString + " internalWebView == null: " + (view.internalWebView == null);
+//      Log.d("pikachu", message);
+//      view.ifHasInternalWebView(webView -> webView.setBackgroundColor(Color.parseColor(colorString)));
     }
   }
 
@@ -1683,6 +1683,14 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       super(reactContext);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
+
+      /**
+       * When RNCWebView attaches to the window, we set the InternalWebView background color to
+       * RNCWebView's background color which should match the CSS styles in React. Before that
+       * happens, we first default the InternalWebView background color to Color.TRNANSPARENT to
+       * avoid flashing a white frame before switching to the RNCWebView background color.
+       */
+      setBackgroundColor(Color.TRANSPARENT);
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {

@@ -1,5 +1,6 @@
 package com.reactnativecommunity.webview;
 
+import android.graphics.drawable.ColorDrawable;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -12,8 +13,7 @@ public class RNCWebView extends FrameLayout {
   private static final String TAG = "RNCWebView";
   public static final int INVALID_VIEW_ID = -1;
 
-  // TODO: make this private again
-  RNCWebViewManager.InternalWebView internalWebView;
+  private RNCWebViewManager.InternalWebView internalWebView;
 
   public RNCWebView(ThemedReactContext reactContext) {
     super(reactContext);
@@ -21,6 +21,17 @@ public class RNCWebView extends FrameLayout {
 
   public interface Action {
     void apply(RNCWebViewManager.InternalWebView webView);
+  }
+
+  @Override
+  public void onAttachedToWindow() {
+    super.onAttachedToWindow();
+
+    ifHasInternalWebView(webView ->
+      webView.setBackgroundColor(
+        ((ColorDrawable)this.getBackground()).getColor()
+      )
+    );
   }
 
   /**
