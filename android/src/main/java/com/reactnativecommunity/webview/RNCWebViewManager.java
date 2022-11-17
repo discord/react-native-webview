@@ -1681,7 +1681,6 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       super(reactContext);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
-      setBackgroundColor(Color.TRANSPARENT);
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {
