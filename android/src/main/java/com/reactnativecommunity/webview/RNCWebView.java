@@ -1,6 +1,5 @@
 package com.reactnativecommunity.webview;
 
-import android.graphics.Color;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
