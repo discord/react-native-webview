@@ -12,7 +12,8 @@ public class RNCWebView extends FrameLayout {
   private static final String TAG = "RNCWebView";
   public static final int INVALID_VIEW_ID = -1;
 
-  private RNCWebViewManager.InternalWebView internalWebView;
+  // TODO: make this private again
+  RNCWebViewManager.InternalWebView internalWebView;
 
   public RNCWebView(ThemedReactContext reactContext) {
     super(reactContext);
