@@ -441,7 +441,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     
     [self setBackgroundColor: _savedBackgroundColor];
     
-    if (!reusedWebViewInstance) {
+    //if (!reusedWebViewInstance) {
 #if !TARGET_OS_OSX
       _webView.scrollView.delegate = self;
 #endif // !TARGET_OS_OSX
@@ -473,7 +473,7 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         _webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = _savedAutomaticallyAdjustsScrollIndicatorInsets;
       }
 #endif
-    }
+    //}
     
     // We have to remove the old observer via removeWKWebViewFromSuperView when reusing the WKWebView instance,
     // so whether we're reusing the instance or not, we always have to add the observer that references the new
