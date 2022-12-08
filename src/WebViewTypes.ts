@@ -12,25 +12,31 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 
-type WebViewCommands = 'goForward' | 'goBack' | 'reload' | 'stopLoading' | 'postMessage' | 'injectJavaScript' | 'loadUrl' | 'requestFocus';
+type WebViewCommands =
+  | 'goForward'
+  | 'goBack'
+  | 'reload'
+  | 'stopLoading'
+  | 'postMessage'
+  | 'injectJavaScript'
+  | 'loadUrl'
+  | 'requestFocus'
+  | 'rebind';
 
 type AndroidWebViewCommands = 'clearHistory' | 'clearCache' | 'clearFormData';
 
-
-
 interface RNCWebViewUIManager<Commands extends string> extends UIManagerStatic {
-  getViewManagerConfig: (
-    name: string,
-  ) => {
-    Commands: {[key in Commands]: number};
+  getViewManagerConfig: (name: string) => {
+    Commands: { [key in Commands]: number };
   };
 }
 
-export type RNCWebViewUIManagerAndroid = RNCWebViewUIManager<WebViewCommands | AndroidWebViewCommands>
-export type RNCWebViewUIManagerIOS = RNCWebViewUIManager<WebViewCommands>
-export type RNCWebViewUIManagerMacOS = RNCWebViewUIManager<WebViewCommands>
-export type RNCWebViewUIManagerWindows = RNCWebViewUIManager<WebViewCommands>
-
+export type RNCWebViewUIManagerAndroid = RNCWebViewUIManager<
+  WebViewCommands | AndroidWebViewCommands
+>;
+export type RNCWebViewUIManagerIOS = RNCWebViewUIManager<WebViewCommands>;
+export type RNCWebViewUIManagerMacOS = RNCWebViewUIManager<WebViewCommands>;
+export type RNCWebViewUIManagerWindows = RNCWebViewUIManager<WebViewCommands>;
 
 type WebViewState = 'IDLE' | 'LOADING' | 'ERROR';
 
@@ -51,33 +57,25 @@ interface ErrorState extends BaseState {
 export type State = NormalState | ErrorState;
 
 // eslint-disable-next-line react/prefer-stateless-function
-declare class NativeWebViewIOSComponent extends Component<
-  IOSNativeWebViewProps
-> {}
+declare class NativeWebViewIOSComponent extends Component<IOSNativeWebViewProps> {}
 declare const NativeWebViewIOSBase: Constructor<NativeMethodsMixin> &
   typeof NativeWebViewIOSComponent;
 export class NativeWebViewIOS extends NativeWebViewIOSBase {}
 
 // eslint-disable-next-line react/prefer-stateless-function
-declare class NativeWebViewMacOSComponent extends Component<
-  MacOSNativeWebViewProps
-> {}
+declare class NativeWebViewMacOSComponent extends Component<MacOSNativeWebViewProps> {}
 declare const NativeWebViewMacOSBase: Constructor<NativeMethodsMixin> &
   typeof NativeWebViewMacOSComponent;
 export class NativeWebViewMacOS extends NativeWebViewMacOSBase {}
 
 // eslint-disable-next-line react/prefer-stateless-function
-declare class NativeWebViewAndroidComponent extends Component<
-  AndroidNativeWebViewProps
-> {}
+declare class NativeWebViewAndroidComponent extends Component<AndroidNativeWebViewProps> {}
 declare const NativeWebViewAndroidBase: Constructor<NativeMethodsMixin> &
   typeof NativeWebViewAndroidComponent;
 export class NativeWebViewAndroid extends NativeWebViewAndroidBase {}
 
 // eslint-disable-next-line react/prefer-stateless-function
-declare class NativeWebViewWindowsComponent extends Component<
-  WindowsNativeWebViewProps
-> {}
+declare class NativeWebViewWindowsComponent extends Component<WindowsNativeWebViewProps> {}
 declare const NativeWebViewWindowsBase: Constructor<NativeMethodsMixin> &
   typeof NativeWebViewWindowsComponent;
 export class NativeWebViewWindows extends NativeWebViewWindowsBase {}
@@ -147,13 +145,13 @@ export interface WebViewRenderProcessGoneDetail {
 
 export type WebViewEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 
-export type WebViewProgressEvent = NativeSyntheticEvent<
-  WebViewNativeProgressEvent
->;
+export type WebViewProgressEvent =
+  NativeSyntheticEvent<WebViewNativeProgressEvent>;
 
 export type WebViewNavigationEvent = NativeSyntheticEvent<WebViewNavigation>;
 
-export type ShouldStartLoadRequestEvent = NativeSyntheticEvent<ShouldStartLoadRequest>;
+export type ShouldStartLoadRequestEvent =
+  NativeSyntheticEvent<ShouldStartLoadRequest>;
 
 export type FileDownloadEvent = NativeSyntheticEvent<FileDownload>;
 
@@ -165,7 +163,8 @@ export type WebViewTerminatedEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 
 export type WebViewHttpErrorEvent = NativeSyntheticEvent<WebViewHttpError>;
 
-export type WebViewRenderProcessGoneEvent = NativeSyntheticEvent<WebViewRenderProcessGoneDetail>;
+export type WebViewRenderProcessGoneEvent =
+  NativeSyntheticEvent<WebViewRenderProcessGoneDetail>;
 
 export type WebViewScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
 
@@ -182,10 +181,13 @@ export type DataDetectorTypes =
 
 export type OverScrollModeType = 'always' | 'content' | 'never';
 
-export type CacheMode = 'LOAD_DEFAULT' | 'LOAD_CACHE_ONLY' | 'LOAD_CACHE_ELSE_NETWORK' | 'LOAD_NO_CACHE';
+export type CacheMode =
+  | 'LOAD_DEFAULT'
+  | 'LOAD_CACHE_ONLY'
+  | 'LOAD_CACHE_ELSE_NETWORK'
+  | 'LOAD_NO_CACHE';
 
 export type AndroidLayerType = 'none' | 'software' | 'hardware';
-
 
 export interface AndroidAssetLoaderPathHandler {
   /**
@@ -203,20 +205,19 @@ export interface AndroidAssetLoaderPathHandler {
   path: string;
 
   /**
-   * For internal type PathHandler, the directory will be the path to the directory in either 
+   * For internal type PathHandler, the directory will be the path to the directory in either
    * https://developer.android.com/reference/android/content/Context#getDataDir()
    * or
    * https://developer.android.com/reference/android/content/Context#getCacheDir()
-   * 
-   * Exposing the entire data or cache directory is not permitted, to avoid accidentally exposing sensitive application files to the web. 
-   * Certain existing subdirectories of getDataDir are also not permitted as they are often sensitive. 
+   *
+   * Exposing the entire data or cache directory is not permitted, to avoid accidentally exposing sensitive application files to the web.
+   * Certain existing subdirectories of getDataDir are also not permitted as they are often sensitive.
    * These files are ("app_webview/", "databases/", "lib/", "shared_prefs/" and "code_cache/").
-   * 
-   * This field is unused for type 'resources' or 'assets' 
+   *
+   * This field is unused for type 'resources' or 'assets'
    */
   directory?: string;
 }
-
 
 export interface AndroidAssetLoaderConfig {
   /**
@@ -229,13 +230,12 @@ export interface AndroidAssetLoaderConfig {
    */
   httpAllowed?: boolean;
 
-
   /**
    * Register a list of PathHandlers for a specific path.
    * The path should start and end with a "/" and it shouldn't collide with a real web path.
    * WebViewAssetLoader will try PathHandlers in the order they're registered, and will use whichever is the first to return a non-null.
    */
-  pathHandlers: AndroidAssetLoaderPathHandler[]
+  pathHandlers: AndroidAssetLoaderPathHandler[];
 }
 
 export interface WebViewSourceUri {
@@ -298,7 +298,10 @@ export interface WebViewNativeConfig {
   /**
    * The native component used to render the WebView.
    */
-  component?: typeof NativeWebViewIOS | typeof NativeWebViewMacOS | typeof NativeWebViewAndroid;
+  component?:
+    | typeof NativeWebViewIOS
+    | typeof NativeWebViewMacOS
+    | typeof NativeWebViewAndroid;
   /**
    * Set props directly on the native component WebView. Enables custom props which the
    * original WebView doesn't pass through.
@@ -364,7 +367,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   scalesPageToFit?: boolean;
   allowFileAccessFromFileURLs?: boolean;
   allowUniversalAccessFromFileURLs?: boolean;
-  androidAssetLoaderConfig?: AndroidAssetLoaderConfig
+  androidAssetLoaderConfig?: AndroidAssetLoaderConfig;
   androidHardwareAccelerationDisabled?: boolean;
   androidLayerType?: AndroidLayerType;
   domStorageEnabled?: boolean;
@@ -379,15 +382,19 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   textZoom?: number;
   thirdPartyCookiesEnabled?: boolean;
   messagingModuleName?: string;
-  setBuiltInZoomControls?: boolean,
-  setDisplayZoomControls?: boolean,
+  setBuiltInZoomControls?: boolean;
+  setDisplayZoomControls?: boolean;
   nestedScrollEnabled?: boolean;
   readonly urlPrefixesForDefaultIntent?: string[];
   forceDarkOn?: boolean;
   minimumFontSize?: number;
 }
 
-export declare type ContentInsetAdjustmentBehavior = 'automatic' | 'scrollableAxes' | 'never' | 'always';
+export declare type ContentInsetAdjustmentBehavior =
+  | 'automatic'
+  | 'scrollableAxes'
+  | 'never'
+  | 'always';
 
 export declare type MediaCapturePermissionGrantType =
   | 'grantIfSameHostElsePrompt'
@@ -682,14 +689,14 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * If `true` (default), loads the `injectedJavaScript` only into the main frame.
    * If `false`, loads it into all frames (e.g. iframes).
    * @platform ios
-  */
+   */
   injectedJavaScriptForMainFrameOnly?: boolean;
 
   /**
    * If `true` (default), loads the `injectedJavaScriptBeforeContentLoaded` only into the main frame.
    * If `false`, loads it into all frames (e.g. iframes).
    * @platform ios
-  */
+   */
   injectedJavaScriptBeforeContentLoadedForMainFrameOnly?: boolean;
 
   /**
@@ -698,7 +705,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * If `true`, sets `bounces` automatically to `true`
    * @platform ios
    *
-  */
+   */
   pullToRefreshEnabled?: boolean;
 
   /**
@@ -723,7 +730,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * A Boolean value which, when set to `true`, indicates to WebKit that a WKWebView
    * will only navigate to app-bound domains. Once set, any attempt to navigate away
    * from an app-bound domain will fail with the error “App-bound domain failure.”
-   * 
+   *
    * Applications can specify up to 10 “app-bound” domains using a new
    * Info.plist key `WKAppBoundDomains`.
    * @platform ios
@@ -733,7 +740,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   /**
    * If false indicates to WebKit that a WKWebView will not interact with text, thus
    * not showing a text selection loop. Only applicable for iOS 14.5 or greater.
-   * 
+   *
    * Defaults to true.
    * @platform ios
    */
@@ -761,10 +768,10 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    */
   enableApplePay?: boolean;
 
-  /** 
+  /**
    * An array of objects which will be added to the UIMenu controller when selecting text.
    * These will appear after a long press to select text.
-  */
+   */
   menuItems?: WebViewCustomMenuItems[];
 
   /**
@@ -778,11 +785,11 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   /**
    * If two React components use the same
    * key for the WebView, they will use the same native WebView instance.
-   * 
+   *
    * When this is set, the native WebView will not get released when the React component
    * unmounts. When a React component remounts, it can use a previous native WebView instance
    * by using the same webViewKey prop that the previous React component used.
-   * 
+   *
    * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
    * will re-attach to the newly mounted react view.
    *
@@ -1001,7 +1008,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    */
   geolocationEnabled?: boolean;
 
-
   /**
    * Boolean that sets whether JavaScript running in the context of a file
    * scheme URL should be allowed to access content from other file scheme URLs.
@@ -1053,7 +1059,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    */
   androidHardwareAccelerationDisabled?: boolean;
 
-    /**
+  /**
    * https://developer.android.com/reference/android/webkit/WebView#setLayerType(int,%20android.graphics.Paint)
    * Sets the layerType. Possible values are:
    *
@@ -1068,7 +1074,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
   /**
    * https://developer.android.com/reference/androidx/webkit/WebViewAssetLoader
    * Sets the AssetLoader configuration to load local files including application's static
-   * assets and resources using http(s):// URLS inside a WebView. 
+   * assets and resources using http(s):// URLS inside a WebView.
    */
   androidAssetLoaderConfig?: AndroidAssetLoaderConfig;
 
@@ -1118,13 +1124,13 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
 
   /**
    * Configuring Dark Theme
-   * 
+   *
    * *NOTE* : The force dark setting is not persistent. You must call the static method every time your app process is started.
-   *  
+   *
    * *NOTE* : The change from day<->night mode is a configuration change so by default the activity will be restarted
-   * and pickup the new values to apply the theme. 
+   * and pickup the new values to apply the theme.
    * Take care when overriding this default behavior to ensure this method is still called when changes are made.
-   * 
+   *
    * @platform android
    */
   forceDarkOn?: boolean;
@@ -1136,16 +1142,16 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * @platform android
    */
   setBuiltInZoomControls?: boolean;
-   
+
   /**
    * Boolean value to control whether built-in zooms controls are displayed. Used only in Android.
    * Default to false
    * Controls will always be hidden if setBuiltInZoomControls is set to `false`
-   * 
+   *
    * @platform android
    */
   setDisplayZoomControls?: boolean;
-  
+
   /**
    * Allows to scroll inside the webview when used inside a scrollview.
    * Behaviour already existing on iOS.
@@ -1154,7 +1160,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * @platform android
    */
   nestedScrollEnabled?: boolean;
-  
+
   /**
    * Sets the minimum font size.
    * A non-negative integer between 1 and 72. Any number outside the specified range will be pinned.
@@ -1166,11 +1172,11 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
   /**
    * If two React components use the same
    * key for the WebView, they will use the same native WebView instance.
-   * 
+   *
    * When this is set, the native WebView will not get released when the React component
    * unmounts. When a React component remounts, it can use a previous native WebView instance
    * by using the same webViewKey prop that the previous React component used.
-   * 
+   *
    * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
    * will re-attach to the newly mounted react view.
    *
@@ -1179,7 +1185,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    */
   webViewKey?: string;
 
- /**
+  /**
    * If a webViewKey is set, the onMessage callback will not work.
    * Instead, to handle messages, set messagingWithWebViewKeyEnabled
    * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
