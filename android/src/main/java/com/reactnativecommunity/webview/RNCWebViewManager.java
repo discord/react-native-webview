@@ -147,6 +147,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
   // commands added by Discord
   public static final int COMMAND_RELEASE = 4001;
+  public static final int COMMAND_REBIND = 4002;
 
   // android commands
   public static final int COMMAND_CLEAR_FORM_DATA = 1000;
@@ -306,7 +307,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       // Not entirely sure why there is a single instance of the webchrome client for all webviews?
       setupWebChromeClient((ThemedReactContext) existingWebView.getContext(), existingWebView);
 
-    // If there is a detached internal webview attach it to this RNCWebView
+      // If there is a detached internal webview attach it to this RNCWebView
     } else if (internalWebViewMap.containsKey(webViewKey)) {
       InternalWebView webView = (InternalWebView) internalWebViewMap.get(webViewKey);
       view.attachWebView(webView);
@@ -384,12 +385,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   public void setLayerType(RNCWebView view, String layerTypeString) {
     final int layerType;
     switch (layerTypeString) {
-        case "hardware":
-          layerType = View.LAYER_TYPE_HARDWARE;
-          break;
-        case "software":
-          layerType = View.LAYER_TYPE_SOFTWARE;
-          break;
+      case "hardware":
+        layerType = View.LAYER_TYPE_HARDWARE;
+        break;
+      case "software":
+        layerType = View.LAYER_TYPE_SOFTWARE;
+        break;
       default:
         layerType = View.LAYER_TYPE_NONE;
     }
@@ -824,11 +825,39 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       .put("clearCache", COMMAND_CLEAR_CACHE)
       .put("clearHistory", COMMAND_CLEAR_HISTORY)
       .put("release", COMMAND_RELEASE)
+      .put("rebind", COMMAND_REBIND)
       .build();
   }
 
   @Override
   public void receiveCommand(RNCWebView view, int commandId, @Nullable ReadableArray args) {
+    switch(commandId) {
+      case COMMAND_REBIND:
+        String webViewKey = args.getString(0);
+
+        // Grab the webview via the key
+        RNCWebView activeWebView = (RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+
+        // If the webViewKey is already bound to this view, then we're done! Idempotently bail out
+        if (view == activeWebView) {
+          return;
+        }
+
+        // This should never happen
+        if (activeWebView == null) {
+          return;
+        }
+
+        // Remove the webview from its parent
+        InternalWebView internalWebView = activeWebView.detachWebView();
+        // Attach the webview to this view
+        view.attachWebView(internalWebView);
+        // Update the map accordingly
+        RNCWebViewMapManager.INSTANCE.getRncWebViewMap().put(webViewKey, view);
+
+        return;
+    }
+
     view.ifHasInternalWebView(root -> {
       switch (commandId) {
         case COMMAND_GO_BACK:
@@ -1150,61 +1179,61 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
     @Override
     public void onReceivedSslError(final WebView webView, final SslErrorHandler handler, final SslError error) {
-        // onReceivedSslError is called for most requests, per Android docs: https://developer.android.com/reference/android/webkit/WebViewClient#onReceivedSslError(android.webkit.WebView,%2520android.webkit.SslErrorHandler,%2520android.net.http.SslError)
-        // WebView.getUrl() will return the top-level window URL.
-        // If a top-level navigation triggers this error handler, the top-level URL will be the failing URL (not the URL of the currently-rendered page).
-        // This is desired behavior. We later use these values to determine whether the request is a top-level navigation or a subresource request.
-        String topWindowUrl = webView.getUrl();
-        String failingUrl = error.getUrl();
+      // onReceivedSslError is called for most requests, per Android docs: https://developer.android.com/reference/android/webkit/WebViewClient#onReceivedSslError(android.webkit.WebView,%2520android.webkit.SslErrorHandler,%2520android.net.http.SslError)
+      // WebView.getUrl() will return the top-level window URL.
+      // If a top-level navigation triggers this error handler, the top-level URL will be the failing URL (not the URL of the currently-rendered page).
+      // This is desired behavior. We later use these values to determine whether the request is a top-level navigation or a subresource request.
+      String topWindowUrl = webView.getUrl();
+      String failingUrl = error.getUrl();
 
-        // Cancel request after obtaining top-level URL.
-        // If request is cancelled before obtaining top-level URL, undesired behavior may occur.
-        // Undesired behavior: Return value of WebView.getUrl() may be the current URL instead of the failing URL.
-        handler.cancel();
+      // Cancel request after obtaining top-level URL.
+      // If request is cancelled before obtaining top-level URL, undesired behavior may occur.
+      // Undesired behavior: Return value of WebView.getUrl() may be the current URL instead of the failing URL.
+      handler.cancel();
 
-        if (!topWindowUrl.equalsIgnoreCase(failingUrl)) {
-          // If error is not due to top-level navigation, then do not call onReceivedError()
-          Log.w(TAG, "Resource blocked from loading due to SSL error. Blocked URL: "+failingUrl);
-          return;
-        }
+      if (!topWindowUrl.equalsIgnoreCase(failingUrl)) {
+        // If error is not due to top-level navigation, then do not call onReceivedError()
+        Log.w(TAG, "Resource blocked from loading due to SSL error. Blocked URL: "+failingUrl);
+        return;
+      }
 
-        int code = error.getPrimaryError();
-        String description = "";
-        String descriptionPrefix = "SSL error: ";
+      int code = error.getPrimaryError();
+      String description = "";
+      String descriptionPrefix = "SSL error: ";
 
-        // https://developer.android.com/reference/android/net/http/SslError.html
-        switch (code) {
-          case SslError.SSL_DATE_INVALID:
-            description = "The date of the certificate is invalid";
-            break;
-          case SslError.SSL_EXPIRED:
-            description = "The certificate has expired";
-            break;
-          case SslError.SSL_IDMISMATCH:
-            description = "Hostname mismatch";
-            break;
-          case SslError.SSL_INVALID:
-            description = "A generic error occurred";
-            break;
-          case SslError.SSL_NOTYETVALID:
-            description = "The certificate is not yet valid";
-            break;
-          case SslError.SSL_UNTRUSTED:
-            description = "The certificate authority is not trusted";
-            break;
-          default:
-            description = "Unknown SSL Error";
-            break;
-        }
+      // https://developer.android.com/reference/android/net/http/SslError.html
+      switch (code) {
+        case SslError.SSL_DATE_INVALID:
+          description = "The date of the certificate is invalid";
+          break;
+        case SslError.SSL_EXPIRED:
+          description = "The certificate has expired";
+          break;
+        case SslError.SSL_IDMISMATCH:
+          description = "Hostname mismatch";
+          break;
+        case SslError.SSL_INVALID:
+          description = "A generic error occurred";
+          break;
+        case SslError.SSL_NOTYETVALID:
+          description = "The certificate is not yet valid";
+          break;
+        case SslError.SSL_UNTRUSTED:
+          description = "The certificate authority is not trusted";
+          break;
+        default:
+          description = "Unknown SSL Error";
+          break;
+      }
 
-        description = descriptionPrefix + description;
+      description = descriptionPrefix + description;
 
-        this.onReceivedError(
-          webView,
-          code,
-          description,
-          failingUrl
-        );
+      this.onReceivedError(
+        webView,
+        code,
+        description,
+        failingUrl
+      );
     }
 
     @Override
@@ -1215,9 +1244,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       String failingUrl) {
 
       if (ignoreErrFailedForThisURL != null
-          && failingUrl.equals(ignoreErrFailedForThisURL)
-          && errorCode == -1
-          && description.equals("net::ERR_FAILED")) {
+        && failingUrl.equals(ignoreErrFailedForThisURL)
+        && errorCode == -1
+        && description.equals("net::ERR_FAILED")) {
 
         // This is a workaround for a bug in the WebView.
         // See these chromium issues for more context:
@@ -1266,36 +1295,36 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public boolean onRenderProcessGone(WebView webView, RenderProcessGoneDetail detail) {
-        // WebViewClient.onRenderProcessGone was added in O.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return false;
-        }
-        super.onRenderProcessGone(webView, detail);
+      // WebViewClient.onRenderProcessGone was added in O.
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        return false;
+      }
+      super.onRenderProcessGone(webView, detail);
 
-        if(detail.didCrash()){
-          Log.e(TAG, "The WebView rendering process crashed.");
-        }
-        else{
-          Log.w(TAG, "The WebView rendering process was killed by the system.");
-        }
+      if(detail.didCrash()){
+        Log.e(TAG, "The WebView rendering process crashed.");
+      }
+      else{
+        Log.w(TAG, "The WebView rendering process was killed by the system.");
+      }
 
-        // if webView is null, we cannot return any event
-        // since the view is already dead/disposed
-        // still prevent the app crash by returning true.
-        if(webView == null){
-          return true;
-        }
+      // if webView is null, we cannot return any event
+      // since the view is already dead/disposed
+      // still prevent the app crash by returning true.
+      if(webView == null){
+        return true;
+      }
 
-        WritableMap event = createWebViewEvent(webView, webView.getUrl());
-        event.putBoolean("didCrash", detail.didCrash());
+      WritableMap event = createWebViewEvent(webView, webView.getUrl());
+      event.putBoolean("didCrash", detail.didCrash());
 
       ((InternalWebView) webView).dispatchEvent(
-          webView,
-          new TopRenderProcessGoneEvent(RNCWebView.getRNCWebViewId(webView), event)
-        );
+        webView,
+        new TopRenderProcessGoneEvent(RNCWebView.getRNCWebViewId(webView), event)
+      );
 
-        // returning false would crash the app.
-        return true;
+      // returning false would crash the app.
+      return true;
     }
 
     protected void emitFinishEvent(WebView webView, String url) {
@@ -1875,8 +1904,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
     public void callInjectedJavaScriptBeforeContentLoaded() {
       if (getSettings().getJavaScriptEnabled() &&
-      injectedJSBeforeContentLoaded != null &&
-      !TextUtils.isEmpty(injectedJSBeforeContentLoaded)) {
+        injectedJSBeforeContentLoaded != null &&
+        !TextUtils.isEmpty(injectedJSBeforeContentLoaded)) {
         evaluateJavascriptWithFallback("(function() {\n" + injectedJSBeforeContentLoaded + ";\n})();");
       }
     }
@@ -1945,16 +1974,16 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
       if (mOnScrollDispatchHelper.onScrollChanged(x, y)) {
         ScrollEvent event = ScrollEvent.obtain(
-                RNCWebView.getRNCWebViewId(this),
-                ScrollEventType.SCROLL,
-                x,
-                y,
-                mOnScrollDispatchHelper.getXFlingVelocity(),
-                mOnScrollDispatchHelper.getYFlingVelocity(),
-                this.computeHorizontalScrollRange(),
-                this.computeVerticalScrollRange(),
-                this.getWidth(),
-                this.getHeight());
+          RNCWebView.getRNCWebViewId(this),
+          ScrollEventType.SCROLL,
+          x,
+          y,
+          mOnScrollDispatchHelper.getXFlingVelocity(),
+          mOnScrollDispatchHelper.getYFlingVelocity(),
+          this.computeHorizontalScrollRange(),
+          this.computeVerticalScrollRange(),
+          this.getWidth(),
+          this.getHeight());
 
         dispatchEvent(this, event);
       }
