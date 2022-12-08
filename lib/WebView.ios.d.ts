@@ -20,6 +20,7 @@ declare class WebView extends React.Component<IOSWebViewProps, State> {
         injectJavaScript: number;
         loadUrl: number;
         requestFocus: number;
+        rebind: number;
     };
     /**
      * Go forward one page in the web view's history.
@@ -59,6 +60,7 @@ declare class WebView extends React.Component<IOSWebViewProps, State> {
      * functionality, look into postMessage/onMessage.
      */
     injectJavaScript: (data: string) => void;
+    rebind: (webViewKey: string) => void;
     /**
      * We return an event with a bunch of fields including:
      *  url, title, loading, canGoBack, canGoForward
