@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -22,6 +23,7 @@ import NativeWebpage from './examples/NativeWebpage';
 import ApplePay from './examples/ApplePay';
 import Portals from './examples/Portals';
 import AssetLoadedWebpage from './examples/AssetLoadedWebpage';
+import Rebind from './examples/Rebind';
 
 const TESTS = {
   Messaging: {
@@ -112,6 +114,14 @@ const TESTS = {
       return <Portals />;
     },
   },
+  Rebind: {
+    title: 'Rebind',
+    testId: 'Rebind',
+    description: 'Rebind webview between two webviews?',
+    render() {
+      return <Rebind />;
+    },
+  },
   AssetLoaded: {
     title: 'Asset Loaded Webpage ',
     testId: 'AssetLoaded',
@@ -119,11 +129,11 @@ const TESTS = {
     render() {
       return <AssetLoadedWebpage />;
     },
-  }
+  },
 };
 
 type Props = {};
-type State = {restarting: boolean; currentTest: Object};
+type State = { restarting: boolean; currentTest: Object };
 
 export default class App extends Component<Props, State> {
   state = {
@@ -132,15 +142,17 @@ export default class App extends Component<Props, State> {
   };
 
   _simulateRestart = () => {
-    this.setState({restarting: true}, () => this.setState({restarting: false}));
+    this.setState({ restarting: true }, () =>
+      this.setState({ restarting: false }),
+    );
   };
 
   _changeTest = (testName) => {
-    this.setState({currentTest: TESTS[testName]});
+    this.setState({ currentTest: TESTS[testName] });
   };
 
   render() {
-    const {restarting, currentTest} = this.state;
+    const { restarting, currentTest } = this.state;
     return (
       <SafeAreaView style={styles.container}>
         <TouchableOpacity
@@ -153,7 +165,8 @@ export default class App extends Component<Props, State> {
           testID="restart_button"
           onPress={this._simulateRestart}
           style={styles.restartButton}
-          activeOpacity={0.6}>
+          activeOpacity={0.6}
+        >
           <Text>Simulate Restart</Text>
         </TouchableOpacity>
 
@@ -208,31 +221,37 @@ export default class App extends Component<Props, State> {
             onPress={() => this._changeTest('NativeWebpage')}
           />
           {Platform.OS === 'ios' && (
-              <Button
-                  testID="testType_applePay"
-                  title="ApplePay"
-                  onPress={() => this._changeTest('ApplePay')}
-              />
+            <Button
+              testID="testType_applePay"
+              title="ApplePay"
+              onPress={() => this._changeTest('ApplePay')}
+            />
           )}
           <Button
             testID="testType_portals"
             title="Portals"
             onPress={() => this._changeTest('Portals')}
           />
+          <Button
+            testID="testType_rebind"
+            title="Rebind"
+            onPress={() => this._changeTest('Rebind')}
+          />
           {Platform.OS === 'android' && (
-              <Button
-                  testID="testType_assetLoaded"
-                  title="AssetLoaded"
-                  onPress={() => this._changeTest('AssetLoaded')}
-              />
+            <Button
+              testID="testType_assetLoaded"
+              title="AssetLoaded"
+              onPress={() => this._changeTest('AssetLoaded')}
+            />
           )}
         </View>
 
         {restarting ? null : (
-          <View
+          <ScrollView
             testID={`example-${currentTest.testId}`}
             key={currentTest.title}
-            style={styles.exampleContainer}>
+            style={styles.exampleContainer}
+          >
             <Text style={styles.exampleTitle}>{currentTest.title}</Text>
             <Text style={styles.exampleDescription}>
               {currentTest.description}
@@ -240,7 +259,7 @@ export default class App extends Component<Props, State> {
             <View style={styles.exampleInnerContainer}>
               {currentTest.render()}
             </View>
-          </View>
+          </ScrollView>
         )}
       </SafeAreaView>
     );
