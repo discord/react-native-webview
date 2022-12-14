@@ -13,19 +13,24 @@ export default class Rebind extends Component {
 
   render() {
     return (
-      <View style={{ height: 400 }}>
+      <View style={{ height: 600 }}>
+        <View style={{ width: 300, height: 400, borderWidth: 2, borderColor: 'red' }}>
         <WebView
           ref={this.googleRef}
           webViewKey="TEST"
-          source={{ uri: `https://zombo.com` }}
-          style={{ width: 200, height: 200 }}
+          source={{ uri: "https://yelp.ca" }}
+          style={{flex: 1}}
+
         />
-        <WebView
-          ref={this.yelpRef}
-          webViewKey="TEST"
-          source={{ uri: `https://yelp.com` }}
-          style={{ width: 200, height: 200 }}
-        />
+        </View>
+        <View style={{ width: 150, height: 100, borderColor: 'blue', borderWidth: 2 }}>
+          <WebView
+            ref={this.yelpRef}
+            webViewKey="TEST"
+            source={{ uri: "https://yelp.ca" }}
+            style={{flex: 1}}
+          />
+        </View>
         <Button
           title="Bind to google"
           onPress={() => {
