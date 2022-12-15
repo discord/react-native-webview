@@ -13,8 +13,8 @@ export default class Rebind extends Component {
 
   render() {
     return (
-      <View style={{ height: 600 }}>
-        <View style={{ width: 300, height: 400, borderWidth: 2, borderColor: 'red' }}>
+      <View style={{ height: 400 }}>
+        <View style={{ width: 300, height: 200, borderWidth: 2, borderColor: 'red' }}>
         <WebView
           ref={this.googleRef}
           webViewKey="TEST"

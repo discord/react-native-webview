@@ -1,15 +1,16 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {
-  UIManager as NotTypedUIManager,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
   View,
-  NativeModules,
-  Image,
-  findNodeHandle,
-  ImageSourcePropType,
+  Keyboard,
+  Button,
+  Platform,
 } from 'react-native';
-import invariant from 'invariant';
 
-import RNCWebView from './WebViewNativeComponent.ios';
+import RNCWebView from "./WebViewNativeComponent.ios";
 import {
   defaultOriginWhitelist,
   createOnShouldStartLoadWithRequest,
@@ -162,12 +163,14 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     );
   };
 
+
   rebind = (webViewKey: string) => {
-    UIManager.dispatchViewManagerCommand(
-      this.getWebViewHandle(),
-      this.getCommands().rebind,
-      [webViewKey],
-    );
+    // do nothing for now
+    // UIManager.dispatchViewManagerCommand(
+    //   this.getWebViewHandle(),
+    //   this.getCommands().rebind,
+    //   [webViewKey],
+    // );
   };
 
   /**
@@ -223,7 +226,7 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     if (onHttpError) {
       onHttpError(event);
     }
-  };
+  }
 
   onLoadingFinish = (event: WebViewNavigationEvent) => {
     const { onLoad, onLoadEnd } = this.props;
@@ -258,9 +261,9 @@ class WebView extends React.Component<IOSWebViewProps, State> {
     _url: string,
     lockIdentifier: number,
   ) => {
-    const viewManager =
-      (this.props.nativeConfig && this.props.nativeConfig.viewManager) ||
-      RNCWebViewManager;
+    const viewManager
+      = (this.props.nativeConfig && this.props.nativeConfig.viewManager)
+      || RNCWebViewManager;
 
     viewManager.startLoadWithResult(!!shouldStart, lockIdentifier);
   };
@@ -337,19 +340,16 @@ class WebView extends React.Component<IOSWebViewProps, State> {
 
     const decelerationRate = processDecelerationRate(decelerationRateProp);
 
-    const NativeWebView =
-      (nativeConfig.component as typeof NativeWebViewIOS | undefined) ||
-      RNCWebView;
+    const NativeWebView
+      = (nativeConfig.component as typeof NativeWebViewIOS | undefined)
+      || RNCWebView;
 
     const webView = (
       <NativeWebView
         key="webViewKey"
         {...otherProps}
         decelerationRate={decelerationRate}
-        messagingEnabled={
-          typeof onMessage === 'function' ||
-          (messagingWithWebViewKeyEnabled ?? false)
-        }
+        messagingEnabled={typeof onMessage === 'function' || (messagingWithWebViewKeyEnabled ?? false)}
         onLoadingError={this.onLoadingError}
         onLoadingFinish={this.onLoadingFinish}
         onLoadingProgress={this.onLoadingProgress}
@@ -361,13 +361,9 @@ class WebView extends React.Component<IOSWebViewProps, State> {
         onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onContentProcessDidTerminate={this.onContentProcessDidTerminate}
         injectedJavaScript={this.props.injectedJavaScript}
-        injectedJavaScriptBeforeContentLoaded={
-          this.props.injectedJavaScriptBeforeContentLoaded
-        }
+        injectedJavaScriptBeforeContentLoaded={this.props.injectedJavaScriptBeforeContentLoaded}
         injectedJavaScriptForMainFrameOnly={injectedJavaScriptForMainFrameOnly}
-        injectedJavaScriptBeforeContentLoadedForMainFrameOnly={
-          injectedJavaScriptBeforeContentLoadedForMainFrameOnly
-        }
+        injectedJavaScriptBeforeContentLoadedForMainFrameOnly={injectedJavaScriptBeforeContentLoadedForMainFrameOnly}
         ref={this.webViewRef}
         // TODO: find a better way to type this.
         source={resolveAssetSource(this.props.source as ImageSourcePropType)}

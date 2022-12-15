@@ -13,7 +13,7 @@ import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
 
 import invariant from 'invariant';
 
-import RNCWebView from './WebViewNativeComponent.android';
+import RNCWebView from "./WebViewNativeComponent.android";
 import {
   defaultOriginWhitelist,
   createOnShouldStartLoadWithRequest,
@@ -78,13 +78,11 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     lastErrorEvent: null,
   };
 
-  onShouldStartLoadWithRequest: ReturnType<
-    typeof createOnShouldStartLoadWithRequest
-  > | null = null;
+  onShouldStartLoadWithRequest: ReturnType<typeof createOnShouldStartLoadWithRequest> | null = null;
 
   webViewRef = React.createRef<NativeWebViewAndroid>();
 
-  messagingModuleName = `WebViewMessageHandler${(uniqueRef += 1)}`;
+  messagingModuleName = `WebViewMessageHandler${uniqueRef+=1}`;
 
   componentDidMount = () => {
     BatchedBridge.registerCallableModule(this.messagingModuleName, this);
@@ -96,7 +94,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().goForward,
-      undefined,
+      undefined
     );
   };
 
@@ -104,7 +102,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().goBack,
-      undefined,
+      undefined
     );
   };
 
@@ -115,7 +113,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().reload,
-      undefined,
+      undefined
     );
   };
 
@@ -123,7 +121,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().stopLoading,
-      undefined,
+      undefined
     );
   };
 
@@ -131,7 +129,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       this.getCommands().requestFocus,
-      undefined,
+      undefined
     );
   };
 
@@ -145,25 +143,25 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
 
   clearFormData = () => {
     UIManager.dispatchViewManagerCommand(
-      this.getWebViewHandle(),
-      this.getCommands().clearFormData,
-      undefined,
+       this.getWebViewHandle(),
+       this.getCommands().clearFormData,
+        undefined,
     );
-  };
+  }
 
   clearCache = (includeDiskFiles: boolean) => {
     UIManager.dispatchViewManagerCommand(
-      this.getWebViewHandle(),
-      this.getCommands().clearCache,
-      [includeDiskFiles],
+       this.getWebViewHandle(),
+       this.getCommands().clearCache,
+       [includeDiskFiles],
     );
   };
 
   clearHistory = () => {
     UIManager.dispatchViewManagerCommand(
-      this.getWebViewHandle(),
-      this.getCommands().clearHistory,
-      undefined,
+       this.getWebViewHandle(),
+       this.getCommands().clearHistory,
+        undefined,
     );
   };
 
@@ -181,6 +179,10 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     );
   };
 
+  /**
+   * Rebinds a native webview keyed by the webViewKey to the mounted view
+   * @param webViewKey 
+   */
   rebind = (webViewKey: string) => {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
@@ -210,9 +212,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
 
   onLoadingStart = (event: WebViewNavigationEvent) => {
     const { onLoadStart } = this.props;
-    const {
-      nativeEvent: { url },
-    } = event;
+    const { nativeEvent: { url } } = event;
     this.startUrl = url;
     if (onLoadStart) {
       onLoadStart(event);
@@ -245,20 +245,18 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     if (onHttpError) {
       onHttpError(event);
     }
-  };
+  }
 
   onRenderProcessGone = (event: WebViewRenderProcessGoneEvent) => {
     const { onRenderProcessGone } = this.props;
     if (onRenderProcessGone) {
       onRenderProcessGone(event);
     }
-  };
+  }
 
   onLoadingFinish = (event: WebViewNavigationEvent) => {
     const { onLoad, onLoadEnd } = this.props;
-    const {
-      nativeEvent: { url },
-    } = event;
+    const { nativeEvent: { url } } = event;
     if (onLoad) {
       onLoad(event);
     }
@@ -282,9 +280,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
 
   onLoadingProgress = (event: WebViewProgressEvent) => {
     const { onLoadProgress } = this.props;
-    const {
-      nativeEvent: { progress },
-    } = event;
+    const { nativeEvent: { progress } } = event;
     if (progress === 1) {
       this.setState((state) => {
         if (state.viewState === 'LOADING') {
@@ -304,10 +300,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     lockIdentifier?: number,
   ) => {
     if (lockIdentifier) {
-      NativeModules.RNCWebView.onShouldStartLoadWithRequestCallback(
-        shouldStart,
-        lockIdentifier,
-      );
+      NativeModules.RNCWebView.onShouldStartLoadWithRequestCallback(shouldStart, lockIdentifier);
     } else if (shouldStart) {
       UIManager.dispatchViewManagerCommand(
         this.getWebViewHandle(),
@@ -353,7 +346,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
     const webViewStyles = [styles.container, styles.webView, style];
     const webViewContainerStyle = [styles.container, containerStyle];
 
-    if (typeof source !== 'number' && source && 'method' in source) {
+    if (typeof source !== "number" && source && 'method' in source) {
       if (source.method === 'POST' && source.headers) {
         console.warn(
           'WebView: `source.headers` is not supported when using POST.',
@@ -363,8 +356,8 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
       }
     }
 
-    const NativeWebView =
-      (nativeConfig.component as typeof NativeWebViewAndroid) || RNCWebView;
+    const NativeWebView
+      = (nativeConfig.component as typeof NativeWebViewAndroid) || RNCWebView;
 
     this.onShouldStartLoadWithRequest = createOnShouldStartLoadWithRequest(
       this.onShouldStartLoadWithRequestCallback,
@@ -377,10 +370,7 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
       <NativeWebView
         key="webViewKey"
         {...otherProps}
-        messagingEnabled={
-          typeof onMessage === 'function' ||
-          (messagingWithWebViewKeyEnabled ?? false)
-        }
+        messagingEnabled={typeof onMessage === 'function' || (messagingWithWebViewKeyEnabled ?? false)}
         messagingModuleName={this.messagingModuleName}
         onLoadingError={this.onLoadingError}
         onLoadingFinish={this.onLoadingFinish}
