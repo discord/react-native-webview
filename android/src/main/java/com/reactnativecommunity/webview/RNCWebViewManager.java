@@ -60,6 +60,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -293,34 +294,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
 
   @ReactProp(name = "webViewKey")
   public void setWebViewKey(RNCWebView view, String webViewKey) {
-    Map<String, WebView> internalWebViewMap = RNCWebViewMapManager.INSTANCE.getInternalWebViewMap();
-    Map<String, RNCWebView> rncWebViewMap = RNCWebViewMapManager.INSTANCE.getRncWebViewMap();
-
-    // If there is an existing RNCWebView that has an internal webview, re-attach it to this view
-    if (rncWebViewMap.containsKey(webViewKey)) {
-      RNCWebView existingView = rncWebViewMap.get(webViewKey);
-      InternalWebView existingWebView = existingView.detachWebView();
-      view.attachWebView(existingWebView);
-
-      // The chrome client was originally setup on instance creation but might be pointing to the wrong webview
-      // so it's reset here.
-      // Not entirely sure why there is a single instance of the webchrome client for all webviews?
-      setupWebChromeClient((ThemedReactContext) existingWebView.getContext(), existingWebView);
-
-      // If there is a detached internal webview attach it to this RNCWebView
-    } else if (internalWebViewMap.containsKey(webViewKey)) {
-      InternalWebView webView = (InternalWebView) internalWebViewMap.get(webViewKey);
-      view.attachWebView(webView);
-    }
-
-    // Update all maps with the view + set/update key
-    // This means an existing webview can update it's own key
-    view.ifHasInternalWebView(webView -> {
-      webView.setWebViewKey(webViewKey);
-      RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), view.getId());
-      internalWebViewMap.put(webViewKey, webView);
-      rncWebViewMap.put(webViewKey, view);
-    });
+    view.setWebViewKey(webViewKey);
   }
 
   @ReactProp(name = "showsHorizontalScrollIndicator")
