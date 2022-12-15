@@ -18,7 +18,7 @@ export default class Rebind extends Component {
         <WebView
           ref={this.googleRef}
           webViewKey="TEST"
-          source={{ uri: "https://yelp.ca" }}
+          source={{ uri: "https://google.ca" }}
           style={{flex: 1}}
 
         />

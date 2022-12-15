@@ -295,6 +295,13 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
   @ReactProp(name = "webViewKey")
   public void setWebViewKey(RNCWebView view, String webViewKey) {
     view.setWebViewKey(webViewKey);
+
+    // Remove the default webview on instance creation
+    // The actual webview will be attached
+    WebView activeWebview = RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
+    if (activeWebview != null && activeWebview != view.getWebView()) {
+      view.removeWebViewFromParent();
+    }
   }
 
   @ReactProp(name = "showsHorizontalScrollIndicator")
