@@ -1,14 +1,13 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {
-  StyleSheet,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
+  UIManager as NotTypedUIManager,
   View,
-  Keyboard,
-  Button,
-  Platform,
+  NativeModules,
+  Image,
+  findNodeHandle,
+  ImageSourcePropType,
 } from 'react-native';
+import invariant from 'invariant';
 
 import RNCWebView from "./WebViewNativeComponent.ios";
 import {
@@ -31,7 +30,6 @@ import {
   State,
   RNCWebViewUIManagerIOS,
 } from './WebViewTypes';
-
 import styles from './WebView.styles';
 
 const UIManager = NotTypedUIManager as RNCWebViewUIManagerIOS;
@@ -165,12 +163,11 @@ class WebView extends React.Component<IOSWebViewProps, State> {
 
 
   rebind = (webViewKey: string) => {
-    // do nothing for now
-    // UIManager.dispatchViewManagerCommand(
-    //   this.getWebViewHandle(),
-    //   this.getCommands().rebind,
-    //   [webViewKey],
-    // );
+    UIManager.dispatchViewManagerCommand(
+      this.getWebViewHandle(),
+      this.getCommands().rebind,
+      [webViewKey],
+    );
   };
 
   /**

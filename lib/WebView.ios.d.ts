@@ -18,9 +18,9 @@ declare class WebView extends React.Component<IOSWebViewProps, State> {
         stopLoading: number;
         postMessage: number;
         injectJavaScript: number;
+        rebind: number;
         loadUrl: number;
         requestFocus: number;
-        rebind: number;
     };
     /**
      * Go forward one page in the web view's history.

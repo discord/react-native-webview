@@ -1,6 +1,6 @@
 import { ReactElement, Component } from 'react';
 import { NativeSyntheticEvent, ViewProps, StyleProp, ViewStyle, NativeMethodsMixin, Constructor, UIManagerStatic, NativeScrollEvent } from 'react-native';
-declare type WebViewCommands = 'goForward' | 'goBack' | 'reload' | 'stopLoading' | 'postMessage' | 'injectJavaScript' | 'loadUrl' | 'requestFocus' | 'rebind';
+declare type WebViewCommands = 'goForward' | 'goBack' | 'reload' | 'stopLoading' | 'postMessage' | 'injectJavaScript' | 'rebind' | 'loadUrl' | 'requestFocus';
 declare type AndroidWebViewCommands = 'clearHistory' | 'clearCache' | 'clearFormData';
 interface RNCWebViewUIManager<Commands extends string> extends UIManagerStatic {
     getViewManagerConfig: (name: string) => {
@@ -541,13 +541,13 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * If `true` (default), loads the `injectedJavaScript` only into the main frame.
      * If `false`, loads it into all frames (e.g. iframes).
      * @platform ios
-     */
+    */
     injectedJavaScriptForMainFrameOnly?: boolean;
     /**
      * If `true` (default), loads the `injectedJavaScriptBeforeContentLoaded` only into the main frame.
      * If `false`, loads it into all frames (e.g. iframes).
      * @platform ios
-     */
+    */
     injectedJavaScriptBeforeContentLoadedForMainFrameOnly?: boolean;
     /**
      * Boolean value that determines whether a pull to refresh gesture is
@@ -555,7 +555,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * If `true`, sets `bounces` automatically to `true`
      * @platform ios
      *
-     */
+    */
     pullToRefreshEnabled?: boolean;
     /**
      * Function that is invoked when the client needs to download a file.
@@ -615,7 +615,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
     /**
      * An array of objects which will be added to the UIMenu controller when selecting text.
      * These will appear after a long press to select text.
-     */
+    */
     menuItems?: WebViewCustomMenuItems[];
     /**
      * The function fired when selecting a custom menu item created by `menuItems`.
@@ -870,15 +870,15 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      */
     androidHardwareAccelerationDisabled?: boolean;
     /**
-     * https://developer.android.com/reference/android/webkit/WebView#setLayerType(int,%20android.graphics.Paint)
-     * Sets the layerType. Possible values are:
-     *
-     * - `'none'` (default)
-     * - `'software'`
-     * - `'hardware'`
-     *
-     * @platform android
-     */
+   * https://developer.android.com/reference/android/webkit/WebView#setLayerType(int,%20android.graphics.Paint)
+   * Sets the layerType. Possible values are:
+   *
+   * - `'none'` (default)
+   * - `'software'`
+   * - `'hardware'`
+   *
+   * @platform android
+   */
     androidLayerType?: AndroidLayerType;
     /**
      * https://developer.android.com/reference/androidx/webkit/WebViewAssetLoader
@@ -982,11 +982,11 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      */
     webViewKey?: string;
     /**
-     * If a webViewKey is set, the onMessage callback will not work.
-     * Instead, to handle messages, set messagingWithWebViewKeyEnabled
-     * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
-     * webViewKey
-     */
+      * If a webViewKey is set, the onMessage callback will not work.
+      * Instead, to handle messages, set messagingWithWebViewKeyEnabled
+      * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
+      * webViewKey
+      */
     messagingWithWebViewKeyEnabled?: boolean;
 }
 export interface WebViewSharedProps extends ViewProps {

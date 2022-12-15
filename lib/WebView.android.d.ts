@@ -36,9 +36,9 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
         stopLoading: number;
         postMessage: number;
         injectJavaScript: number;
+        rebind: number;
         loadUrl: number;
         requestFocus: number;
-        rebind: number;
         clearHistory: number;
         clearCache: number;
         clearFormData: number;
@@ -59,6 +59,10 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
      * functionality, look into postMessage/onMessage.
      */
     injectJavaScript: (data: string) => void;
+    /**
+     * Rebinds a native webview keyed by the webViewKey to the mounted view
+     * @param webViewKey
+     */
     rebind: (webViewKey: string) => void;
     /**
      * We return an event with a bunch of fields including:

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
