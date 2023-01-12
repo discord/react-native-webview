@@ -18,6 +18,7 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 } RNCWebViewPermissionGrantType;
 
 @class RNCWebView;
+@class RCTBridge;
 
 @protocol RNCWebViewDelegate <NSObject>
 
@@ -38,6 +39,7 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 @interface RNCWebView : RCTView
 
 @property (nonatomic, weak) id<RNCWebViewDelegate> _Nullable delegate;
+@property (nonatomic, weak) RCTBridge * _Nullable bridge;
 @property (nonatomic, copy) NSDictionary * _Nullable source;
 @property (nonatomic, assign) BOOL messagingEnabled;
 @property (nonatomic, copy) NSString * _Nullable injectedJavaScript;
@@ -101,6 +103,7 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 #endif
 
 @property (nonatomic, copy) NSString * _Nullable webViewKey;
+@property (nonatomic, copy) NSNumber * _Nullable temporaryParentNodeTag;
 
 + (void)setClientAuthenticationCredential:(nullable NSURLCredential*)credential;
 + (void)setCustomCertificatesForHost:(nullable NSDictionary *)certificates;

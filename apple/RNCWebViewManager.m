@@ -53,6 +53,7 @@ RCT_EXPORT_MODULE()
 {
   RNCWebView *webView = [RNCWebView new];
   webView.delegate = self;
+  webView.bridge = self.bridge;
   return webView;
 }
 
@@ -116,6 +117,7 @@ RCT_EXPORT_VIEW_PROPERTY(mediaCapturePermissionGrantType, RNCWebViewPermissionGr
 #endif
 
 RCT_EXPORT_VIEW_PROPERTY(webViewKey, NSString)
+RCT_EXPORT_VIEW_PROPERTY(temporaryParentNodeTag, NSNumber)
 
 /**
  * Expose methods to enable messaging the webview.

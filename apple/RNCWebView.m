@@ -7,6 +7,8 @@
 
 #import "RNCWebView.h"
 #import <React/RCTConvert.h>
+#import <React/RCTBridge.h>
+#import <React/RCTUIManager.h>
 #import <React/RCTAutoInsetsProtocol.h>
 #import "RNCWKProcessPoolManager.h"
 #import "RNCWKWebViewMapManager.h"
@@ -417,6 +419,9 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
         if (rncWebView != nil) {
           [self removeWKWebViewFromSuperView:rncWebView];
+        // The webview might be attached to a temporary parent; if so, remove it first.
+        } else if ([_webView superview] != nil) {
+          [_webView removeFromSuperview];
         }
       }
     }
@@ -521,6 +526,11 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
     // if this RNCWebView is the "active" view.
     if (rncWebView == self) {
       [self removeWKWebViewFromSuperView:self];
+        
+      if (_temporaryParentNodeTag != nil) {
+        UIView* temporaryParentView = [self.bridge.uiManager viewForReactTag:_temporaryParentNodeTag];
+        [temporaryParentView addSubview:_webView];
+      }
     }
   }
 
