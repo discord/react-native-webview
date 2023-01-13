@@ -53,6 +53,7 @@ RCT_EXPORT_MODULE()
 {
   RNCWebView *webView = [RNCWebView new];
   webView.delegate = self;
+  webView.bridge = self.bridge;
   return webView;
 }
 
@@ -116,6 +117,7 @@ RCT_EXPORT_VIEW_PROPERTY(mediaCapturePermissionGrantType, RNCWebViewPermissionGr
 #endif
 
 RCT_EXPORT_VIEW_PROPERTY(webViewKey, NSString)
+RCT_EXPORT_VIEW_PROPERTY(temporaryParentNodeTag, NSNumber)
 
 /**
  * Expose methods to enable messaging the webview.
@@ -308,14 +310,20 @@ RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
     NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
     
-    sharedWKWebViewDictionary[webViewKey] = nil;
-    
     RNCWebView *rncWebView = sharedRNCWebViewDictionary[webViewKey];
+    WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
       
     if (rncWebView != nil) {
       [rncWebView cleanUpWebView];
       sharedRNCWebViewDictionary[webViewKey] = nil;
+    } else {
+      // Remove WkWebView from temporary parent
+      if (wkWebView != nil) {
+        [wkWebView removeFromSuperview];
+      }
     }
+    
+    sharedWKWebViewDictionary[webViewKey] = nil;
   }];
 }
 

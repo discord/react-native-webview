@@ -22,6 +22,7 @@ import NativeWebpage from './examples/NativeWebpage';
 import ApplePay from './examples/ApplePay';
 import Portals from './examples/Portals';
 import AssetLoadedWebpage from './examples/AssetLoadedWebpage';
+import TemporaryParenting from './examples/TemporaryParenting';
 
 const TESTS = {
   Messaging: {
@@ -118,6 +119,14 @@ const TESTS = {
     description: 'Test to open a webpage that is mapped to an android asset',
     render() {
       return <AssetLoadedWebpage />;
+    },
+  },
+  TemporaryParenting: {
+    title: 'Temporary Parenting',
+    testId: 'Temporary Parenting',
+    description: 'Test to see if a webview with a webview key will temporary parent to a specified view. The webview should move to the red square',
+    render() {
+      return <TemporaryParenting />;
     },
   }
 };
@@ -218,6 +227,11 @@ export default class App extends Component<Props, State> {
             testID="testType_portals"
             title="Portals"
             onPress={() => this._changeTest('Portals')}
+          />
+          <Button
+            testID="testType_temporaryParenting"
+            title="Temporary Parenting"
+            onPress={() => this._changeTest('TemporaryParenting')}
           />
           {Platform.OS === 'android' && (
               <Button
