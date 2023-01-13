@@ -19,6 +19,7 @@ import androidx.core.content.FileProvider;
 import androidx.core.util.Pair;
 
 import android.util.Log;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -169,6 +170,12 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
         RNCWebViewManager.InternalWebView internalWebView = rncWebView.detachWebView();
         if (internalWebView != webView) {
           throw new IllegalStateException("internalWebViewMap has a mismatched webview with key: " + webViewKey);
+        }
+      } else {
+        // Remove webview from temporary parent if exists
+        ViewGroup temporaryParent = (ViewGroup) webView.getParent();
+        if (temporaryParent != null) {
+          temporaryParent.removeView(webView);
         }
       }
 

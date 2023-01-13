@@ -929,7 +929,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
           // Re-attach the internal webview to the temporary parent.
           UIManagerModule uiManagerModule = ((ReactContext) view.getContext()).getNativeModule(UIManagerModule.class);
           ViewGroup temporaryParentView = (ViewGroup)uiManagerModule.resolveView(view.temporaryParentNodeTag);
-          viewGroup.addView(webView);
+          temporaryParentView.addView(webView);
+
+          // Resize view to match parent
+          webView.measure(
+            View.MeasureSpec.makeMeasureSpec(temporaryParentView.getMeasuredWidth(), View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(temporaryParentView.getMeasuredHeight(), View.MeasureSpec.EXACTLY)
+          );
+
+          webView.layout(0, 0, webView.getMeasuredWidth(), webView.getMeasuredHeight());
         }
       }
     });

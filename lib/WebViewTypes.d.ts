@@ -988,6 +988,14 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
       * webViewKey
       */
     messagingWithWebViewKeyEnabled?: boolean;
+    /**
+     * If a webViewKey and temporaryParentNodeTags are set, the webview will reattach to a temporary parent
+     * specified by the tag if this view is ever unmounted by React
+     *
+     * A possible usecase is to ensure the webview stays attached to the window at all times, so the visibilityState
+     * on the document remains visible.
+     */
+    temporaryParentNodeTag?: number;
 }
 export interface WebViewSharedProps extends ViewProps {
     /**

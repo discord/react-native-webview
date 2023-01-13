@@ -41,7 +41,6 @@ public class RNCWebView extends FrameLayout {
       public void onChildViewRemoved(View parent, View child) {}
     });
   }
-  }
 
   public interface Action {
     void apply(RNCWebViewManager.InternalWebView webView);

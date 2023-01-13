@@ -310,14 +310,20 @@ RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
     NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
     
-    sharedWKWebViewDictionary[webViewKey] = nil;
-    
     RNCWebView *rncWebView = sharedRNCWebViewDictionary[webViewKey];
+    WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
       
     if (rncWebView != nil) {
       [rncWebView cleanUpWebView];
       sharedRNCWebViewDictionary[webViewKey] = nil;
+    } else {
+      // Remove WkWebView from temporary parent
+      if (wkWebView != nil) {
+        [wkWebView removeFromSuperview];
+      }
     }
+    
+    sharedWKWebViewDictionary[webViewKey] = nil;
   }];
 }
 

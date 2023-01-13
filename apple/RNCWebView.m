@@ -529,6 +529,8 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
         
       if (_temporaryParentNodeTag != nil) {
         UIView* temporaryParentView = [self.bridge.uiManager viewForReactTag:_temporaryParentNodeTag];
+        // Resizes the webview to parent bounds
+        [_webView setFrame:temporaryParentView.bounds];
         [temporaryParentView addSubview:_webView];
       }
     }
