@@ -350,15 +350,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
       Context ctx = view.getContext();
       if (ctx != null) {
         view.ifHasInternalWebView(webView -> {
-          webView.getSettings().setAppCachePath(ctx.getCacheDir().getAbsolutePath());
           webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-          webView.getSettings().setAppCacheEnabled(true);
         });
       }
     } else {
       view.ifHasInternalWebView(webView -> {
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setAppCacheEnabled(false);
       });
 
     }
@@ -623,7 +620,6 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     view.ifHasInternalWebView(webView -> {
       // Disable caching
       webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-      webView.getSettings().setAppCacheEnabled(false);
       webView.clearHistory();
       webView.clearCache(true);
 
