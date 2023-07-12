@@ -100,25 +100,27 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
     }
   }
 
-  private PermissionListener webviewFileDownloaderPermissionListener = new PermissionListener() {
-    @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-      switch (requestCode) {
-        case FILE_DOWNLOAD_PERMISSION_REQUEST: {
-          // If request is cancelled, the result arrays are empty.
-          if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (downloadRequest != null) {
-              downloadFile();
+  private PermissionListener getWebviewFileDownloaderPermissionListener(String downloadingMessage, String lackPermissionToDownloadMessage) {
+    return new PermissionListener() {
+      @Override
+      public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+          case FILE_DOWNLOAD_PERMISSION_REQUEST: {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+              if (downloadRequest != null) {
+                downloadFile(downloadingMessage);
+              }
+            } else {
+              Toast.makeText(getCurrentActivity().getApplicationContext(), lackPermissionToDownloadMessage, Toast.LENGTH_LONG).show();
             }
-          } else {
-            Toast.makeText(getCurrentActivity().getApplicationContext(), "Cannot download files as permission was denied. Please provide permission to write to storage, in order to download files.", Toast.LENGTH_LONG).show();
+            return true;
           }
-          return true;
         }
+        return false;
       }
-      return false;
-    }
-  };
+    };
+  }
 
   public RNCWebViewModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -157,8 +159,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
   @ReactMethod
   public void releaseWebView(final String webViewKey) {
     UiThreadUtil.runOnUiThread(() -> {
-      RNCWebView rncWebView = RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
-      RNCWebViewManager.InternalWebView webView = (RNCWebViewManager.InternalWebView) RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
+      RNCWebViewManager.RNCWebView webView = (RNCWebViewManager.RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
 
       if (webView == null) {
         FLog.w(TAG, "Failed to release webview with webViewKey: " + webViewKey);
@@ -166,10 +167,10 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       }
 
       // Detach internal webview from the wrapper RNCWebView
-      if (rncWebView != null) {
-        RNCWebViewManager.InternalWebView internalWebView = rncWebView.detachWebView();
-        if (internalWebView != webView) {
-          throw new IllegalStateException("internalWebViewMap has a mismatched webview with key: " + webViewKey);
+      if (rncWebViewContainer != null) {
+        RNCWebViewManager.RNCWebView rncWebView = rncWebViewContainer.detachWebView();
+        if (rncWebView != webView) {
+          throw new IllegalStateException("mismatched webview with key: " + webViewKey);
         }
       } else {
         // Remove webview from temporary parent if exists
@@ -186,14 +187,13 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       }
 
       RNCWebViewMapManager.INSTANCE.getRncWebViewMap().remove(webViewKey);
-      RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().remove(webViewKey);
     });
   }
 
   @ReactMethod
   public void injectJavaScriptWithWebViewKey(final String webViewKey, final String script, final Promise promise) {
     UiThreadUtil.runOnUiThread(() -> {
-      RNCWebViewManager.InternalWebView webView = (RNCWebViewManager.InternalWebView) RNCWebViewMapManager.INSTANCE.getInternalWebViewMap().get(webViewKey);
+      RNCWebViewManager.RNCWebView webView = (RNCWebViewManager.RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
       if (webView != null) {
         webView.evaluateJavascriptWithFallback(script);
         promise.resolve(null);
@@ -360,16 +360,20 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
     this.downloadRequest = request;
   }
 
-  public void downloadFile() {
+  public void downloadFile(String downloadingMessage) {
     DownloadManager dm = (DownloadManager) getCurrentActivity().getBaseContext().getSystemService(Context.DOWNLOAD_SERVICE);
-    String downloadMessage = "Downloading";
 
-    dm.enqueue(this.downloadRequest);
+    try {
+      dm.enqueue(this.downloadRequest);
+    } catch (IllegalArgumentException e) {
+      Log.w("RNCWebViewModule", "Unsupported URI, aborting download", e);
+      return;
+    }
 
-    Toast.makeText(getCurrentActivity().getApplicationContext(), downloadMessage, Toast.LENGTH_LONG).show();
+    Toast.makeText(getCurrentActivity().getApplicationContext(), downloadingMessage, Toast.LENGTH_LONG).show();
   }
 
-  public boolean grantFileDownloaderPermissions() {
+  public boolean grantFileDownloaderPermissions(String downloadingMessage, String lackPermissionToDownloadMessage) {
     // Permission not required for Android Q and above
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
       return true;
@@ -378,7 +382,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
     boolean result = ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     if (!result && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       PermissionAwareActivity activity = getPermissionAwareActivity();
-      activity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, FILE_DOWNLOAD_PERMISSION_REQUEST, webviewFileDownloaderPermissionListener);
+      activity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, FILE_DOWNLOAD_PERMISSION_REQUEST, getWebviewFileDownloaderPermissionListener(downloadingMessage, lackPermissionToDownloadMessage));
     }
 
     return result;

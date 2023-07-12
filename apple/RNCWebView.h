@@ -10,11 +10,11 @@
 #import <WebKit/WebKit.h>
 
 typedef enum RNCWebViewPermissionGrantType : NSUInteger {
-    RNCWebViewPermissionGrantType_GrantIfSameHost_ElsePrompt,
-    RNCWebViewPermissionGrantType_GrantIfSameHost_ElseDeny,
-    RNCWebViewPermissionGrantType_Deny,
-    RNCWebViewPermissionGrantType_Grant,
-    RNCWebViewPermissionGrantType_Prompt
+  RNCWebViewPermissionGrantType_GrantIfSameHost_ElsePrompt,
+  RNCWebViewPermissionGrantType_GrantIfSameHost_ElseDeny,
+  RNCWebViewPermissionGrantType_Deny,
+  RNCWebViewPermissionGrantType_Grant,
+  RNCWebViewPermissionGrantType_Prompt
 } RNCWebViewPermissionGrantType;
 
 @class RNCWebView;
@@ -23,7 +23,7 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 @protocol RNCWebViewDelegate <NSObject>
 
 - (BOOL)webView:(RNCWebView *_Nonnull)webView
-   shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *_Nonnull)request
+shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *_Nonnull)request
    withCallback:(RCTDirectEventBlock _Nonnull)callback;
 
 @end
@@ -52,6 +52,7 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 @property (nonatomic, assign) BOOL pagingEnabled;
 @property (nonatomic, assign) CGFloat decelerationRate;
 @property (nonatomic, assign) BOOL allowsInlineMediaPlayback;
+@property (nonatomic, assign) BOOL allowsAirPlayForMediaPlayback;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL mediaPlaybackRequiresUserAction;
 #if WEBKIT_IOS_10_APIS_AVAILABLE
@@ -115,7 +116,9 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 - (void)goBack;
 - (void)reload;
 - (void)stopLoading;
+- (void)requestFocus;
 - (void)releaseWebView;
+- (void)cleanUpWebView;
 #if !TARGET_OS_OSX
 - (void)addPullToRefreshControl;
 - (void)pullToRefresh:(UIRefreshControl *_Nonnull)refreshControl;
