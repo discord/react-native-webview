@@ -11,6 +11,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 public class RNCWebViewContainer extends FrameLayout {
   private static final String TAG = "RNCWebViewContainer";
   public static final int INVALID_VIEW_ID = -1;
+  public int temporaryParentNodeTag = 0;
 
   private RNCWebViewManager.RNCWebView RNCWebView;
 

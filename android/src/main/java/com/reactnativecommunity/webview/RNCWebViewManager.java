@@ -193,8 +193,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     return REACT_CLASS;
   }
 
-  protected InternalWebView createInternalWebViewInstance(ThemedReactContext reactContext) {
-    return new InternalWebView(reactContext);
+  protected RNCWebView createRNCWebViewInstance(ThemedReactContext reactContext) {
+    return new RNCWebView(reactContext);
   }
 
   @Override
@@ -327,11 +327,6 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       view.attachWebView(webView);
     }
 
-    @ReactProp(name = "temporaryParentNodeTag")
-    public void setTemporaryParentNodeTag(RNCWebView view, int nodeTag) {
-      view.temporaryParentNodeTag = nodeTag;
-    }
-
     // Update all maps with the view + set/update key
     // This means an existing webview can update it's own key
     view.ifHasRNCWebView(webView -> {
@@ -339,6 +334,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), view.getId());
       rncWebViewMap.put(webViewKey, webView);
     });
+  }
+
+  @ReactProp(name = "temporaryParentNodeTag")
+  public void setTemporaryParentNodeTag(RNCWebViewContainer view, int nodeTag) {
+    view.temporaryParentNodeTag = nodeTag;
   }
 
   @ReactProp(name = "showsHorizontalScrollIndicator")
@@ -414,7 +414,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
   }
 
   @ReactProp(name = "androidAssetLoaderConfig")
-  public void setAssetLoaderConfig(RNCWebView view, @Nullable ReadableMap config) {
+  public void setAssetLoaderConfig(RNCWebViewContainer view, @Nullable ReadableMap config) {
     WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder();
 
     String domain = config.getString("domain");
@@ -467,7 +467,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
 
     WebViewAssetLoader assetLoader = builder.build();
-    view.ifHasInternalWebView(webView -> webView.setWebViewAssetLoader(assetLoader));
+    view.ifHasRNCWebView(webView -> webView.setWebViewAssetLoader(assetLoader));
   }
 
 
@@ -1078,7 +1078,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected boolean mLastLoadFailed = false;
     protected @Nullable
     ReadableArray mUrlPrefixesForDefaultIntent;
-    protected InternalWebView.ProgressChangedFilter progressChangedFilter = null;
+    protected RNCWebView.ProgressChangedFilter progressChangedFilter = null;
     protected @Nullable String ignoreErrFailedForThisURL = null;
     protected @Nullable BasicAuthCredential basicAuthCredential = null;
     protected @Nullable WebViewAssetLoader webViewAssetLoader;
@@ -1110,7 +1110,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       super.onPageFinished(webView, url);
 
       if (!mLastLoadFailed) {
-        InternalWebView reactWebView = (InternalWebView) webView;
+        RNCWebView reactWebView = (RNCWebView) webView;
 
         reactWebView.callInjectedJavaScript();
 
@@ -1123,10 +1123,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       super.onPageStarted(webView, url, favicon);
       mLastLoadFailed = false;
 
-      InternalWebView reactWebView = (InternalWebView) webView;
+      RNCWebView reactWebView = (RNCWebView) webView;
       reactWebView.callInjectedJavaScriptBeforeContentLoaded();
 
-      ((InternalWebView) webView).dispatchEvent(
+      ((RNCWebView) webView).dispatchEvent(
         webView,
         new TopLoadingStartEvent(
           RNCWebViewContainer.getRNCWebViewId(webView),
@@ -1173,7 +1173,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       } else {
         FLog.w(TAG, "Couldn't use blocking synchronous call for onShouldStartLoadWithRequest due to debugging or missing Catalyst instance, falling back to old event-and-load.");
         progressChangedFilter.setWaitingForCommandLoadUrl(true);
-        ((InternalWebView) view).dispatchEvent(
+        ((RNCWebView) view).dispatchEvent(
           view,
           new TopShouldStartLoadWithRequestEvent(
             RNCWebViewContainer.getRNCWebViewId(view),
@@ -1289,7 +1289,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       eventData.putDouble("code", errorCode);
       eventData.putString("description", description);
 
-      ((InternalWebView) webView).dispatchEvent(
+      ((RNCWebView) webView).dispatchEvent(
         webView,
         new TopLoadingErrorEvent(RNCWebViewContainer.getRNCWebViewId(webView), eventData));
     }
@@ -1307,7 +1307,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
         eventData.putInt("statusCode", errorResponse.getStatusCode());
         eventData.putString("description", errorResponse.getReasonPhrase());
 
-        ((InternalWebView) webView).dispatchEvent(
+        ((RNCWebView) webView).dispatchEvent(
           webView,
           new TopHttpErrorEvent(RNCWebViewContainer.getRNCWebViewId(webView), eventData));
       }
@@ -1339,7 +1339,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
         WritableMap event = createWebViewEvent(webView, webView.getUrl());
         event.putBoolean("didCrash", detail.didCrash());
 
-      ((InternalWebView) webView).dispatchEvent(
+      ((RNCWebView) webView).dispatchEvent(
           webView,
           new TopRenderProcessGoneEvent(RNCWebViewContainer.getRNCWebViewId(webView), event)
         );
@@ -1349,7 +1349,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
 
     protected void emitFinishEvent(WebView webView, String url) {
-      ((InternalWebView) webView).dispatchEvent(
+      ((RNCWebView) webView).dispatchEvent(
         webView,
         new TopLoadingFinishEvent(
           RNCWebViewContainer.getRNCWebViewId(webView),
@@ -1373,7 +1373,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       mUrlPrefixesForDefaultIntent = specialUrls;
     }
 
-    public void setProgressChangedFilter(InternalWebView.ProgressChangedFilter filter) {
+    public void setProgressChangedFilter(RNCWebView.ProgressChangedFilter filter) {
       progressChangedFilter = filter;
     }
   }
@@ -1420,7 +1420,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     // Pending Android permissions for the next request
     protected List<String> pendingPermissions = new ArrayList<>();
 
-    protected InternalWebView.ProgressChangedFilter progressChangedFilter = null;
+    protected RNCWebView.ProgressChangedFilter progressChangedFilter = null;
 
     // True if protected media should be allowed, false otherwise
     protected boolean mAllowsProtectedMedia = false;
@@ -1464,7 +1464,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       event.putBoolean("canGoBack", webView.canGoBack());
       event.putBoolean("canGoForward", webView.canGoForward());
       event.putDouble("progress", (float) newProgress / 100);
-      ((InternalWebView) webView).dispatchEvent(
+      ((RNCWebView) webView).dispatchEvent(
         webView,
         new TopLoadingProgressEvent(
           RNCWebViewContainer.getRNCWebViewId(webView),
@@ -1686,7 +1686,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       return (ViewGroup) mReactContext.getCurrentActivity().findViewById(android.R.id.content);
     }
 
-    public void setProgressChangedFilter(InternalWebView.ProgressChangedFilter filter) {
+    public void setProgressChangedFilter(RNCWebView.ProgressChangedFilter filter) {
       progressChangedFilter = filter;
     }
 
@@ -1704,7 +1704,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
    * Subclass of {@link WebView} that implements {@link LifecycleEventListener} interface in order
    * to call {@link WebView#destroy} on activity destroy event and also to clear the client
    */
-  protected static class InternalWebView extends WebView implements LifecycleEventListener {
+  protected static class RNCWebView extends WebView implements LifecycleEventListener {
     protected @Nullable
     String injectedJS;
     protected @Nullable
@@ -1743,7 +1743,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
      * Activity Context is required for creation of dialogs internally by WebView
      * Reactive Native needed for access to ReactNative internal system functionality
      */
-    public InternalWebView(ThemedReactContext reactContext) {
+    public RNCWebView(ThemedReactContext reactContext) {
       super(reactContext);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
@@ -2059,9 +2059,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
 
     protected class RNCWebViewBridge {
-      InternalWebView mContext;
+      RNCWebView mContext;
 
-      RNCWebViewBridge(InternalWebView c) {
+      RNCWebViewBridge(RNCWebView c) {
         mContext = c;
       }
 

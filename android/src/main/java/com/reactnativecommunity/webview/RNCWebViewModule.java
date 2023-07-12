@@ -166,6 +166,8 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
         return;
       }
 
+      RNCWebViewContainer rncWebViewContainer = (RNCWebViewContainer) webView.getParent();
+
       // Detach internal webview from the wrapper RNCWebView
       if (rncWebViewContainer != null) {
         RNCWebViewManager.RNCWebView rncWebView = rncWebViewContainer.detachWebView();
