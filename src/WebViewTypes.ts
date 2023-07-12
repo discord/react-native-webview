@@ -1235,7 +1235,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * webViewKey
    */
   messagingWithWebViewKeyEnabled?: boolean;
-<<<<<<< HEAD
 
   /**
    * If a webViewKey and temporaryParentNodeTags are set, the webview will reattach to a temporary parent
@@ -1245,8 +1244,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * on the document remains visible.
    */
   temporaryParentNodeTag?: number;
-=======
->>>>>>> 11.18.1-discord-2
 }
 
 export interface WebViewSharedProps extends ViewProps {
