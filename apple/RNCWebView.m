@@ -534,8 +534,9 @@ RCTAutoInsetsProtocol>
   if (![self shouldReuseWebView]) {
     [self cleanUpWebView];
   } else {
-    NSMutableDictionary *sharedRNCWebViewDictionary= [[RNCWebViewMapManager sharedManager] sharedRNCWebViewDictionary];
-    RNCWebView *rncWebView = sharedRNCWebViewDictionary[_webViewKey];
+    NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
+    WKWebView *wkWebView = sharedWKWebViewDictionary[_webViewKey];
+    RNCWebView *rncWebView = wkWebView.superview;
       
     // When this view is being unmounted, only remove the WKWebView from the superview
     // if this RNCWebView is the "active" view.
