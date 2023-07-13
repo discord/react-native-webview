@@ -36,7 +36,7 @@
 + (id) sharedManager {
   static RNCScriptMessageManager *_sharedManager = nil;
   @synchronized(self) {
-    if(_sharedManager== nil) {
+    if(_sharedManager == nil) {
       _sharedManager = [[super alloc] init];
     }
     return _sharedManager;
