@@ -311,17 +311,23 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     if (rncWebViewMap.containsKey(webViewKey)) {
       RNCWebView webView = (RNCWebView) rncWebViewMap.get(webViewKey);
 
-      RNCWebViewContainer existingRncWebViewContainer = (RNCWebViewContainer) webView.getParent();
+      ViewGroup webViewParent = (ViewGroup)webView.getParent();
 
-      // If the internal WebView is attached to an existing RNCWebView, first detach
-      // it from the existing RNCWebView.
-      if (existingRncWebViewContainer != null) {
+      // If the RNCWebView is attached to an existing RNCWebViewContainer, first detach
+      // it from the existing RNCWebViewContainer.
+      if (webViewParent != null && webViewParent instanceof RNCWebViewContainer) {
+        RNCWebViewContainer existingRncWebViewContainer = (RNCWebViewContainer) webView.getParent();
         existingRncWebViewContainer.detachWebView();
 
         // The chrome client was originally setup on instance creation but might be pointing to the wrong webview
         // so it's reset here.
         // Not entirely sure why there is a single instance of the webchrome client for all webviews?
         setupWebChromeClient((ThemedReactContext) existingRncWebViewContainer.getContext(), webView);
+      }
+
+      // The webview might be attached to the temporary parent; if so, remove it first.
+      if (webViewParent != null) {
+        webViewParent.removeView(webView);
       }
 
       view.attachWebView(webView);

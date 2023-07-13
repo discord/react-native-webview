@@ -35,15 +35,15 @@ export default function TemporaryParenting() {
       <Text>Releasing the webview will destroy it, tapping on Mount again will create a new instance of the webview.</Text>
 
       {showWebView &&
-      <View style={{width: WEBVIEW_WIDTH, height: WEBVIEW_HEIGHT, marginTop: 25}}>
-        <WebView
-          source={{
-            uri: URI,
-          }}
-          webViewKey={WEB_VIEW_KEY}
-          temporaryParentNodeTag={nodeTag}
-        />
-      </View>
+        <View style={{width: WEBVIEW_WIDTH, height: WEBVIEW_HEIGHT, marginTop: 25}}>
+          <WebView
+            source={{
+              uri: URI,
+            }}
+            webViewKey={WEB_VIEW_KEY}
+            temporaryParentNodeTag={nodeTag}
+          />
+        </View>
       }
     </>
   )
