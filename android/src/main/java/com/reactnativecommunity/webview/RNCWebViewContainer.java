@@ -80,6 +80,7 @@ public class RNCWebViewContainer extends FrameLayout {
 
   public void removeWebViewFromParent() {
     if (RNCWebView != null) {
+      endViewTransition(RNCWebView);
       removeView(RNCWebView);
     }
   }
