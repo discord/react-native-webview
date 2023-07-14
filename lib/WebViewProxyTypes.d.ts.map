@@ -1,0 +1,1 @@
+{"version":3,"file":"WebViewProxyTypes.d.ts","sourceRoot":"","sources":["../src/WebViewProxyTypes.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,mBAAmB,EAAE,MAAM,cAAc,CAAC;AAEnD,MAAM,WAAW,aAAa;IAC5B,gBAAgB,CAAC,MAAM,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,CAAC,CAAC;IAGhD,oBAAoB,CAAC,QAAQ,EAAE,CAAC,KAAK,EAAE,GAAG,KAAK,IAAI,GAAG,mBAAmB,CAAC;IAE1E,cAAc,IAAI,IAAI,CAAC;CACxB"}
