@@ -320,14 +320,18 @@ RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, __unused NSDictionary<NSNumber *, RNCWebView *> *viewRegistry) {
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
     WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
-    RNCWebView *rncWebView = wkWebView.superview;
-      
-    if (rncWebView != nil) {
-      [rncWebView cleanUpWebView];
-    } else {
-      // Remove WkWebView from temporary parent
-      if (wkWebView != nil) {
-        [wkWebView removeFromSuperview];
+    
+    if (wkWebView != nil) {
+      UIView *parentView = wkWebView.superview;
+      if (parentView != nil) {
+        if ([parentView isKindOfClass:[RNCWebView class]]) {
+          [(RNCWebView*)parentView cleanUpWebView];
+        } else {
+          // Remove WkWebView from temporary parent
+          if (wkWebView != nil) {
+            [wkWebView removeFromSuperview];
+          }
+        }
       }
     }
     
