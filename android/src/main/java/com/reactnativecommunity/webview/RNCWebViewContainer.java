@@ -9,14 +9,14 @@ import androidx.annotation.Nullable;
 import com.facebook.common.logging.FLog;
 import com.facebook.react.uimanager.ThemedReactContext;
 
-public class RNCWebView extends FrameLayout {
-  private static final String TAG = "RNCWebView";
+public class RNCWebViewContainer extends FrameLayout {
+  private static final String TAG = "RNCWebViewContainer";
   public static final int INVALID_VIEW_ID = -1;
   public int temporaryParentNodeTag = 0;
 
-  private RNCWebViewManager.InternalWebView internalWebView;
+  private RNCWebViewManager.RNCWebView RNCWebView;
 
-  public RNCWebView(ThemedReactContext reactContext) {
+  public RNCWebViewContainer(ThemedReactContext reactContext) {
     super(reactContext);
 
     // There is an issue with react-native where if a view is moved
@@ -30,9 +30,9 @@ public class RNCWebView extends FrameLayout {
       public void onChildViewAdded(View parent, View child) {
         if (parent != null) {
           parent.measure(
-              MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
-              MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY)
-              );
+            MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY)
+          );
           parent.layout(0, 0, parent.getMeasuredWidth(), parent.getMeasuredHeight());
         }
       }
@@ -43,16 +43,16 @@ public class RNCWebView extends FrameLayout {
   }
 
   public interface Action {
-    void apply(RNCWebViewManager.InternalWebView webView);
+    void apply(RNCWebViewManager.RNCWebView webView);
   }
 
   /**
-   * Attaches a {@link RNCWebViewManager.InternalWebView} to the RNCWebView parent
+   * Attaches a {@link RNCWebViewManager.RNCWebView} to the RNCWebView parent
    * Throws an exception if the provided internal webView is already attached to a parent
    * @param webView
    */
-  public void attachWebView(RNCWebViewManager.InternalWebView webView) {
-    this.internalWebView = webView;
+  public void attachWebView(RNCWebViewManager.RNCWebView webView) {
+    this.RNCWebView = webView;
 
     // Only re-attach the WebView if parent is null
     if (webView.getParent() != null) {
@@ -64,39 +64,39 @@ public class RNCWebView extends FrameLayout {
   }
 
   /**
-   * Detaches the internal webview from the RNCWebview parent and returns a reference to it
-   * @return internalWebView
+   * Detaches the RNCWebView from the RNCWebViewContainer parent and returns a reference to it
+   * @return RNCWebView
    */
-  public RNCWebViewManager.InternalWebView detachWebView() {
-    if (internalWebView == null) {
+  public RNCWebViewManager.RNCWebView detachWebView() {
+    if (RNCWebView == null) {
       throw new IllegalStateException("Webview is null");
     }
 
     removeWebViewFromParent();
-    RNCWebViewManager.InternalWebView webView = internalWebView;
-    this.internalWebView = null;
+    RNCWebViewManager.RNCWebView webView = RNCWebView;
+    this.RNCWebView = null;
     return webView;
   }
 
   public void removeWebViewFromParent() {
-    if (internalWebView != null) {
-      endViewTransition(internalWebView);
-      removeView(internalWebView);
+    if (RNCWebView != null) {
+      endViewTransition(RNCWebView);
+      removeView(RNCWebView);
     }
   }
 
   @Nullable
-  public RNCWebViewManager.InternalWebView getWebView() {
-    return internalWebView;
+  public RNCWebViewManager.RNCWebView getWebView() {
+    return RNCWebView;
   }
 
   /**
    * Applies an action if the internal webview is non null
    * @param action
    */
-  public void ifHasInternalWebView(Action action) {
-    if (internalWebView != null) {
-      action.apply(internalWebView);
+  public void ifHasRNCWebView(Action action) {
+    if (RNCWebView != null) {
+      action.apply(RNCWebView);
     } else {
       FLog.e(TAG, new Throwable(), "Internal WebView is null");
     }

@@ -1,9 +1,13 @@
 import { Component } from 'react';
 // eslint-disable-next-line
 
+<<<<<<< HEAD
 import releaseWebView from './lib/releaseWebView';
 import injectJavaScriptWithWebViewKey from './lib/injectJavaScriptWithWebViewKey';
 import addOnMessageListenerWithWebViewKey from './lib/addOnMessageListenerWithWebViewKey';
+=======
+import getWebViewProxy from './lib/getWebViewProxy';
+>>>>>>> 11.18.1-discord-2
 
 import { IOSWebViewProps, AndroidWebViewProps, WindowsWebViewProps } from './lib/WebViewTypes';
 
@@ -66,5 +70,5 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
     clearHistory?: () => void;
 }
 
-export {WebView, releaseWebView, injectJavaScriptWithWebViewKey, addOnMessageListenerWithWebViewKey};
+export {WebView, getWebViewProxy};
 export default WebView;

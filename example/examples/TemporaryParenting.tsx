@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {View, Button, Text} from 'react-native';
-import {WebView, releaseWebView} from 'react-native-webview';
+import {WebView, getWebViewProxy} from 'react-native-webview';
 
 const URI = 'https://www.apache.org';
 const WEB_VIEW_KEY = 'TemporaryParentingWebViewKey'
+const webViewProxy = getWebViewProxy(WEB_VIEW_KEY);
 
 const WEBVIEW_WIDTH = 360;
 const WEBVIEW_HEIGHT = 150;
@@ -30,19 +31,19 @@ export default function TemporaryParenting() {
      </View>
       <Button title={`${mountButtonTitle}`} onPress={() => setShowWebView(!showWebView)} />
 
-      <Button title="Release WebView" onPress={() => { releaseWebView(WEB_VIEW_KEY); setShowWebView(false) }} />
+      <Button title="Release WebView" onPress={() => { webViewProxy.releaseWebView(); setShowWebView(false) }} />
       <Text>Releasing the webview will destroy it, tapping on Mount again will create a new instance of the webview.</Text>
 
       {showWebView &&
-      <View style={{width: WEBVIEW_WIDTH, height: WEBVIEW_HEIGHT, marginTop: 25}}>
-        <WebView
-          source={{
-            uri: URI,
-          }}
-          webViewKey={WEB_VIEW_KEY}
-          temporaryParentNodeTag={nodeTag}
-        />
-      </View>
+        <View style={{width: WEBVIEW_WIDTH, height: WEBVIEW_HEIGHT, marginTop: 25}}>
+          <WebView
+            source={{
+              uri: URI,
+            }}
+            webViewKey={WEB_VIEW_KEY}
+            temporaryParentNodeTag={nodeTag}
+          />
+        </View>
       }
     </>
   )
