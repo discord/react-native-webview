@@ -10,33 +10,9 @@
  * Licensed under the MIT License.
  */
 import React from 'react';
-import { NativeWebViewWindows, WindowsWebViewProps, WebViewProgressEvent, WebViewNavigationEvent, WebViewErrorEvent, WebViewHttpErrorEvent, WebViewMessageEvent, State } from './WebViewTypes';
-export default class WebView extends React.Component<WindowsWebViewProps, State> {
-    static defaultProps: {
-        javaScriptEnabled: boolean;
-    };
-    state: State;
-    webViewRef: React.RefObject<NativeWebViewWindows>;
-    RnwVersionSupportsWebView2: boolean;
-    RCTWebViewString: string;
-    goForward: () => void;
-    goBack: () => void;
-    reload: () => void;
-    injectJavaScript: (data: string) => void;
-    postMessage: (data: string) => void;
-    getInjectableJSMessage: (message: string) => string;
-    /**
-     * We return an event with a bunch of fields including:
-     *  url, title, loading, canGoBack, canGoForward
-     */
-    updateNavigationState: (event: WebViewNavigationEvent) => void;
-    getWebViewHandle: () => number | null;
-    onLoadingStart: (event: WebViewNavigationEvent) => void;
-    onLoadingProgress: (event: WebViewProgressEvent) => void;
-    onLoadingError: (event: WebViewErrorEvent) => void;
-    onLoadingFinish: (event: WebViewNavigationEvent) => void;
-    onMessage: (event: WebViewMessageEvent) => void;
-    onHttpError: (event: WebViewHttpErrorEvent) => void;
-    render(): JSX.Element;
-}
+import { WindowsWebViewProps } from './WebViewTypes';
+declare const WebView: React.ForwardRefExoticComponent<WindowsWebViewProps & React.RefAttributes<{}>> & {
+    isFileUploadSupported: () => Promise<boolean>;
+};
+export default WebView;
 //# sourceMappingURL=WebView.windows.d.ts.map

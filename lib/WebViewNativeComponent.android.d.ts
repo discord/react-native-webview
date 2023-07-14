@@ -1,4 +1,4 @@
 import type { NativeWebViewAndroid } from "./WebViewTypes";
-declare const RNCWebView: typeof NativeWebViewAndroid;
-export default RNCWebView;
+declare const RNCWebViewContainer: typeof NativeWebViewAndroid;
+export default RNCWebViewContainer;
 //# sourceMappingURL=WebViewNativeComponent.android.d.ts.map
