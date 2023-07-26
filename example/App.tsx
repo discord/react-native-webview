@@ -23,6 +23,7 @@ import ApplePay from './examples/ApplePay';
 import Portals from './examples/Portals';
 import AssetLoadedWebpage from './examples/AssetLoadedWebpage';
 import TemporaryParenting from './examples/TemporaryParenting';
+import CustomMenu from './examples/CustomMenu';
 
 const TESTS = {
   Messaging: {
@@ -128,11 +129,19 @@ const TESTS = {
     render() {
       return <TemporaryParenting />;
     },
+  },
+  CustomMenu: {
+    title: 'Custom Menu',
+    testId: 'CustomMenu',
+    description: 'Test to custom context menu shown on highlighting text',
+    render() {
+      return <CustomMenu />;
+    },
   }
 };
 
-type Props = {};
-type State = {restarting: boolean; currentTest: Object};
+interface Props {}
+interface State {restarting: boolean; currentTest: Object}
 
 export default class App extends Component<Props, State> {
   state = {
@@ -238,6 +247,11 @@ export default class App extends Component<Props, State> {
                   onPress={() => this._changeTest('AssetLoaded')}
               />
           )}
+          <Button
+            testID="testType_customMenu"
+            title="CustomMenu"
+            onPress={() => this._changeTest('CustomMenu')}
+          />
         </View>
 
         {restarting ? null : (

@@ -8,13 +8,14 @@ import androidx.annotation.Nullable;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.reactnativecommunity.webview.RNCWebView;
 
 public class RNCWebViewContainer extends FrameLayout {
   private static final String TAG = "RNCWebViewContainer";
   public static final int INVALID_VIEW_ID = -1;
   public int temporaryParentNodeTag = 0;
 
-  private RNCWebViewManager.RNCWebView RNCWebView;
+  private RNCWebView RNCWebView;
 
   public RNCWebViewContainer(ThemedReactContext reactContext) {
     super(reactContext);
