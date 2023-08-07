@@ -18,6 +18,7 @@ import android.webkit.WebView
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewFeature
+import com.facebook.common.logging.FLog
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
@@ -71,7 +72,7 @@ class RNCWebViewManagerImpl {
     }
 
     fun createViewInstance(context: ThemedReactContext, webView: RNCWebView): RNCWebViewContainer {
-        val wrapper = RNCWebViewContainer(reactContext)
+        val wrapper = RNCWebViewContainer(context)
         wrapper.attachWebView(webView)
         RNCWebViewMapManager.viewIdMap[webView.id] = wrapper.id
 
@@ -86,8 +87,8 @@ class RNCWebViewManagerImpl {
         settings.allowFileAccess = false
         settings.allowContentAccess = false
         settings.allowFileAccessFromFileURLs = false
-        setAllowUniversalAccessFromFileURLs(webView, false)
-        setMixedContentMode(webView, "never")
+        webView.settings.allowUniversalAccessFromFileURLs = false
+        setMixedContentMode(wrapper, "never")
 
         // Fixes broken full-screen modals/galleries due to body height being 0.
         webView.layoutParams = ViewGroup.LayoutParams(
@@ -142,7 +143,7 @@ class RNCWebViewManagerImpl {
                 )
             }
         })
-        return webView
+        return wrapper
     }
 
     private fun setupWebChromeClient(
@@ -228,22 +229,26 @@ class RNCWebViewManagerImpl {
         }
     }
 
-    fun setUserAgent(view: WebView, userAgent: String?) {
-        mUserAgent = userAgent
-        setUserAgentString(view)
+    fun setUserAgent(container: RNCWebViewContainer, userAgent: String?) {
+        container.ifHasRNCWebView { view ->
+          mUserAgent = userAgent
+          setUserAgentString(view)
+        }
     }
 
-    fun setApplicationNameForUserAgent(view: WebView, applicationName: String?) {
-        when {
+    fun setApplicationNameForUserAgent(container: RNCWebViewContainer, applicationName: String?) {
+        container.ifHasRNCWebView { view ->
+          when {
             applicationName != null -> {
-                val defaultUserAgent = WebSettings.getDefaultUserAgent(view.context)
-                mUserAgentWithApplicationName = "$defaultUserAgent $applicationName"
+              val defaultUserAgent = WebSettings.getDefaultUserAgent(view.context)
+              mUserAgentWithApplicationName = "$defaultUserAgent $applicationName"
             }
             else -> {
-                mUserAgentWithApplicationName = null
+              mUserAgentWithApplicationName = null
             }
+          }
+          setUserAgentString(view)
         }
-        setUserAgentString(view)
     }
 
     private fun setUserAgentString(view: WebView) {
@@ -260,22 +265,29 @@ class RNCWebViewManagerImpl {
         }
     }
 
-    fun setBasicAuthCredential(view: WebView, credential: ReadableMap?) {
-        var basicAuthCredential: RNCBasicAuthCredential? = null
-        if (credential != null) {
+    fun setBasicAuthCredential(container: RNCWebViewContainer, credential: ReadableMap?) {
+        container.ifHasRNCWebView { view ->
+          var basicAuthCredential: RNCBasicAuthCredential? = null
+          if (credential != null) {
             if (credential.hasKey("username") && credential.hasKey("password")) {
-                val username = credential.getString("username")
-                val password = credential.getString("password")
-                basicAuthCredential = RNCBasicAuthCredential(username, password)
+              val username = credential.getString("username")
+              val password = credential.getString("password")
+              basicAuthCredential = RNCBasicAuthCredential(username, password)
             }
+          }
+          view.setBasicAuthCredential(basicAuthCredential)
         }
-        (view as RNCWebView).setBasicAuthCredential(basicAuthCredential)
     }
 
-    fun onDropViewInstance(webView: RNCWebView) {
-        webView.themedReactContext.removeLifecycleEventListener(webView)
-        webView.cleanupCallbacksAndDestroy()
-        webView.mWebChromeClient = null
+    fun onDropViewInstance(container: RNCWebViewContainer) {
+        container.ifHasRNCWebView { webView ->
+
+          // TODO Donald: don't cleanup if reusing webview. Also do something about temporary parent node tag.
+
+          webView.themedReactContext.removeLifecycleEventListener(webView)
+          webView.cleanupCallbacksAndDestroy()
+          webView.mWebChromeClient = null
+        }
     }
 
     val COMMAND_GO_BACK = 1
@@ -353,18 +365,22 @@ class RNCWebViewManagerImpl {
       }
     }
 
-    fun setMixedContentMode(view: WebView, mixedContentMode: String?) {
-        if (mixedContentMode == null || "never" == mixedContentMode) {
+    fun setMixedContentMode(container: RNCWebViewContainer, mixedContentMode: String?) {
+        container.ifHasRNCWebView { view ->
+          if (mixedContentMode == null || "never" == mixedContentMode) {
             view.settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
-        } else if ("always" == mixedContentMode) {
+          } else if ("always" == mixedContentMode) {
             view.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        } else if ("compatibility" == mixedContentMode) {
+          } else if ("compatibility" == mixedContentMode) {
             view.settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+          }
         }
     }
 
-    fun setAllowUniversalAccessFromFileURLs(view: WebView, allow: Boolean) {
+    fun setAllowUniversalAccessFromFileURLs(container: RNCWebViewContainer, allow: Boolean) {
+      container.ifHasRNCWebView { view ->
         view.settings.allowUniversalAccessFromFileURLs = allow
+      }
     }
 
     private fun getDownloadingMessageOrDefault(): String? {
@@ -389,13 +405,13 @@ class RNCWebViewManagerImpl {
               HTML_ENCODING,
               null
             )
-            return
+            return@ifHasRNCWebView
           }
           if (source.hasKey("uri")) {
             val url = source.getString("uri")
             val previousUrl = webView.url
             if (previousUrl != null && previousUrl == url) {
-              return
+              return@ifHasRNCWebView
             }
             if (source.hasKey("method")) {
               val method = source.getString("method")
@@ -413,7 +429,7 @@ class RNCWebViewManagerImpl {
                   postData = ByteArray(0)
                 }
                 webView.postUrl(url!!, postData)
-                return
+                return@ifHasRNCWebView
               }
             }
             val headerMap = HashMap<String, String?>()
@@ -444,7 +460,7 @@ class RNCWebViewManagerImpl {
               }
             }
             webView.loadUrl(url!!, headerMap)
-            return
+            return@ifHasRNCWebView
           }
         }
         webView.loadUrl(BLANK_URL)
@@ -581,24 +597,27 @@ class RNCWebViewManagerImpl {
       }
     }
 
-  // TODO: Donald. Make all of these view parameters RNCWebViewContainers.
   fun setAssetLoaderConfig(view: RNCWebViewContainer, config: ReadableMap?) {
     val builder: WebViewAssetLoader.Builder = WebViewAssetLoader.Builder()
 
-    val domain: String = config.getString("domain")
+    if (config == null) {
+      return
+    }
+
+    val domain = config?.getString("domain")
     if (domain != null) {
       builder.setDomain(domain)
     }
 
-    if (config.hasKey("httpAllowed")) {
+    if (config?.hasKey("httpAllowed") == true) {
       builder.setHttpAllowed(config.getBoolean("httpAllowed"))
     }
 
-    val handlers: ReadableArray = config.getArray("pathHandlers")
+    val handlers = config.getArray("pathHandlers")
     if (handlers != null && handlers.size() > 0) {
       for (i in 0 until handlers.size()) {
         val handler: ReadableMap = handlers.getMap(i)
-        val handlerType: String = handler.getString("type")
+        val handlerType = handler.getString("type")
         if (handlerType == null) {
           FLog.w(TAG, "WebViewAssetLoader error. Path Handler type is null.")
           continue
@@ -610,7 +629,7 @@ class RNCWebViewManagerImpl {
           )
           continue
         }
-        val handlerPath: String = handler.getString("path")
+        val handlerPath = handler.getString("path")
         if (handlerPath == null) {
           FLog.w(TAG, "WebViewAssetLoader error. Skipping Path Handler. Handler path is missing")
           continue
@@ -620,7 +639,7 @@ class RNCWebViewManagerImpl {
         } else if (handlerType == "assets") {
           builder.addPathHandler(handlerPath, WebViewAssetLoader.AssetsPathHandler(view.context))
         } else if (handlerType == "internal") {
-          val directory: String = handler.getString("directory")
+          val directory = handler.getString("directory")
           if (directory == null) {
             FLog.w(
               TAG,
@@ -640,6 +659,10 @@ class RNCWebViewManagerImpl {
 
     val assetLoader: WebViewAssetLoader = builder.build()
     view.ifHasRNCWebView { webView -> webView.setWebViewAssetLoader(assetLoader) }
+  }
+
+  fun setTemporaryParentNodeTag(container: RNCWebViewContainer, temporaryParentNodeTag: Int) {
+    container.temporaryParentNodeTag = temporaryParentNodeTag
   }
 
     fun setCacheMode(view: RNCWebViewContainer, cacheModeString: String?) {

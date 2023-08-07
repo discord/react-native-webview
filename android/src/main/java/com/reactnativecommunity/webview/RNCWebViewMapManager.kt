@@ -14,5 +14,5 @@ object RNCWebViewMapManager {
   // the viewId. See https://reactnative.dev/docs/native-components-android#events
   // This map facilitates finding the viewId of the wrapper RNCWebView from the WebView
   // view Id.
-  val viewIdMap = mutableMapOf<Integer, Integer>();
+  val viewIdMap = mutableMapOf<Int, Int>();
 }

@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.Map;
 import java.util.HashMap;
 
-public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
+public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     private final RNCWebViewManagerImpl mRNCWebViewManagerImpl;
 
@@ -44,236 +44,251 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     }
 
     @Override
-    public RNCWebView createViewInstance(ThemedReactContext context) {
+    public RNCWebViewContainer createViewInstance(ThemedReactContext context) {
         return mRNCWebViewManagerImpl.createViewInstance(context);
     }
 
-    public RNCWebView createViewInstance(ThemedReactContext context, RNCWebView webView) {
+    public RNCWebViewContainer createViewInstance(ThemedReactContext context, RNCWebView webView) {
       return mRNCWebViewManagerImpl.createViewInstance(context, webView);
     }
 
     @ReactProp(name = "allowFileAccess")
-    public void setAllowFileAccess(RNCWebView view, boolean value) {
+    public void setAllowFileAccess(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setAllowFileAccess(view, value);
     }
 
     @ReactProp(name = "allowFileAccessFromFileURLs")
-    public void setAllowFileAccessFromFileURLs(RNCWebView view, boolean value) {
+    public void setAllowFileAccessFromFileURLs(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setAllowFileAccessFromFileURLs(view, value);
 
     }
 
     @ReactProp(name = "allowUniversalAccessFromFileURLs")
-    public void setAllowUniversalAccessFromFileURLs(RNCWebView view, boolean value) {
+    public void setAllowUniversalAccessFromFileURLs(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setAllowUniversalAccessFromFileURLs(view, value);
     }
 
     @ReactProp(name = "allowsFullscreenVideo")
-    public void setAllowsFullscreenVideo(RNCWebView view, boolean value) {
+    public void setAllowsFullscreenVideo(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setAllowsFullscreenVideo(view, value);
     }
 
     @ReactProp(name = "allowsProtectedMedia")
-    public void setAllowsProtectedMedia(RNCWebView view, boolean value) {
+    public void setAllowsProtectedMedia(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setAllowsProtectedMedia(view, value);
     }
 
     @ReactProp(name = "androidLayerType")
-    public void setAndroidLayerType(RNCWebView view, @Nullable String value) {
+    public void setAndroidLayerType(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setAndroidLayerType(view, value);
     }
 
+    @ReactProp(name = "androidAssetLoaderConfig")
+    public void setAndroidAssetLoaderConfig(RNCWebViewContainer view, @Nullable ReadableMap config) {
+      mRNCWebViewManagerImpl.setAssetLoaderConfig(view, config);
+    }
+
+    @ReactProp(name = "temporaryParentNodeTag")
+    public void setTemporaryParentNodeTag(RNCWebViewContainer view, int nodeTag) {
+      mRNCWebViewManagerImpl.setTemporaryParentNodeTag(view, nodeTag);
+    }
+
     @ReactProp(name = "applicationNameForUserAgent")
-    public void setApplicationNameForUserAgent(RNCWebView view, @Nullable String value) {
+    public void setApplicationNameForUserAgent(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setApplicationNameForUserAgent(view, value);
     }
 
     @ReactProp(name = "basicAuthCredential")
-    public void setBasicAuthCredential(RNCWebView view, @Nullable ReadableMap value) {
+    public void setBasicAuthCredential(RNCWebViewContainer view, @Nullable ReadableMap value) {
         mRNCWebViewManagerImpl.setBasicAuthCredential(view, value);
     }
 
     @ReactProp(name = "cacheEnabled")
-    public void setCacheEnabled(RNCWebView view, boolean value) {
+    public void setCacheEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setCacheEnabled(view, value);
     }
 
     @ReactProp(name = "cacheMode")
-    public void setCacheMode(RNCWebView view, @Nullable String value) {
+    public void setCacheMode(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setCacheMode(view, value);
     }
 
     @ReactProp(name = "domStorageEnabled")
-    public void setDomStorageEnabled(RNCWebView view, boolean value) {
+    public void setDomStorageEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setDomStorageEnabled(view, value);
     }
 
     @ReactProp(name = "downloadingMessage")
-    public void setDownloadingMessage(RNCWebView view, @Nullable String value) {
+    public void setDownloadingMessage(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setDownloadingMessage(value);
     }
 
     @ReactProp(name = "forceDarkOn")
-    public void setForceDarkOn(RNCWebView view, boolean value) {
+    public void setForceDarkOn(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setForceDarkOn(view, value);
     }
 
     @ReactProp(name = "geolocationEnabled")
-    public void setGeolocationEnabled(RNCWebView view, boolean value) {
+    public void setGeolocationEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setGeolocationEnabled(view, value);
     }
 
     @ReactProp(name = "hasOnScroll")
-    public void setHasOnScroll(RNCWebView view, boolean hasScrollEvent) {
+    public void setHasOnScroll(RNCWebViewContainer view, boolean hasScrollEvent) {
         mRNCWebViewManagerImpl.setHasOnScroll(view, hasScrollEvent);
     }
 
     @ReactProp(name = "incognito")
-    public void setIncognito(RNCWebView view, boolean value) {
+    public void setIncognito(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setIncognito(view, value);
     }
 
     @ReactProp(name = "injectedJavaScript")
-    public void setInjectedJavaScript(RNCWebView view, @Nullable String value) {
+    public void setInjectedJavaScript(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setInjectedJavaScript(view, value);
     }
 
     @ReactProp(name = "injectedJavaScriptBeforeContentLoaded")
-    public void setInjectedJavaScriptBeforeContentLoaded(RNCWebView view, @Nullable String value) {
+    public void setInjectedJavaScriptBeforeContentLoaded(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setInjectedJavaScriptBeforeContentLoaded(view, value);
     }
 
     @ReactProp(name = "injectedJavaScriptForMainFrameOnly")
-    public void setInjectedJavaScriptForMainFrameOnly(RNCWebView view, boolean value) {
+    public void setInjectedJavaScriptForMainFrameOnly(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setInjectedJavaScriptForMainFrameOnly(view, value);
 
     }
 
     @ReactProp(name = "injectedJavaScriptBeforeContentLoadedForMainFrameOnly")
-    public void setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(RNCWebView view, boolean value) {
+    public void setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(view, value);
 
     }
 
     @ReactProp(name = "javaScriptCanOpenWindowsAutomatically")
-    public void setJavaScriptCanOpenWindowsAutomatically(RNCWebView view, boolean value) {
+    public void setJavaScriptCanOpenWindowsAutomatically(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setJavaScriptCanOpenWindowsAutomatically(view, value);
     }
 
     @ReactProp(name = "javaScriptEnabled")
-    public void setJavaScriptEnabled(RNCWebView view, boolean enabled) {
+    public void setJavaScriptEnabled(RNCWebViewContainer view, boolean enabled) {
         mRNCWebViewManagerImpl.setJavaScriptEnabled(view, enabled);
     }
 
     @ReactProp(name = "lackPermissionToDownloadMessage")
-    public void setLackPermissionToDownloadMessage(RNCWebView view, @Nullable String value) {
+    public void setLackPermissionToDownloadMessage(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setLackPermissionToDownloadMessage(value);
     }
 
     @ReactProp(name = "mediaPlaybackRequiresUserAction")
-    public void setMediaPlaybackRequiresUserAction(RNCWebView view, boolean value) {
+    public void setMediaPlaybackRequiresUserAction(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setMediaPlaybackRequiresUserAction(view, value);
     }
 
     @ReactProp(name = "messagingEnabled")
-    public void setMessagingEnabled(RNCWebView view, boolean value) {
+    public void setMessagingEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setMessagingEnabled(view, value);
     }
 
     @ReactProp(name = "menuItems")
-    public void setMenuCustomItems(RNCWebView view, @Nullable ReadableArray items) {
+    public void setMenuCustomItems(RNCWebViewContainer view, @Nullable ReadableArray items) {
         mRNCWebViewManagerImpl.setMenuCustomItems(view, items);
     }
 
     @ReactProp(name = "messagingModuleName")
-    public void setMessagingModuleName(RNCWebView view, @Nullable String value) {
+    public void setMessagingModuleName(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setMessagingModuleName(view, value);
     }
 
     @ReactProp(name = "minimumFontSize")
-    public void setMinimumFontSize(RNCWebView view, int value) {
+    public void setMinimumFontSize(RNCWebViewContainer view, int value) {
         mRNCWebViewManagerImpl.setMinimumFontSize(view, value);
     }
 
     @ReactProp(name = "mixedContentMode")
-    public void setMixedContentMode(RNCWebView view, @Nullable String value) {
+    public void setMixedContentMode(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setMixedContentMode(view, value);
     }
 
     @ReactProp(name = "nestedScrollEnabled")
-    public void setNestedScrollEnabled(RNCWebView view, boolean value) {
+    public void setNestedScrollEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setNestedScrollEnabled(view, value);
     }
 
     @ReactProp(name = "overScrollMode")
-    public void setOverScrollMode(RNCWebView view, @Nullable String value) {
+    public void setOverScrollMode(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setOverScrollMode(view, value);
     }
 
     @ReactProp(name = "saveFormDataDisabled")
-    public void setSaveFormDataDisabled(RNCWebView view, boolean value) {
+    public void setSaveFormDataDisabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setSaveFormDataDisabled(view, value);
     }
 
     @ReactProp(name = "scalesPageToFit")
-    public void setScalesPageToFit(RNCWebView view, boolean value) {
+    public void setScalesPageToFit(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setScalesPageToFit(view, value);
     }
 
     @ReactProp(name = "setBuiltInZoomControls")
-    public void setSetBuiltInZoomControls(RNCWebView view, boolean value) {
+    public void setSetBuiltInZoomControls(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setSetBuiltInZoomControls(view, value);
     }
 
     @ReactProp(name = "setDisplayZoomControls")
-    public void setSetDisplayZoomControls(RNCWebView view, boolean value) {
+    public void setSetDisplayZoomControls(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setSetDisplayZoomControls(view, value);
     }
 
     @ReactProp(name = "setSupportMultipleWindows")
-    public void setSetSupportMultipleWindows(RNCWebView view, boolean value) {
+    public void setSetSupportMultipleWindows(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setSetSupportMultipleWindows(view, value);
     }
 
     @ReactProp(name = "showsHorizontalScrollIndicator")
-    public void setShowsHorizontalScrollIndicator(RNCWebView view, boolean value) {
+    public void setShowsHorizontalScrollIndicator(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setShowsHorizontalScrollIndicator(view, value);
     }
 
     @ReactProp(name = "showsVerticalScrollIndicator")
-    public void setShowsVerticalScrollIndicator(RNCWebView view, boolean value) {
+    public void setShowsVerticalScrollIndicator(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setShowsVerticalScrollIndicator(view, value);
     }
 
     @ReactProp(name = "source")
-    public void setSource(RNCWebView view, @Nullable ReadableMap value) {
+    public void setSource(RNCWebViewContainer view, @Nullable ReadableMap value) {
         mRNCWebViewManagerImpl.setSource(view, value, false);
     }
 
     @ReactProp(name = "textZoom")
-    public void setTextZoom(RNCWebView view, int value) {
+    public void setTextZoom(RNCWebViewContainer view, int value) {
         mRNCWebViewManagerImpl.setTextZoom(view, value);
     }
 
     @ReactProp(name = "thirdPartyCookiesEnabled")
-    public void setThirdPartyCookiesEnabled(RNCWebView view, boolean value) {
+    public void setThirdPartyCookiesEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setThirdPartyCookiesEnabled(view, value);
     }
 
     @ReactProp(name = "webviewDebuggingEnabled")
-    public void setWebviewDebuggingEnabled(RNCWebView view, boolean value) {
+    public void setWebviewDebuggingEnabled(RNCWebViewContainer view, boolean value) {
         mRNCWebViewManagerImpl.setWebviewDebuggingEnabled(view, value);
     }
 
     @ReactProp(name = "userAgent")
-    public void setUserAgent(RNCWebView view, @Nullable String value) {
+    public void setUserAgent(RNCWebViewContainer view, @Nullable String value) {
         mRNCWebViewManagerImpl.setUserAgent(view, value);
     }
 
     @Override
-    protected void addEventEmitters(@NonNull ThemedReactContext reactContext, RNCWebView view) {
+    protected void addEventEmitters(
+      @NonNull ThemedReactContext reactContext,
+      RNCWebViewContainer container
+    ) {
+      container.ifHasRNCWebView(view -> {
         // Do not register default touch emitter and let WebView implementation handle touches
         view.setWebViewClient(new RNCWebViewClient());
+      });
     }
 
     @Override
@@ -305,13 +320,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView> {
     }
 
     @Override
-    public void receiveCommand(@NonNull RNCWebView reactWebView, String commandId, @Nullable ReadableArray args) {
-        mRNCWebViewManagerImpl.receiveCommand(reactWebView, commandId, args);
-        super.receiveCommand(reactWebView, commandId, args);
+    public void receiveCommand(@NonNull RNCWebViewContainer reactWebViewContainer, String commandId, @Nullable ReadableArray args) {
+      reactWebViewContainer.ifHasRNCWebView(webView -> {
+        mRNCWebViewManagerImpl.receiveCommand(webView, commandId, args);
+        super.receiveCommand(reactWebViewContainer, commandId, args);
+      });
     }
 
     @Override
-    public void onDropViewInstance(@NonNull RNCWebView view) {
+    public void onDropViewInstance(@NonNull RNCWebViewContainer view) {
         mRNCWebViewManagerImpl.onDropViewInstance(view);
         super.onDropViewInstance(view);
     }

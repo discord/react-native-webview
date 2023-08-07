@@ -13,7 +13,6 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.util.Pair;
@@ -26,15 +25,15 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.widget.Toast;
 
-import com.facebook.common.activitylistener.ActivityListenerManager;
+import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +47,8 @@ import static android.app.Activity.RESULT_OK;
 
 public class RNCWebViewModuleImpl implements ActivityEventListener {
     public static final String NAME = "RNCWebView";
+
+    public static final String TAG = "RNCWebViewModuleImpl";
 
     public static final int PICKER = 1;
     public static final int PICKER_LEGACY = 3;
@@ -70,7 +71,7 @@ public class RNCWebViewModuleImpl implements ActivityEventListener {
     @ReactMethod
     public void injectJavaScriptWithWebViewKey(final String webViewKey, final String script, final Promise promise) {
       UiThreadUtil.runOnUiThread(() -> {
-        RNCWebViewManager.RNCWebView webView = (RNCWebViewManager.RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+        RNCWebView webView = (RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
         if (webView != null) {
           webView.evaluateJavascriptWithFallback(script);
           promise.resolve(null);
@@ -219,7 +220,7 @@ public class RNCWebViewModuleImpl implements ActivityEventListener {
   @ReactMethod
   public void releaseWebView(final String webViewKey) {
     UiThreadUtil.runOnUiThread(() -> {
-      RNCWebViewManager.RNCWebView webView = (RNCWebViewManager.RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
+      RNCWebView webView = (RNCWebView) RNCWebViewMapManager.INSTANCE.getRncWebViewMap().get(webViewKey);
 
       if (webView == null) {
         FLog.w(TAG, "Failed to release webview with webViewKey: " + webViewKey);
@@ -231,7 +232,7 @@ public class RNCWebViewModuleImpl implements ActivityEventListener {
       // Detach internal webview from the wrapper RNCWebView
       if (webViewParent != null && webViewParent instanceof RNCWebViewContainer) {
         RNCWebViewContainer rncWebViewContainer = (RNCWebViewContainer) webViewParent;
-        RNCWebViewManager.RNCWebView rncWebView = rncWebViewContainer.detachWebView();
+        RNCWebView rncWebView = rncWebViewContainer.detachWebView();
         if (rncWebView != webView) {
           throw new IllegalStateException("mismatched webview with key: " + webViewKey);
         }
