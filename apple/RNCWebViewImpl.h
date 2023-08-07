@@ -127,6 +127,7 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 
 + (void)setClientAuthenticationCredential:(nullable NSURLCredential*)credential;
 + (void)setCustomCertificatesForHost:(nullable NSDictionary *)certificates;
++ (NSMutableDictionary<NSString *, id>*)createEventFromMessage:(WKScriptMessage *_Nonnull)message withMessageBodyKey: (NSString *_Nonnull)messageBodyKey withWebView: (WKWebView *)webView;
 - (void)postMessage:(NSString *_Nullable)message;
 - (void)injectJavaScript:(NSString *_Nullable)script;
 - (void)goForward;
