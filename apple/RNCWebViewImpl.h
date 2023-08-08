@@ -125,6 +125,9 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 - (void)setContentInsetAdjustmentBehavior:(UIScrollViewContentInsetAdjustmentBehavior)behavior;
 #endif  // !TARGET_OS_OSX
 
+@property (nonatomic, copy) NSString * _Nullable webViewKey;
+@property (nonatomic, copy) NSNumber * _Nullable temporaryParentNodeTag;
+
 + (void)setClientAuthenticationCredential:(nullable NSURLCredential*)credential;
 + (void)setCustomCertificatesForHost:(nullable NSDictionary *)certificates;
 + (NSMutableDictionary<NSString *, id>*)createEventFromMessage:(WKScriptMessage *_Nonnull)message withMessageBodyKey: (NSString *_Nonnull)messageBodyKey withWebView: (WKWebView *)webView;
@@ -138,6 +141,8 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 #ifdef RCT_NEW_ARCH_ENABLED
 - (void)destroyWebView;
 #endif
+- (void)releaseWebView;
+- (void)cleanUpWebView;
 #if !TARGET_OS_OSX
 - (void)addPullToRefreshControl;
 - (void)pullToRefresh:(UIRefreshControl *)refreshControl;

@@ -8,6 +8,7 @@
 #import "RNCWebViewImpl.h"
 #import <React/RCTConvert.h>
 #import <React/RCTBridge.h>
+#import <React/RCTBridge+Private.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTAutoInsetsProtocol.h>
 #import "RNCWKProcessPoolManager.h"
@@ -445,17 +446,19 @@ RCTAutoInsetsProtocol>
 - (void)didMoveToWindow
 {
   if (self.window != nil && _webView == nil) {
+#endif // !TARGET_OS_OSX
+
     WKWebViewConfiguration *wkWebViewConfig = [self setUpWkWebViewConfig];
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
     
     if ([self shouldReuseWebView]) {
-      WKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey];
+      RNCWKWebView *webViewForKey = sharedWKWebViewDictionary[_webViewKey];
       if (webViewForKey != nil) {
         _webView = webViewForKey;
         UIView *parentView = webViewForKey.superview;        
         if (parentView != nil) {
-          if ([parentView isKindOfClass:[RNCWebView class]]) {
-            [self removeWKWebViewFromSuperView:(RNCWebView*)parentView];
+          if ([parentView isKindOfClass:[RNCWebViewImpl class]]) {
+            [self removeWKWebViewFromSuperView:(RNCWebViewImpl*)parentView];
           } else {
             // The webview might be attached to a temporary parent; if so, remove it first.
             [_webView removeFromSuperview];
@@ -468,7 +471,7 @@ RCTAutoInsetsProtocol>
     
     if (_webView == nil) {
 #if !TARGET_OS_OSX
-      _webView = [[WKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
+      _webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
 #else 
       _webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
 #endif // !TARGET_OS_OSX
@@ -578,16 +581,16 @@ RCTAutoInsetsProtocol>
     [self cleanUpWebView];
   } else {
     NSMutableDictionary *sharedWKWebViewDictionary = [[RNCWKWebViewMapManager sharedManager] sharedWKWebViewDictionary];
-    WKWebView *wkWebView = sharedWKWebViewDictionary[_webViewKey];
-    RNCWebView *rncWebView = wkWebView.superview;
+    RNCWKWebView *wkWebView = sharedWKWebViewDictionary[_webViewKey];
+    UIView *parentView = wkWebView.superview;
     
     // When this view is being unmounted, only remove the WKWebView from the superview
     // if this RNCWebView is the "active" view.
-    if (rncWebView == self) {
+    if (parentView == self) {
       [self removeWKWebViewFromSuperView:self];
       
       if (_temporaryParentNodeTag != nil) {
-        UIView* temporaryParentView = [self.bridge.uiManager viewForReactTag:_temporaryParentNodeTag];
+        UIView* temporaryParentView = [[[RCTBridge currentBridge] uiManager] viewForReactTag:_temporaryParentNodeTag];
         // Resizes the webview to parent bounds
         [_webView setFrame:temporaryParentView.bounds];
         [temporaryParentView addSubview:_webView];
@@ -621,7 +624,7 @@ RCTAutoInsetsProtocol>
   }
 }
 
-- (void)removeWKWebViewFromSuperView:(RNCWebView *)webViewObserver
+- (void)removeWKWebViewFromSuperView:(RNCWebViewImpl *)webViewObserver
 {
   // If _webView is getting added to a new super view, we need to first both remove it from the old
   // superview and also remove the observer which can reference the old super view.
@@ -762,12 +765,12 @@ RCTAutoInsetsProtocol>
 {
   if ([message.name isEqualToString:HistoryShimName]) {
     if (_onLoadingFinish) {
-      NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey: @"navigationType" withWebView:_webView];
+      NSMutableDictionary<NSString *, id> *event = [RNCWebViewImpl createEventFromMessage:message withMessageBodyKey: @"navigationType" withWebView:_webView];
       _onLoadingFinish(event);
     }
   } else if ([message.name isEqualToString:MessageHandlerName]) {
     if (_onMessage) {
-      NSMutableDictionary<NSString *, id> *event = [RNCWebView createEventFromMessage:message withMessageBodyKey: kMessageHandlerBodyKey withWebView:_webView];
+      NSMutableDictionary<NSString *, id> *event = [RNCWebViewImpl createEventFromMessage:message withMessageBodyKey: kMessageHandlerBodyKey withWebView:_webView];
       _onMessage(event);
     }
   }
@@ -1078,13 +1081,13 @@ RCTAutoInsetsProtocol>
 }
 
 - (NSMutableDictionary<NSString *, id> *)baseEvent {
-  return [RNCWebView baseEventWithWebView:_webView];
+  return [RNCWebViewImpl baseEventWithWebView:_webView];
 }
 
 
 + (NSMutableDictionary<NSString *, id>*)createEventFromMessage:(WKScriptMessage *_Nonnull)message
                                             withMessageBodyKey: (NSString *_Nonnull)messageBodyKey withWebView:(WKWebView *)webView {
-  NSMutableDictionary<NSString *, id> *event = [RNCWebView baseEventWithWebView:webView];
+  NSMutableDictionary<NSString *, id> *event = [RNCWebViewImpl baseEventWithWebView:webView];
   [event addEntriesFromDictionary: @{messageBodyKey: message.body}];
   
   return event;

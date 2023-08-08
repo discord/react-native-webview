@@ -3,6 +3,9 @@
 #import "ScriptMessageEventEmitter.h"
 #import "RNCWebViewImpl.h"
 #import "RNCWKWebViewMapManager.h"
+#import <React/RCTBridge.h>
+#import <React/RCTBridge+Private.h>
+#import <React/RCTEventDispatcher.h>
 
 @implementation RNCScriptMessageHandler
 
@@ -20,6 +23,9 @@
   if (webView != nil) {
     NSMutableDictionary<NSString *, id> *event = [RNCWebViewImpl createEventFromMessage:message withMessageBodyKey:kMessageHandlerBodyKey withWebView:webView];
     event[@"webViewKey"] = _webViewKey;
+    
+    // TODO: add event name to event
+//    [[[RCTBridge currentBridge] eventDispatcher] send:event];
     [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:event];
   }
 }

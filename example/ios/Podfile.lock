@@ -233,7 +233,7 @@ PODS:
   - React-jsinspector (0.71.10)
   - React-logger (0.71.10):
     - glog
-  - react-native-webview (12.0.2):
+  - react-native-webview (13.2.2):
     - React-Core
   - React-perflogger (0.71.10)
   - React-RCTActionSheet (0.71.10):
@@ -440,12 +440,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  boost: 57d2868c099736d80fcd648bf211b4431e51a558
-  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
+  boost: a7c83b31436843459a1961bfd74b96033dc77234
+  DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   FBLazyVector: ddb55c55295ea51ed98aa7e2e08add2f826309d5
   FBReactNativeSpec: a11dff868857a8444f7defde274215293413d93a
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  glog: 5337263514dd6f09803962437687240c5dc39aa4
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 8ef706f91e2b643cd32c26a57700b5f24fab0585
   RCTTypeSafety: 5fbddd8eb9242b91ac0d901c01da3673f358b1b7
@@ -460,7 +460,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 634df557a683cab436e4b3bc46512a6e519d19e8
   React-jsinspector: cdc854f8b13abd202afa54bc12578e5afb9cfae1
   React-logger: ef2269b3afa6ba868da90496c3e17a4ec4f4cee0
-  react-native-webview: 203b6a1c7507737f777c91d7e10c30e7e67c1a17
+  react-native-webview: b8ec89966713985111a14d6e4bf98d8b54bced0d
   React-perflogger: 217095464d5c4bb70df0742fa86bf2a363693468
   React-RCTActionSheet: 8deae9b85a4cbc6a2243618ea62a374880a2c614
   React-RCTAnimation: 59c62353a8b59ce206044786c5d30e4754bffa64
@@ -480,4 +480,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 8344c021910ed9b6a9bb9985ff8f7f05a68b19c1
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.11.0

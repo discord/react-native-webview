@@ -3,6 +3,7 @@
 #import "RNCWebViewManager.h"
 #import "RNCWebViewImpl.h"
 #import "RNCWebViewDecisionManager.h"
+#import "RNCWKWebViewMapManager.h"
 #ifdef RCT_NEW_ARCH_ENABLED
 #import "RNCWebViewSpec/RNCWebViewSpec.h"
 #endif
@@ -246,8 +247,8 @@ RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
     if (wkWebView != nil) {
       UIView *parentView = wkWebView.superview;
       if (parentView != nil) {
-        if ([parentView isKindOfClass:[RNCWebView class]]) {
-          [(RNCWebView*)parentView cleanUpWebView];
+        if ([parentView isKindOfClass:[RNCWebViewImpl class]]) {
+          [(RNCWebViewImpl*)parentView cleanUpWebView];
         } else {
           // Remove WkWebView from temporary parent
           if (wkWebView != nil) {
