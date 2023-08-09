@@ -24,8 +24,6 @@
     NSMutableDictionary<NSString *, id> *event = [RNCWebViewImpl createEventFromMessage:message withMessageBodyKey:kMessageHandlerBodyKey withWebView:webView];
     event[@"webViewKey"] = _webViewKey;
     
-    // TODO: add event name to event
-//    [[[RCTBridge currentBridge] eventDispatcher] send:event];
     [[NSNotificationCenter defaultCenter] postNotificationName:kScriptMessageNotificationName object:self userInfo:event];
   }
 }
