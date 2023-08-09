@@ -1,6 +1,7 @@
 package com.reactnativecommunity.webview;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -14,7 +15,7 @@ public class RNCWebViewContainer extends FrameLayout {
   public static final int INVALID_VIEW_ID = -1;
   public int temporaryParentNodeTag = 0;
 
-  private RNCWebViewManager.RNCWebView RNCWebView;
+  private RNCWebView RNCWebView;
 
   public RNCWebViewContainer(ThemedReactContext reactContext) {
     super(reactContext);
@@ -43,22 +44,22 @@ public class RNCWebViewContainer extends FrameLayout {
   }
 
   public interface Action {
-    void apply(RNCWebViewManager.RNCWebView webView);
+    void apply(RNCWebView webView);
   }
 
   /**
-   * Attaches a {@link RNCWebViewManager.RNCWebView} to the RNCWebView parent
+   * Attaches a {@link RNCWebView} to the RNCWebView parent
    * Throws an exception if the provided internal webView is already attached to a parent
    * @param webView
    */
-  public void attachWebView(RNCWebViewManager.RNCWebView webView) {
+  public void attachWebView(RNCWebView webView) {
     this.RNCWebView = webView;
 
     // Only re-attach the WebView if parent is null
     if (webView.getParent() != null) {
       throw new IllegalArgumentException("WebView with key: " + webView.webViewKey + " parent is non null. Cannot re-attach webview.");
     }
-
+    
     // Fixes broken full-screen modals/galleries due to body height being 0.
     addView(webView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
   }
@@ -67,13 +68,13 @@ public class RNCWebViewContainer extends FrameLayout {
    * Detaches the RNCWebView from the RNCWebViewContainer parent and returns a reference to it
    * @return RNCWebView
    */
-  public RNCWebViewManager.RNCWebView detachWebView() {
+  public RNCWebView detachWebView() {
     if (RNCWebView == null) {
       throw new IllegalStateException("Webview is null");
     }
 
     removeWebViewFromParent();
-    RNCWebViewManager.RNCWebView webView = RNCWebView;
+    RNCWebView webView = RNCWebView;
     this.RNCWebView = null;
     return webView;
   }
@@ -86,7 +87,7 @@ public class RNCWebViewContainer extends FrameLayout {
   }
 
   @Nullable
-  public RNCWebViewManager.RNCWebView getWebView() {
+  public RNCWebView getWebView() {
     return RNCWebView;
   }
 
