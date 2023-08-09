@@ -140,6 +140,14 @@ RCT_CUSTOM_VIEW_PROPERTY(userAgent, NSString, RNCWebViewImpl) {
   view.userAgent = [RCTConvert NSString: json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(webViewKey, NSString, RNCWebViewImpl) {
+  view.webViewKey = [RCTConvert NSString: json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(temporaryParentNodeTag, NSNumber, RNCWebViewImpl) {
+  view.temporaryParentNodeTag = [RCTConvert NSNumber: json];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(scrollEnabled, BOOL, RNCWebViewImpl) {
   view.scrollEnabled = json == nil ? true : [RCTConvert BOOL: json];
 }

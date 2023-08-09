@@ -247,6 +247,8 @@ export interface NativeProps extends ViewProps {
     baseUrl?: string;
   }>;
   userAgent?: string;
+  webViewKey?: string;
+  temporaryParentNodeTag?: number;
 }
 
 export interface NativeCommands {
