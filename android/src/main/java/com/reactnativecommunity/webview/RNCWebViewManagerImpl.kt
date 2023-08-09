@@ -19,11 +19,15 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewFeature
 import com.facebook.common.logging.FLog
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.common.build.ReactBuildConfig
 import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.uimanager.UIManagerModule
+import com.reactnativecommunity.webview.RNCWebViewMapManager.rncWebViewMap
+import com.reactnativecommunity.webview.RNCWebViewMapManager.viewIdMap
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -31,6 +35,7 @@ import java.io.UnsupportedEncodingException
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
+
 
 val invalidCharRegex = "[\\\\/%\"]".toRegex()
 
@@ -279,15 +284,46 @@ class RNCWebViewManagerImpl {
         }
     }
 
-    fun onDropViewInstance(container: RNCWebViewContainer) {
-        container.ifHasRNCWebView { webView ->
+    fun onDropViewInstance(view: RNCWebViewContainer) {
 
-          // TODO Donald: don't cleanup if reusing webview. Also do something about temporary parent node tag.
+      // The internal webview can be null since the view may have been already reattached
+      if (view.webView == null) {
+        return
+      }
 
-          webView.themedReactContext.removeLifecycleEventListener(webView)
+      view.ifHasRNCWebView { webView ->
+        if (webView.webViewKey == null) {
+          (webView.context as ThemedReactContext).removeLifecycleEventListener(webView)
           webView.cleanupCallbacksAndDestroy()
-          webView.mWebChromeClient = null
+          webView.webChromeClient = null
+        } else {
+          view.removeWebViewFromParent()
+          viewIdMap.remove(webView.id)
+          if (view.temporaryParentNodeTag !== 0) {
+            // Re-attach the internal webview to the temporary parent.
+            val uiManagerModule =
+              (view.context as ReactContext).getNativeModule<UIManagerModule>(
+                UIManagerModule::class.java
+              )
+            val temporaryParentView =
+              uiManagerModule!!.resolveView(view.temporaryParentNodeTag) as ViewGroup
+            temporaryParentView.addView(webView)
+
+            // Resize view to match parent
+            webView.measure(
+              View.MeasureSpec.makeMeasureSpec(
+                temporaryParentView.measuredWidth,
+                View.MeasureSpec.EXACTLY
+              ),
+              View.MeasureSpec.makeMeasureSpec(
+                temporaryParentView.measuredHeight,
+                View.MeasureSpec.EXACTLY
+              )
+            )
+            webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
+          }
         }
+      }
     }
 
     val COMMAND_GO_BACK = 1
@@ -794,6 +830,38 @@ class RNCWebViewManagerImpl {
     fun setSetSupportMultipleWindows(view: RNCWebViewContainer, value: Boolean) {
       view.ifHasRNCWebView { webView ->
         webView.settings.setSupportMultipleWindows(value)
+      }
+    }
+
+    fun setWebViewKey(view: RNCWebViewContainer, webViewKey: String) {
+      val rncWebViewMap = rncWebViewMap
+      if (rncWebViewMap.containsKey(webViewKey)) {
+        val webView = rncWebViewMap[webViewKey] as RNCWebView?
+        val webViewParent = webView!!.parent as ViewGroup
+
+        // If the RNCWebView is attached to an existing RNCWebViewContainer, first detach
+        // it from the existing RNCWebViewContainer.
+        if (webViewParent != null && webViewParent is RNCWebViewContainer) {
+          val existingRncWebViewContainer = webView.parent as RNCWebViewContainer
+          existingRncWebViewContainer.detachWebView()
+
+          // The chrome client was originally setup on instance creation but might be pointing to the wrong webview
+          // so it's reset here.
+          // Not entirely sure why there is a single instance of the webchrome client for all webviews?
+          setupWebChromeClient(webView)
+        }
+
+        // The webview might be attached to the temporary parent; if so, remove it first.
+        webViewParent?.removeView(webView)
+        view.attachWebView(webView)
+      }
+
+      // Update all maps with the view + set/update key
+      // This means an existing webview can update it's own key
+      view.ifHasRNCWebView { webView: RNCWebView ->
+        webView.setWebViewKey(webViewKey)
+        viewIdMap[webView.id] = view.id
+        rncWebViewMap[webViewKey] = webView
       }
     }
 

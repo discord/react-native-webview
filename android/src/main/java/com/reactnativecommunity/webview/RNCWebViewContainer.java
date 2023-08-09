@@ -1,6 +1,7 @@
 package com.reactnativecommunity.webview;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -8,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.uimanager.ThemedReactContext;
-import com.reactnativecommunity.webview.RNCWebView;
 
 public class RNCWebViewContainer extends FrameLayout {
   private static final String TAG = "RNCWebViewContainer";
@@ -59,7 +59,7 @@ public class RNCWebViewContainer extends FrameLayout {
     if (webView.getParent() != null) {
       throw new IllegalArgumentException("WebView with key: " + webView.webViewKey + " parent is non null. Cannot re-attach webview.");
     }
-
+    
     // Fixes broken full-screen modals/galleries due to body height being 0.
     addView(webView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
   }

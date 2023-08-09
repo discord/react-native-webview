@@ -303,6 +303,10 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
       this.webViewKey = webViewKey;
     }
 
+    public @Nullable String getWebViewKey() {
+      return this.webViewKey;
+    }
+
     protected void createCatalystInstance() {
       ThemedReactContext reactContext = (ThemedReactContext) this.getContext();
 
