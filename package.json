@@ -1,5 +1,5 @@
 {
-  "name": "react-native-webview",
+  "name": "react-native-webview-shared",
   "description": "React Native WebView component for iOS, Android, macOS, and Windows",
   "main": "index.js",
   "main-internal": "src/index.ts",
@@ -9,7 +9,7 @@
     "Thibault Malbranche <malbranche.thibault@gmail.com>"
   ],
   "license": "MIT",
-  "version": "13.2.2",
+  "version": "13.2.2-close",
   "homepage": "https://github.com/react-native-webview/react-native-webview#readme",
   "scripts": {
     "android": "react-native run-android",
@@ -85,7 +85,7 @@
     "src",
     "index.js",
     "index.d.ts",
-    "react-native-webview.podspec",
+    "react-native-webview-shared.podspec",
     "react-native.config.js"
   ],
   "resolutions": {
