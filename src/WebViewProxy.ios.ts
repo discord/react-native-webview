@@ -11,7 +11,7 @@ export default class WebViewProxy implements IWebViewProxy {
   }
 
   injectJavaScript(script: string): Promise<void> {
-    return NativeModules.RNCWebViewManager.injectJavaScriptWithWebViewKey(this.webViewKey, script);
+    return NativeModules.RNCWebView.injectJavaScriptWithWebViewKey(this.webViewKey, script);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,6 +24,6 @@ export default class WebViewProxy implements IWebViewProxy {
   }
 
   releaseWebView() {
-    NativeModules.RNCWebViewManager.releaseWebView(this.webViewKey);
+    NativeModules.RNCWebView.releaseWebView(this.webViewKey);
   }
 }
