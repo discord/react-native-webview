@@ -1,5 +1,6 @@
-import { ReactElement, Component } from 'react';
-import { NativeSyntheticEvent, ViewProps, StyleProp, ViewStyle, NativeMethodsMixin, Constructor, UIManagerStatic, NativeScrollEvent } from 'react-native';
+import { ReactElement, Component, ComponentProps } from 'react';
+import { NativeSyntheticEvent, ViewProps, StyleProp, ViewStyle, NativeMethodsMixin, UIManagerStatic, NativeScrollEvent } from 'react-native';
+import type NativeWebViewComponent from './RNCWebViewNativeComponent';
 declare type WebViewCommands = 'goForward' | 'goBack' | 'reload' | 'stopLoading' | 'postMessage' | 'injectJavaScript' | 'loadUrl' | 'requestFocus';
 declare type AndroidWebViewCommands = 'clearHistory' | 'clearCache' | 'clearFormData';
 interface RNCWebViewUIManager<Commands extends string> extends UIManagerStatic {
@@ -26,20 +27,11 @@ interface ErrorState extends BaseState {
     lastErrorEvent: WebViewError;
 }
 export declare type State = NormalState | ErrorState;
-declare class NativeWebViewIOSComponent extends Component<IOSNativeWebViewProps> {
-}
-declare const NativeWebViewIOSBase: Constructor<NativeMethodsMixin> & typeof NativeWebViewIOSComponent;
-export declare class NativeWebViewIOS extends NativeWebViewIOSBase {
-}
+declare type Constructor<T> = new (...args: any[]) => T;
 declare class NativeWebViewMacOSComponent extends Component<MacOSNativeWebViewProps> {
 }
 declare const NativeWebViewMacOSBase: Constructor<NativeMethodsMixin> & typeof NativeWebViewMacOSComponent;
 export declare class NativeWebViewMacOS extends NativeWebViewMacOSBase {
-}
-declare class NativeWebViewAndroidComponent extends Component<AndroidNativeWebViewProps> {
-}
-declare const NativeWebViewAndroidBase: Constructor<NativeMethodsMixin> & typeof NativeWebViewAndroidComponent;
-export declare class NativeWebViewAndroid extends NativeWebViewAndroidBase {
 }
 declare class NativeWebViewWindowsComponent extends Component<WindowsNativeWebViewProps> {
 }
@@ -196,13 +188,13 @@ export interface WebViewCustomMenuItems {
 }
 export declare type WebViewSource = WebViewSourceUri | WebViewSourceHtml;
 export interface ViewManager {
-    startLoadWithResult: Function;
+    shouldStartLoadWithLockIdentifier: Function;
 }
 export interface WebViewNativeConfig {
     /**
      * The native component used to render the WebView.
      */
-    component?: typeof NativeWebViewIOS | typeof NativeWebViewMacOS | typeof NativeWebViewAndroid;
+    component?: typeof NativeWebViewMacOS | typeof NativeWebViewComponent;
     /**
      * Set props directly on the native component WebView. Enables custom props which the
      * original WebView doesn't pass through.
@@ -234,6 +226,7 @@ export interface CommonNativeWebViewProps extends ViewProps {
     injectedJavaScriptBeforeContentLoadedForMainFrameOnly?: boolean;
     javaScriptCanOpenWindowsAutomatically?: boolean;
     mediaPlaybackRequiresUserAction?: boolean;
+    webviewDebuggingEnabled?: boolean;
     messagingEnabled: boolean;
     onScroll?: (event: WebViewScrollEvent) => void;
     onLoadingError: (event: WebViewErrorEvent) => void;
@@ -253,71 +246,9 @@ export interface CommonNativeWebViewProps extends ViewProps {
     applicationNameForUserAgent?: string;
     basicAuthCredential?: BasicAuthCredential;
 }
-export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
-    cacheMode?: CacheMode;
-    allowFileAccess?: boolean;
-    scalesPageToFit?: boolean;
-    allowFileAccessFromFileURLs?: boolean;
-    allowsFullscreenVideo?: boolean;
-    allowUniversalAccessFromFileURLs?: boolean;
-    androidAssetLoaderConfig?: AndroidAssetLoaderConfig;
-    androidHardwareAccelerationDisabled?: boolean;
-    androidLayerType?: AndroidLayerType;
-    domStorageEnabled?: boolean;
-    geolocationEnabled?: boolean;
-    javaScriptEnabled?: boolean;
-    mixedContentMode?: 'never' | 'always' | 'compatibility';
-    onContentSizeChange?: (event: WebViewEvent) => void;
-    onRenderProcessGone?: (event: WebViewRenderProcessGoneEvent) => void;
-    overScrollMode?: OverScrollModeType;
-    saveFormDataDisabled?: boolean;
-    setSupportMultipleWindows?: boolean;
-    textZoom?: number;
-    thirdPartyCookiesEnabled?: boolean;
-    messagingModuleName?: string;
-    setBuiltInZoomControls?: boolean;
-    setDisplayZoomControls?: boolean;
-    nestedScrollEnabled?: boolean;
-    readonly urlPrefixesForDefaultIntent?: string[];
-    forceDarkOn?: boolean;
-    minimumFontSize?: number;
-    downloadingMessage?: string;
-    lackPermissionToDownloadMessage?: string;
-    allowsProtectedMedia?: boolean;
-}
 export declare type ContentInsetAdjustmentBehavior = 'automatic' | 'scrollableAxes' | 'never' | 'always';
 export declare type MediaCapturePermissionGrantType = 'grantIfSameHostElsePrompt' | 'grantIfSameHostElseDeny' | 'deny' | 'grant' | 'prompt';
 export declare type ContentMode = 'recommended' | 'mobile' | 'desktop';
-export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
-    allowingReadAccessToURL?: string;
-    allowsBackForwardNavigationGestures?: boolean;
-    allowsInlineMediaPlayback?: boolean;
-    allowsAirPlayForMediaPlayback?: boolean;
-    allowsLinkPreview?: boolean;
-    allowFileAccessFromFileURLs?: boolean;
-    allowUniversalAccessFromFileURLs?: boolean;
-    automaticallyAdjustContentInsets?: boolean;
-    autoManageStatusBarEnabled?: boolean;
-    bounces?: boolean;
-    contentInset?: ContentInsetProp;
-    contentInsetAdjustmentBehavior?: ContentInsetAdjustmentBehavior;
-    contentMode?: ContentMode;
-    readonly dataDetectorTypes?: DataDetectorTypes | DataDetectorTypes[];
-    decelerationRate?: number;
-    directionalLockEnabled?: boolean;
-    hideKeyboardAccessoryView?: boolean;
-    javaScriptEnabled?: boolean;
-    pagingEnabled?: boolean;
-    scrollEnabled?: boolean;
-    useSharedProcessPool?: boolean;
-    onContentProcessDidTerminate?: (event: WebViewTerminatedEvent) => void;
-    injectedJavaScriptForMainFrameOnly?: boolean;
-    injectedJavaScriptBeforeContentLoadedForMainFrameOnly?: boolean;
-    onFileDownload?: (event: FileDownloadEvent) => void;
-    limitsNavigationsToAppBoundDomains?: boolean;
-    textInteractionEnabled?: boolean;
-    mediaCapturePermissionGrantType?: MediaCapturePermissionGrantType;
-}
 export interface MacOSNativeWebViewProps extends CommonNativeWebViewProps {
     allowingReadAccessToURL?: string;
     allowFileAccessFromFileURLs?: boolean;
@@ -474,6 +405,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
     useSharedProcessPool?: boolean;
     /**
      * The custom user agent string.
+     * @platform ios
      */
     userAgent?: string;
     /**
@@ -638,10 +570,22 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * `selectedText`: the text selected on the document
      * @platform ios
      */
-    onCustomMenuSelection?: (event: WebViewEvent) => void;
+    onCustomMenuSelection?: (event: {
+        nativeEvent: {
+            label: string;
+            key: string;
+            selectedText: string;
+        };
+    }) => void;
     /**
-     * If two React components use the same
-     * key for the WebView, they will use the same native WebView instance.
+     * A Boolean value that indicates whether the webview shows warnings for suspected
+     * fraudulent content, such as malware or phishing attempts.
+     * @platform ios
+     */
+    fraudulentWebsiteWarningEnabled?: boolean;
+    /**
+     * By default, if this is undefined or false, the native WebView will get released when
+     * the React component unmounts.
      *
      * When this is set, the native WebView will not get released when the React component
      * unmounts. When a React component remounts, it can use a previous native WebView instance
@@ -650,17 +594,26 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
      * will re-attach to the newly mounted react view.
      *
-     * It's important to call `releaseWebView` on the React WebView with the corresponding webViewKey
+     * It's important to call `releaseWebView` on the WebViewProxy with the corresponding webViewKey
      * when the native WebView is no longer needed.
      */
     webViewKey?: string;
     /**
      * If a webViewKey is set, the onMessage callback will not work.
      * Instead, to handle messages, set messagingWithWebViewKeyEnabled
-     * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
+     * to true, create a WebViewProxy instance with the webViewKey, and call
+     * WebViewProxy#addOnMessageListener' to listen to messages for a given
      * webViewKey
      */
     messagingWithWebViewKeyEnabled?: boolean;
+    /**
+     * If a webViewKey and temporaryParentNodeTag are set, the webview will reattach to a temporary parent
+     * specified by the tag if this view is ever unmounted by React
+     *
+     * A possible usecase is to ensure the webview stays attached to the window at all times, so the visibilityState
+     * on the document remains visible.
+     */
+    temporaryParentNodeTag?: number;
 }
 export interface MacOSWebViewProps extends WebViewSharedProps {
     /**
@@ -876,20 +829,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      */
     setSupportMultipleWindows?: boolean;
     /**
-     * Used on Android only, controls whether the given list of URL prefixes should
-     * make {@link com.facebook.react.views.webview.ReactWebViewClient} to launch a
-     * default activity intent for those URL instead of loading it within the webview.
-     * Use this to list URLs that WebView cannot handle, e.g. a PDF url.
-     * @platform android
-     */
-    readonly urlPrefixesForDefaultIntent?: string[];
-    /**
-     * Boolean value to disable Hardware Acceleration in the `WebView`. Used on Android only
-     * as Hardware Acceleration is a feature only for Android. The default value is `false`.
-     * @platform android
-     */
-    androidHardwareAccelerationDisabled?: boolean;
-    /**
      * https://developer.android.com/reference/android/webkit/WebView#setLayerType(int,%20android.graphics.Paint)
      * Sets the layerType. Possible values are:
      *
@@ -1015,19 +954,20 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      * If another WebView mounts with the same webViewKey while one is already mounted, the native WebView
      * will re-attach to the newly mounted react view.
      *
-     * It's important to call `releaseWebView` on the React WebView with the corresponding webViewKey
+     * It's important to call `releaseWebView` on the WebViewProxy with the corresponding webViewKey
      * when the native WebView is no longer needed.
      */
     webViewKey?: string;
     /**
       * If a webViewKey is set, the onMessage callback will not work.
       * Instead, to handle messages, set messagingWithWebViewKeyEnabled
-      * to true, and call 'addOnMessageListenerWithWebViewKey' to listen to messages for a given
+      * to true, create a WebViewProxy instance with the webViewKey, and call
+      * WebViewProxy#addOnMessageListener' to listen to messages for a given
       * webViewKey
       */
     messagingWithWebViewKeyEnabled?: boolean;
     /**
-     * If a webViewKey and temporaryParentNodeTags are set, the webview will reattach to a temporary parent
+     * If a webViewKey and temporaryParentNodeTag are set, the webview will reattach to a temporary parent
      * specified by the tag if this view is ever unmounted by React
      *
      * A possible usecase is to ensure the webview stays attached to the window at all times, so the visibilityState
@@ -1066,7 +1006,7 @@ export interface WebViewSharedProps extends ViewProps {
     /**
      * Function that is invoked when the `WebView` scrolls.
      */
-    onScroll?: (event: WebViewScrollEvent) => void;
+    onScroll?: ComponentProps<typeof NativeWebViewComponent>['onScroll'];
     /**
      * Function that is invoked when the `WebView` has finished loading.
      */
@@ -1175,6 +1115,10 @@ export interface WebViewSharedProps extends ViewProps {
      * An object that specifies the credentials of a user to be used for basic authentication.
      */
     basicAuthCredential?: BasicAuthCredential;
+    /**
+     * Enables WebView remote debugging using Chrome (Android) or Safari (iOS).
+     */
+    webviewDebuggingEnabled?: boolean;
 }
 export {};
 //# sourceMappingURL=WebViewTypes.d.ts.map

@@ -5,7 +5,7 @@ declare const createOnShouldStartLoadWithRequest: (loadRequest: (shouldStart: bo
 declare const defaultRenderLoading: () => JSX.Element;
 declare const defaultRenderError: (errorDomain: string | undefined, errorCode: number, errorDesc: string) => JSX.Element;
 export { defaultOriginWhitelist, createOnShouldStartLoadWithRequest, defaultRenderLoading, defaultRenderError, };
-export declare const useWebWiewLogic: ({ startInLoadingState, onNavigationStateChange, onLoadStart, onLoad, onLoadProgress, onLoadEnd, onError, onHttpErrorProp, onMessageProp, onRenderProcessGoneProp, onContentProcessDidTerminateProp, originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback, }: {
+export declare const useWebViewLogic: ({ startInLoadingState, onNavigationStateChange, onLoadStart, onLoad, onLoadProgress, onLoadEnd, onError, onHttpErrorProp, onMessageProp, onRenderProcessGoneProp, onContentProcessDidTerminateProp, originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback, }: {
     startInLoadingState?: boolean | undefined;
     onNavigationStateChange?: ((event: WebViewNavigation) => void) | undefined;
     onLoadStart?: ((event: WebViewNavigationEvent) => void) | undefined;
