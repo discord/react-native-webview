@@ -473,7 +473,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
 
     WebViewAssetLoader assetLoader = builder.build();
-    view.ifHasRNCWebView(webView -> webView.setWebViewAssetLoader(assetLoader));
+    view.ifHasRNCWebView(webView -> {
+      webView.setWebViewAssetLoader(assetLoader);
+      if (webView.getUrl() != null) {
+        webView.reload();
+      }
+    });
   }
 
 
