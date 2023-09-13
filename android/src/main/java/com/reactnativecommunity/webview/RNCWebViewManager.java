@@ -475,7 +475,14 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     WebViewAssetLoader assetLoader = builder.build();
     view.ifHasRNCWebView(webView -> {
       webView.setWebViewAssetLoader(assetLoader);
-      if (webView.getUrl() != null) {
+
+      @Nullable ReadableMap previousConfig = webView.assetLoaderConfig;
+      webView.setAssetLoaderConfig(config);
+      boolean configChanged = (previousConfig != null && config == null) ||
+        (previousConfig == null && config != null) ||
+        (config != null && previousConfig != null && !config.equals(previousConfig));
+
+      if (webView.getUrl() != null && configChanged) {
         webView.reload();
       }
     });
@@ -1733,6 +1740,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected @Nullable
     String webViewKey;
 
+    protected @Nullable ReadableMap assetLoaderConfig;
 
     protected @Nullable
     String messagingModuleName;
@@ -1766,6 +1774,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
        * until the WebView has non-transparent content.
        */
       setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    public void setAssetLoaderConfig(@Nullable ReadableMap assetLoaderConfig) {
+      this.assetLoaderConfig = assetLoaderConfig;
     }
 
     public void setIgnoreErrFailedForThisURL(String url) {
