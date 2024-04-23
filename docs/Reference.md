@@ -90,6 +90,7 @@ This document lays out the current public properties and methods for the React N
 - [`downloadingMessage`](Reference.md#downloadingMessage)
 - [`lackPermissionToDownloadMessage`](Reference.md#lackPermissionToDownloadMessage)
 - [`allowsProtectedMedia`](Reference.md#allowsProtectedMedia)
+- [`allowOpenURLNonMatchingOrigin`](Reference.md#allowOpenURLNonMatchingOrigin)
 
 ## Methods Index
 
@@ -1604,6 +1605,15 @@ Whether or not the Webview can play media protected by DRM. Default is false.
 | Type   | Required | Platform |
 | ------ | -------- | -------- |
 | boolean | No       | Android  |
+
+### `allowOpenURLNonMatchingOrigin`
+
+Whether or not to call `Linking.openURL` when origin does not match `originWhitelist`.
+Default is true.
+
+| Type    | Required | Default |
+| ------- | -------- | ------- |
+| boolean | No       | true    |
 
 ## Methods
 
