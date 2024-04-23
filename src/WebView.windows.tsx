@@ -38,6 +38,7 @@ const { resolveAssetSource } = Image;
 
 const WebViewComponent = forwardRef<{}, WindowsWebViewProps>(({
   cacheEnabled = true,
+  allowOpenURLNonMatchingOrigin = true,
   originWhitelist = defaultOriginWhitelist,
   startInLoadingState,
   onNavigationStateChange,
@@ -87,6 +88,7 @@ const WebViewComponent = forwardRef<{}, WindowsWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    allowOpenURLNonMatchingOrigin,
   })
 
   useImperativeHandle(ref, () => ({

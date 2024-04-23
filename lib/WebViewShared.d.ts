@@ -1,11 +1,11 @@
 import React from 'react';
 import { OnShouldStartLoadWithRequest, ShouldStartLoadRequestEvent, WebViewError, WebViewErrorEvent, WebViewHttpErrorEvent, WebViewMessageEvent, WebViewNavigation, WebViewNavigationEvent, WebViewProgressEvent, WebViewRenderProcessGoneEvent, WebViewTerminatedEvent } from './WebViewTypes';
 declare const defaultOriginWhitelist: readonly ["http://*", "https://*"];
-declare const createOnShouldStartLoadWithRequest: (loadRequest: (shouldStart: boolean, url: string, lockIdentifier: number) => void, originWhitelist: readonly string[], onShouldStartLoadWithRequest?: OnShouldStartLoadWithRequest | undefined) => ({ nativeEvent }: ShouldStartLoadRequestEvent) => void;
+declare const createOnShouldStartLoadWithRequest: (loadRequest: (shouldStart: boolean, url: string, lockIdentifier: number) => void, originWhitelist: readonly string[], onShouldStartLoadWithRequest?: OnShouldStartLoadWithRequest | undefined, allowOpenURLNonMatchingOrigin?: boolean | undefined) => ({ nativeEvent }: ShouldStartLoadRequestEvent) => void;
 declare const defaultRenderLoading: () => JSX.Element;
 declare const defaultRenderError: (errorDomain: string | undefined, errorCode: number, errorDesc: string) => JSX.Element;
 export { defaultOriginWhitelist, createOnShouldStartLoadWithRequest, defaultRenderLoading, defaultRenderError, };
-export declare const useWebWiewLogic: ({ startInLoadingState, onNavigationStateChange, onLoadStart, onLoad, onLoadProgress, onLoadEnd, onError, onHttpErrorProp, onMessageProp, onRenderProcessGoneProp, onContentProcessDidTerminateProp, originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback, }: {
+export declare const useWebWiewLogic: ({ startInLoadingState, onNavigationStateChange, onLoadStart, onLoad, onLoadProgress, onLoadEnd, onError, onHttpErrorProp, onMessageProp, onRenderProcessGoneProp, onContentProcessDidTerminateProp, originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback, allowOpenURLNonMatchingOrigin, }: {
     startInLoadingState?: boolean | undefined;
     onNavigationStateChange?: ((event: WebViewNavigation) => void) | undefined;
     onLoadStart?: ((event: WebViewNavigationEvent) => void) | undefined;
@@ -20,6 +20,7 @@ export declare const useWebWiewLogic: ({ startInLoadingState, onNavigationStateC
     originWhitelist: readonly string[];
     onShouldStartLoadWithRequestProp?: OnShouldStartLoadWithRequest | undefined;
     onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
+    allowOpenURLNonMatchingOrigin: boolean;
 }) => {
     onShouldStartLoadWithRequest: ({ nativeEvent }: ShouldStartLoadRequestEvent) => void;
     onLoadingStart: (event: WebViewNavigationEvent) => void;

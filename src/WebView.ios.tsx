@@ -65,6 +65,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(({
   injectedJavaScriptBeforeContentLoaded,
   injectedJavaScriptForMainFrameOnly = true,
   injectedJavaScriptBeforeContentLoadedForMainFrameOnly = true,
+  allowOpenURLNonMatchingOrigin = true,
   startInLoadingState,
   messagingWithWebViewKeyEnabled,
   onNavigationStateChange,
@@ -120,6 +121,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(({
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
     onContentProcessDidTerminateProp,
+    allowOpenURLNonMatchingOrigin,
   });
 
   useImperativeHandle(ref, () => ({

@@ -1175,6 +1175,11 @@ export interface WebViewSharedProps extends ViewProps {
      * An object that specifies the credentials of a user to be used for basic authentication.
      */
     basicAuthCredential?: BasicAuthCredential;
+    /**
+     * Whether or not to call Linking.openURL when origin does not match originWhitelist.
+     * Default is true.
+     */
+    allowOpenURLNonMatchingOrigin?: boolean;
 }
 export {};
 //# sourceMappingURL=WebViewTypes.d.ts.map

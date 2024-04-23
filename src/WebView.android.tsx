@@ -56,6 +56,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
   setBuiltInZoomControls = true,
   setDisplayZoomControls = false,
   nestedScrollEnabled = false,
+  allowOpenURLNonMatchingOrigin = true,
   startInLoadingState,
   messagingWithWebViewKeyEnabled,
   onNavigationStateChange,
@@ -103,6 +104,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    allowOpenURLNonMatchingOrigin,
   })
 
   useImperativeHandle(ref, () => ({

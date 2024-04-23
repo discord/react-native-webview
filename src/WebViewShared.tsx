@@ -47,6 +47,7 @@ const createOnShouldStartLoadWithRequest = (
   ) => void,
   originWhitelist: readonly string[],
   onShouldStartLoadWithRequest?: OnShouldStartLoadWithRequest,
+  allowOpenURLNonMatchingOrigin?: boolean,
 ) => {
   return ({ nativeEvent }: ShouldStartLoadRequestEvent) => {
     let shouldStart = true;
@@ -54,7 +55,7 @@ const createOnShouldStartLoadWithRequest = (
 
     if (!passesWhitelist(compileWhitelist(originWhitelist), url)) {
       Linking.canOpenURL(url).then((supported) => {
-        if (supported) {
+        if (allowOpenURLNonMatchingOrigin === true && supported) {
           return Linking.openURL(url);
         }
         console.warn(`Can't open url: ${url}`);
@@ -111,6 +112,7 @@ export const useWebWiewLogic = ({
   originWhitelist,
   onShouldStartLoadWithRequestProp,
   onShouldStartLoadWithRequestCallback,
+  allowOpenURLNonMatchingOrigin,
 }: {
   startInLoadingState?: boolean
   onNavigationStateChange?: (event: WebViewNavigation) => void;
@@ -126,6 +128,7 @@ export const useWebWiewLogic = ({
   originWhitelist: readonly string[];
   onShouldStartLoadWithRequestProp?: OnShouldStartLoadWithRequest;
   onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
+  allowOpenURLNonMatchingOrigin: boolean;
 }) => {
 
   const [viewState, setViewState] = useState<'IDLE' | 'LOADING' | 'ERROR'>(startInLoadingState ? "LOADING" : "IDLE");
@@ -205,8 +208,9 @@ export const useWebWiewLogic = ({
       onShouldStartLoadWithRequestCallback,
       originWhitelist,
       onShouldStartLoadWithRequestProp,
+      allowOpenURLNonMatchingOrigin,
     )
-  , [originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback])
+  , [allowOpenURLNonMatchingOrigin, originWhitelist, onShouldStartLoadWithRequestProp, onShouldStartLoadWithRequestCallback])
 
   return {
     onShouldStartLoadWithRequest,

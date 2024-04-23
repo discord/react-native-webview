@@ -48,6 +48,7 @@ const WebViewComponent = forwardRef<{}, MacOSWebViewProps>(({
   cacheEnabled = true,
   originWhitelist = defaultOriginWhitelist,
   useSharedProcessPool= true,
+  allowOpenURLNonMatchingOrigin = true,
   injectedJavaScript,
   injectedJavaScriptBeforeContentLoaded,
   startInLoadingState,
@@ -99,6 +100,7 @@ const WebViewComponent = forwardRef<{}, MacOSWebViewProps>(({
     originWhitelist,
     onShouldStartLoadWithRequestProp,
     onShouldStartLoadWithRequestCallback,
+    allowOpenURLNonMatchingOrigin,
   });
 
   useImperativeHandle(ref, () => ({
