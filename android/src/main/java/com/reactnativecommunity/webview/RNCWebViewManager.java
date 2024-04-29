@@ -1137,6 +1137,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     @Override
     public void onPageStarted(WebView webView, String url, Bitmap favicon) {
       super.onPageStarted(webView, url, favicon);
+      Log.d("pikachu", "onPageStarted. url: " + url);
       mLastLoadFailed = false;
 
       RNCWebView reactWebView = (RNCWebView) webView;
