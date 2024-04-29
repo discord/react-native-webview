@@ -737,11 +737,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
   @ReactProp(name = "mixedContentMode")
   public void setMixedContentMode(RNCWebViewContainer view, @Nullable String mixedContentMode) {
+    Log.d("pikachu", "setMixedContentMode 000");
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       if (mixedContentMode == null || "never".equals(mixedContentMode)) {
         view.ifHasRNCWebView(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW));
       } else if ("always".equals(mixedContentMode)) {
-        view.ifHasRNCWebView(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW));
+        view.ifHasRNCWebView((webView) -> {
+          Log.d("pikachu", "setting mixed content mode to always allow");
+          webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        });
       } else if ("compatibility".equals(mixedContentMode)) {
         view.ifHasRNCWebView(webView -> webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE));
       }
