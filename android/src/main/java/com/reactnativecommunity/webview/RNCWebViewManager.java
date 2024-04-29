@@ -831,6 +831,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
   @Override
   protected void addEventEmitters(ThemedReactContext reactContext, RNCWebViewContainer view) {
+    Log.d("pikachu", "add event emitters. setting web view client");
     // Do not register default touch emitter and let WebView implementation handle touches
     view.ifHasRNCWebView(webView -> webView.setWebViewClient(new RNCWebViewClient()));
   }
@@ -1146,6 +1147,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      Log.d("pikachu", "shouldOVerrideUrlLoading String URL");
       final RNCWebView RNCWebView = (RNCWebView) view;
       final boolean isJsDebugging = ((ReactContext) view.getContext()).getJavaScriptContextHolder().get() == 0;
 
@@ -1196,6 +1198,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     @TargetApi(Build.VERSION_CODES.N)
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+      Log.d("pikachu", "shouldOVerrideUrlLoading String web resource request");
       final String url = request.getUrl().toString();
       return this.shouldOverrideUrlLoading(view, url);
     }
@@ -1862,8 +1865,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     @Override
     public void setWebViewClient(WebViewClient client) {
+      Log.d("pikachu", "setWebViewClient 000");
       super.setWebViewClient(client);
       if (client instanceof RNCWebViewClient) {
+        Log.d("pikachu", "setWebViewClient 111");
         mRNCWebViewClient = (RNCWebViewClient) client;
         mRNCWebViewClient.setProgressChangedFilter(progressChangedFilter);
       }
