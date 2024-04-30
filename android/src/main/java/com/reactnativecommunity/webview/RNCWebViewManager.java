@@ -211,8 +211,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     WebSettings settings = webView.getSettings();
     settings.setBuiltInZoomControls(true);
     settings.setDisplayZoomControls(false);
-//    settings.setDomStorageEnabled(true);
-    settings.setDomStorageEnabled(false);
+    settings.setDomStorageEnabled(true);
     settings.setSupportMultipleWindows(true);
 
     settings.setAllowFileAccess(false);
@@ -1115,6 +1114,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+      Log.d("pikachu", "shouldInterceptRequest. request: " + request);
       if (webViewAssetLoader == null) {
         return super.shouldInterceptRequest(view, request);
       }
