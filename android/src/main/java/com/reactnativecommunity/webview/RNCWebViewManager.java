@@ -822,10 +822,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     // (eg. when mAllowsFullScreenVideo changes)
     mAllowsProtectedMedia = enabled;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        WebChromeClient client = view.getWebView().getWebChromeClient();
+      view.ifHasRNCWebView((webView) -> {
+        WebChromeClient client = webView.getWebChromeClient();
         if (client != null && client instanceof RNCWebChromeClient) {
-            ((RNCWebChromeClient) client).setAllowsProtectedMedia(enabled);
+          ((RNCWebChromeClient) client).setAllowsProtectedMedia(enabled);
         }
+      });
     }
   }
 
