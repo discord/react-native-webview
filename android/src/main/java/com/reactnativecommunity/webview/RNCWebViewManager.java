@@ -816,13 +816,13 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
   }
 
   @ReactProp(name = "allowsProtectedMedia")
-  public void setAllowsProtectedMedia(WebView view, boolean enabled) {
+  public void setAllowsProtectedMedia(RNCWebViewContainer view, boolean enabled) {
     // This variable is used to keep consistency
     // in case a new WebChromeClient is created
     // (eg. when mAllowsFullScreenVideo changes)
     mAllowsProtectedMedia = enabled;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        WebChromeClient client = view.getWebChromeClient();
+        WebChromeClient client = view.getWebView().getWebChromeClient();
         if (client != null && client instanceof RNCWebChromeClient) {
             ((RNCWebChromeClient) client).setAllowsProtectedMedia(enabled);
         }
