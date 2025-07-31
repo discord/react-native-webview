@@ -60,6 +60,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.UIManager;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -71,6 +72,7 @@ import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.ContentSizeChangeEvent;
@@ -1148,51 +1150,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-      final RNCWebView RNCWebView = (RNCWebView) view;
-      final boolean isJsDebugging = ((ReactContext) view.getContext()).getJavaScriptContextHolder().get() == 0;
-
-      if (!isJsDebugging && RNCWebView.mCatalystInstance != null) {
-        final Pair<Integer, AtomicReference<ShouldOverrideCallbackState>> lock = RNCWebViewModule.shouldOverrideUrlLoadingLock.getNewLock();
-        final int lockIdentifier = lock.first;
-        final AtomicReference<ShouldOverrideCallbackState> lockObject = lock.second;
-
-        final WritableMap event = createWebViewEvent(view, url);
-        event.putInt("lockIdentifier", lockIdentifier);
-        RNCWebView.sendDirectMessage("onShouldStartLoadWithRequest", event);
-
-        try {
-          assert lockObject != null;
-          synchronized (lockObject) {
-            final long startTime = SystemClock.elapsedRealtime();
-            while (lockObject.get() == ShouldOverrideCallbackState.UNDECIDED) {
-              if (SystemClock.elapsedRealtime() - startTime > SHOULD_OVERRIDE_URL_LOADING_TIMEOUT) {
-                FLog.w(TAG, "Did not receive response to shouldOverrideUrlLoading in time, defaulting to allow loading.");
-                RNCWebViewModule.shouldOverrideUrlLoadingLock.removeLock(lockIdentifier);
-                return false;
-              }
-              lockObject.wait(SHOULD_OVERRIDE_URL_LOADING_TIMEOUT);
-            }
-          }
-        } catch (InterruptedException e) {
-          FLog.e(TAG, "shouldOverrideUrlLoading was interrupted while waiting for result.", e);
-          RNCWebViewModule.shouldOverrideUrlLoadingLock.removeLock(lockIdentifier);
-          return false;
-        }
-
-        final boolean shouldOverride = lockObject.get() == ShouldOverrideCallbackState.SHOULD_OVERRIDE;
-        RNCWebViewModule.shouldOverrideUrlLoadingLock.removeLock(lockIdentifier);
-
-        return shouldOverride;
-      } else {
-        FLog.w(TAG, "Couldn't use blocking synchronous call for onShouldStartLoadWithRequest due to debugging or missing Catalyst instance, falling back to old event-and-load.");
-        progressChangedFilter.setWaitingForCommandLoadUrl(true);
-        ((RNCWebView) view).dispatchEvent(
-          view,
-          new TopShouldStartLoadWithRequestEvent(
-            RNCWebViewContainer.getRNCWebViewId(view),
-            createWebViewEvent(view, url)));
-        return true;
-      }
+      // TODO: make this method truly sync with JS on android using JSI/TurboModules
+      FLog.w(TAG, "Couldn't use blocking synchronous call for onShouldStartLoadWithRequest due to debugging or missing Catalyst instance, falling back to old event-and-load.");
+      progressChangedFilter.setWaitingForCommandLoadUrl(true);
+      ((RNCWebView) view).dispatchEvent(
+        view,
+        new TopShouldStartLoadWithRequestEvent(
+          RNCWebViewContainer.getRNCWebViewId(view),
+          createWebViewEvent(view, url)));
+      return true;
     }
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -1989,34 +1955,28 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
             WritableMap data = mRNCWebViewClient.createWebViewEvent(webView, webView.getUrl());
             data.putString("data", message);
 
-            if (mCatalystInstance != null) {
-              mContext.sendDirectMessage("onMessage", data);
-            } else {
-              dispatchEvent(webView, new TopMessageEvent(RNCWebViewContainer.getRNCWebViewId(webView), data));
-            }
+            dispatchEvent(webView, new TopMessageEvent(RNCWebViewContainer.getRNCWebViewId(webView), data));
           }
         });
       } else {
         WritableMap eventData = Arguments.createMap();
         eventData.putString("data", message);
 
-        if (mCatalystInstance != null) {
-          this.sendDirectMessage("onMessage", eventData);
-        } else {
-          dispatchEvent(this, new TopMessageEvent(RNCWebViewContainer.getRNCWebViewId(webView), eventData));
-        }
+        dispatchEvent(this, new TopMessageEvent(RNCWebViewContainer.getRNCWebViewId(webView), eventData));
       }
     }
 
-    protected void sendDirectMessage(final String method, WritableMap data) {
-      WritableNativeMap event = new WritableNativeMap();
-      event.putMap("nativeEvent", data);
+// TODO: Refactor all usages of this method to use JSI/TurboModules instead:
 
-      WritableNativeArray params = new WritableNativeArray();
-      params.pushMap(event);
-
-      mCatalystInstance.callFunction(messagingModuleName, method, params);
-    }
+//    protected void sendDirectMessage(final String method, WritableMap data) {
+//      WritableNativeMap event = new WritableNativeMap();
+//      event.putMap("nativeEvent", data);
+//
+//      WritableNativeArray params = new WritableNativeArray();
+//      params.pushMap(event);
+//
+//      mCatalystInstance.callFunction(messagingModuleName, method, params);
+//    }
 
     protected void onScrollChanged(int x, int y, int oldX, int oldY) {
       super.onScrollChanged(x, y, oldX, oldY);
@@ -2048,14 +2008,19 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     protected void dispatchEvent(WebView webView, Event event) {
       if (event.getViewTag() == RNCWebViewContainer.INVALID_VIEW_ID) {
-        FLog.w(TAG, "Unable to dispatch event: ", event.getEventName() + "due to RNCWebView not being attached.");
+        FLog.w(TAG, "Unable to dispatch event: " + event.getEventName() + "due to RNCWebView not being attached.");
         return;
       }
 
       ReactContext reactContext = (ReactContext) webView.getContext();
-      EventDispatcher eventDispatcher =
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
-      eventDispatcher.dispatchEvent(event);
+
+      UIManager uiManager = UIManagerHelper.getUIManagerForReactTag(reactContext, event.getViewTag());
+      if (uiManager == null) {
+        FLog.w(TAG, "Unable to dispatch event: " + event.getEventName() + "due to RNCWebView not having a valid UIManager.");
+        return;
+      }
+
+      uiManager.getEventDispatcher().dispatchEvent(event);
     }
 
     protected void cleanupCallbacksAndDestroy() {

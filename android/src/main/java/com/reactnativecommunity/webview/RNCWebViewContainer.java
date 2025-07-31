@@ -7,6 +7,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 
 import com.facebook.common.logging.FLog;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.ThemedReactContext;
 
 public class RNCWebViewContainer extends FrameLayout {
@@ -109,6 +110,11 @@ public class RNCWebViewContainer extends FrameLayout {
    * @return viewId
    */
   public static int getRNCWebViewId(WebView webView) {
+    boolean isBridgeless = ((ReactContext) webView.getContext()).isBridgeless();
+    if (isBridgeless) {
+      return ((View) webView.getParent()).getId();
+    }
+
     Integer rncViewId = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
     if (rncViewId == null) {
       return INVALID_VIEW_ID;
