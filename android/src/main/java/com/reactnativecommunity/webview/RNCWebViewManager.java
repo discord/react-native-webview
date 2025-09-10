@@ -205,7 +205,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     RNCWebViewContainer wrapper = new RNCWebViewContainer(reactContext);
     RNCWebView webView = createRNCWebViewInstance(reactContext);
     wrapper.attachWebView(webView);
-    RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), wrapper.getId());
+
+    // The wrapper is maintained by react-native and will receive an id after createViewInstance returns.
+    // Thus we have to grab the ID afterwards:
+    wrapper.post(new Runnable() {
+      @Override
+      public void run() {
+        RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), wrapper.getId());
+      }
+    });
 
     setupWebChromeClient(reactContext, webView);
     reactContext.addLifecycleEventListener(webView);
@@ -1715,6 +1723,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected ProgressChangedFilter progressChangedFilter;
 
     protected ReadableMap source;
+    private static int idCounter = 0;
 
     /**
      * WebView must be created with an context of the current activity
@@ -1724,6 +1733,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
      */
     public RNCWebView(ThemedReactContext reactContext) {
       super(reactContext);
+      this.setId(++idCounter);
       this.createCatalystInstance();
       progressChangedFilter = new ProgressChangedFilter();
 
