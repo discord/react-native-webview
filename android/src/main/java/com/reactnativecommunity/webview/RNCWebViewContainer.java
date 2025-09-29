@@ -112,7 +112,12 @@ public class RNCWebViewContainer extends FrameLayout {
   public static int getRNCWebViewId(WebView webView) {
     boolean isBridgeless = ((ReactContext) webView.getContext()).isBridgeless();
     if (isBridgeless) {
-      return ((View) webView.getParent()).getId();
+      View parent = (View) webView.getParent();
+      if (parent == null) {
+        FLog.e(TAG, new Throwable(), "WebView parent is null (bridgeless mode)");
+        return INVALID_VIEW_ID;
+      }
+      return parent.getId();
     }
 
     Integer rncViewId = RNCWebViewMapManager.INSTANCE.getViewIdMap().get(webView.getId());
