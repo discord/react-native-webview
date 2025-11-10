@@ -146,7 +146,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
     promise.resolve(result);
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
+  @ReactMethod
   public void onShouldStartLoadWithRequestCallback(final boolean shouldStart, final int lockIdentifier) {
     final AtomicReference<ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState> lockObject = shouldOverrideUrlLoadingLock.getLock(lockIdentifier);
     if (lockObject != null) {
@@ -437,7 +437,7 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
       Log.e("CREATE FILE", "Error occurred while creating the File", e);
       e.printStackTrace();
     }
-    
+
     return intent;
   }
 
