@@ -485,7 +485,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     WebViewAssetLoader assetLoader = builder.build();
     view.ifHasRNCWebView(webView -> {
       webView.setWebViewAssetLoader(assetLoader);
-      if (webView.getUrl() != null) {
+      // Skip reload for keyed (reparentable) WebViews — the config values
+      // are unchanged across reparent cycles, so reloading would destroy
+      // active iframe sessions. Matches the setSource guard at line 667.
+      if (webView.getUrl() != null && webView.webViewKey == null) {
         webView.reload();
       }
     });
