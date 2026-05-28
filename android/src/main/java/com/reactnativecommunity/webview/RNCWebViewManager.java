@@ -431,6 +431,16 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
   @ReactProp(name = "androidAssetLoaderConfig")
   public void setAssetLoaderConfig(RNCWebViewContainer view, @Nullable ReadableMap config) {
+    view.ifHasRNCWebView(webView -> {
+      if (!webView.isNewAssetLoaderConfig(config)) return;
+      webView.setAssetLoaderConfig(config);
+      WebViewAssetLoader assetLoader = config != null ? buildAssetLoader(view, config) : null;
+      webView.setWebViewAssetLoader(assetLoader);
+      scheduleLoad(webView);
+    });
+  }
+
+  private WebViewAssetLoader buildAssetLoader(RNCWebViewContainer view, ReadableMap config) {
     WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder();
 
     String domain = config.getString("domain");
@@ -482,16 +492,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       FLog.w(TAG, "WebViewAssetLoader error. No Path Handlers found.");
     }
 
-    WebViewAssetLoader assetLoader = builder.build();
-    view.ifHasRNCWebView(webView -> {
-      webView.setWebViewAssetLoader(assetLoader);
-      // Skip reload for keyed (reparentable) WebViews — the config values
-      // are unchanged across reparent cycles, so reloading would destroy
-      // active iframe sessions. Matches the setSource guard at line 667.
-      if (webView.getUrl() != null && webView.webViewKey == null) {
-        webView.reload();
-      }
-    });
+    return builder.build();
   }
 
 
@@ -664,68 +665,85 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
   @ReactProp(name = "source")
   public void setSource(RNCWebViewContainer view, @Nullable ReadableMap source) {
-      view.ifHasRNCWebView(webView -> {
-
-      // Do not reload reload webview if the source prop has not changed
-      if (webView.webViewKey != null && !webView.isNewSource(source)) {
-        return;
-      }
-
+    view.ifHasRNCWebView(webView -> {
+      if (!webView.isNewSource(source)) return;
       webView.setSource(source);
+      scheduleLoad(webView);
+    });
+  }
 
-      if (source != null) {
-        if (source.hasKey("html")) {
-          String html = source.getString("html");
-          String baseUrl = source.hasKey("baseUrl") ? source.getString("baseUrl") : "";
-          webView.loadDataWithBaseURL(baseUrl, html, HTML_MIME_TYPE, HTML_ENCODING, null);
-          return;
-        }
-        if (source.hasKey("uri")) {
-          String url = source.getString("uri");
-          String previousUrl = webView.getUrl();
-          if (previousUrl != null && previousUrl.equals(url)) {
-            return;
-          }
-          if (source.hasKey("method")) {
-            String method = source.getString("method");
-            if (method.equalsIgnoreCase(HTTP_METHOD_POST)) {
-              byte[] postData = null;
-              if (source.hasKey("body")) {
-                String body = source.getString("body");
-                try {
-                  postData = body.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                  postData = body.getBytes();
-                }
-              }
-              if (postData == null) {
-                postData = new byte[0];
-              }
-              webView.postUrl(url, postData);
-              return;
+  /**
+   * Coalesce loads so multiple input changes in one React commit (source +
+   * androidAssetLoaderConfig) result in a single loadUrl. Post runs after every
+   * synchronous @ReactProp setter in the current UI message, so by the time
+   * doLoad fires both inputs are at their latest values and the asset loader
+   * is installed on the client. Idempotent across the same scheduled tick.
+   */
+  private static void scheduleLoad(RNCWebView webView) {
+    if (webView.loadScheduled) return;
+    webView.loadScheduled = true;
+    webView.post(() -> {
+      webView.loadScheduled = false;
+      doLoad(webView, webView.getSource());
+    });
+  }
+
+  private static void doLoad(RNCWebView webView, @Nullable ReadableMap source) {
+    if (source == null) {
+      webView.loadUrl(BLANK_URL);
+      return;
+    }
+    if (source.hasKey("html")) {
+      String html = source.getString("html");
+      String baseUrl = source.hasKey("baseUrl") ? source.getString("baseUrl") : "";
+      webView.loadDataWithBaseURL(baseUrl, html, HTML_MIME_TYPE, HTML_ENCODING, null);
+      return;
+    }
+    if (source.hasKey("uri")) {
+      String url = source.getString("uri");
+      // Note: no previousUrl == url short-circuit. We only reach doLoad when
+      // structural-equality at the @ReactProp setters detected an input change
+      // (source or asset loader config), and that change implies we want to
+      // reload — e.g. asset loader arrived after a failed un-intercepted
+      // navigation left webView.getUrl() equal to the requested URL.
+      if (source.hasKey("method")) {
+        String method = source.getString("method");
+        if (method.equalsIgnoreCase(HTTP_METHOD_POST)) {
+          byte[] postData = null;
+          if (source.hasKey("body")) {
+            String body = source.getString("body");
+            try {
+              postData = body.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              postData = body.getBytes();
             }
           }
-          HashMap<String, String> headerMap = new HashMap<>();
-          if (source.hasKey("headers")) {
-            ReadableMap headers = source.getMap("headers");
-            ReadableMapKeySetIterator iter = headers.keySetIterator();
-            while (iter.hasNextKey()) {
-              String key = iter.nextKey();
-              if ("user-agent".equals(key.toLowerCase(Locale.ENGLISH))) {
-                if (webView.getSettings() != null) {
-                  webView.getSettings().setUserAgentString(headers.getString(key));
-                }
-              } else {
-                headerMap.put(key, headers.getString(key));
-              }
-            }
+          if (postData == null) {
+            postData = new byte[0];
           }
-          webView.loadUrl(url, headerMap);
+          webView.postUrl(url, postData);
           return;
         }
       }
-      webView.loadUrl(BLANK_URL);
-    });
+      HashMap<String, String> headerMap = new HashMap<>();
+      if (source.hasKey("headers")) {
+        ReadableMap headers = source.getMap("headers");
+        ReadableMapKeySetIterator iter = headers.keySetIterator();
+        while (iter.hasNextKey()) {
+          String key = iter.nextKey();
+          if ("user-agent".equals(key.toLowerCase(Locale.ENGLISH))) {
+            if (webView.getSettings() != null) {
+              webView.getSettings().setUserAgentString(headers.getString(key));
+            }
+          } else {
+            headerMap.put(key, headers.getString(key));
+          }
+        }
+      }
+      webView.loadUrl(url, headerMap);
+      return;
+    }
+    webView.loadUrl(BLANK_URL);
   }
 
   @ReactProp(name = "basicAuthCredential")
@@ -1107,7 +1125,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected RNCWebView.ProgressChangedFilter progressChangedFilter = null;
     protected @Nullable String ignoreErrFailedForThisURL = null;
     protected @Nullable BasicAuthCredential basicAuthCredential = null;
-    protected @Nullable WebViewAssetLoader webViewAssetLoader;
+    // Read on the WebView worker thread in shouldInterceptRequest, written on the UI thread.
+    protected volatile @Nullable WebViewAssetLoader webViewAssetLoader;
 
     public void setWebViewAssetLoader(@Nullable WebViewAssetLoader assetLoader) {
       webViewAssetLoader = assetLoader;
@@ -1726,6 +1745,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected ProgressChangedFilter progressChangedFilter;
 
     protected ReadableMap source;
+    protected @Nullable ReadableMap assetLoaderConfig;
+    protected boolean loadScheduled;
     private static int idCounter = 0;
 
     /**
@@ -1757,8 +1778,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       mRNCWebViewClient.setBasicAuthCredential(credential);
     }
 
-    public void setWebViewAssetLoader(WebViewAssetLoader webViewAssetLoader) {
-      mRNCWebViewClient.setWebViewAssetLoader(webViewAssetLoader);
+    public void setWebViewAssetLoader(@Nullable WebViewAssetLoader webViewAssetLoader) {
+      if (mRNCWebViewClient != null) {
+        mRNCWebViewClient.setWebViewAssetLoader(webViewAssetLoader);
+      }
     }
 
     public void setSendContentSizeChangeEvents(boolean sendContentSizeChangeEvents) {
@@ -1777,10 +1800,21 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       this.source = source;
     }
 
+    public @Nullable ReadableMap getSource() {
+      return source;
+    }
+
+    public void setAssetLoaderConfig(@Nullable ReadableMap config) {
+      this.assetLoaderConfig = config;
+    }
+
+    public @Nullable ReadableMap getAssetLoaderConfig() {
+      return assetLoaderConfig;
+    }
+
     public boolean isNewSource(@Nullable ReadableMap newSource) {
-      if (source == null || newSource == null) {
-        return true;
-      }
+      if (source == null && newSource == null) return false;
+      if (source == null || newSource == null) return true;
 
       // Check if any of the following string values have changed
       String[] sourceKeys = {"uri", "method", "body", "html", "baseUrl"};
@@ -1800,6 +1834,12 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       Map<String, Object> newHeaders = newHeadersMap == null ? Collections.emptyMap() : newHeadersMap.toHashMap();
 
       return !headers.equals(newHeaders);
+    }
+
+    public boolean isNewAssetLoaderConfig(@Nullable ReadableMap newConfig) {
+      if (assetLoaderConfig == null && newConfig == null) return false;
+      if (assetLoaderConfig == null || newConfig == null) return true;
+      return !assetLoaderConfig.toHashMap().equals(newConfig.toHashMap());
     }
 
     @Override
