@@ -349,6 +349,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       webView.setWebViewKey(webViewKey);
       RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), view.getId());
       rncWebViewMap.put(webViewKey, webView);
+      // Let any RNCWebViewTargetView waiting on this key borrow the view now that it's registered. Deferred to the
+      // next frame so the builder finishes attaching it before a target reparents it away.
+      view.post(() -> RNCWebViewMapManager.INSTANCE.notifyWebViewRegistered(webViewKey));
     });
   }
 
