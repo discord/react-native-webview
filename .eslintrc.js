@@ -62,7 +62,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { ignoreRestSiblings: true},
+      { ignoreRestSiblings: true, argsIgnorePattern: '^_' },
     ],
     '@typescript-eslint/consistent-type-definitions': [
       'error',

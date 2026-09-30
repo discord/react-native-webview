@@ -22,6 +22,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
+      # setup-gradle validates every Gradle wrapper JAR in the workspace. Running it
+      # before node_modules exists keeps it to our own wrapper, since some packages
+      # ship wrapper JARs that aren't on Gradle's list of known checksums.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Cache /node_modules
         uses: actions/cache@v6
         with:
@@ -30,8 +35,6 @@ jobs:
       - name: Install npm dependencies
         run: yarn --frozen-lockfile
         shell: bash
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
       - name: Build Android test app
         run: ./gradlew --no-daemon clean build check test
         shell: bash

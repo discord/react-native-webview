@@ -21,6 +21,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install npm dependencies
         run: yarn --frozen-lockfile
+      # Boost moved its release archives off JFrog, so the old URL in this podspec
+      # no longer serves the tarball and pod install fails the checksum check.
+      - name: Point boost podspec at archives.boost.io
+        run: sed -i '' 's#https://boostorg.jfrog.io/artifactory/main/release/#https://archives.boost.io/release/#' node_modules/react-native/third-party-podspecs/boost.podspec
       - name: Install Pods
         run: pod install
         working-directory: example/ios
