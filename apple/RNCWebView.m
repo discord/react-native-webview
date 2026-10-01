@@ -12,6 +12,7 @@
 #import <React/RCTAutoInsetsProtocol.h>
 #import "RNCWKProcessPoolManager.h"
 #import "RNCWKWebViewMapManager.h"
+#import "RNCWebViewTarget.h"
 #import "RNCScriptMessageManager.h"
 #import "ScriptMessageEventEmitter.h"
 
@@ -511,6 +512,16 @@ RCTAutoInsetsProtocol>
     
     if (!reusedWebViewInstance) {
       [self visitSource];
+    }
+
+    // Now that this WebView exists and is registered under its key, let any RNCWebViewTarget already waiting on
+    // that key borrow it. Deferred to the next runloop so we finish attaching it here before a target reparents
+    // it away.
+    if ([self shouldReuseWebView] && _webViewKey != nil) {
+      NSString *registeredKey = _webViewKey;
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:RNCWebViewDidRegisterNotification object:registeredKey];
+      });
     }
   }
 #if !TARGET_OS_OSX

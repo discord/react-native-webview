@@ -4,12 +4,12 @@ on: [pull_request]
 jobs:
   tests:
     name: 'Running tests'
-    runs-on: 'macOS-latest'
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 14
+          node-version: 22
       - name: Setup - Install Yarn
         run: YARN_GPG=NO curl -o- -L https://yarnpkg.com/install.sh | bash
       - name: Setup - Install NPM Dependencies

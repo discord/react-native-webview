@@ -349,6 +349,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       webView.setWebViewKey(webViewKey);
       RNCWebViewMapManager.INSTANCE.getViewIdMap().put(webView.getId(), view.getId());
       rncWebViewMap.put(webViewKey, webView);
+      // Let any RNCWebViewTargetView waiting on this key borrow the view now that it's registered. Deferred to the
+      // next frame so the builder finishes attaching it before a target reparents it away.
+      view.post(() -> RNCWebViewMapManager.INSTANCE.notifyWebViewRegistered(webViewKey));
     });
   }
 
@@ -2073,7 +2076,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
         return;
       }
 
-      uiManager.getEventDispatcher().dispatchEvent(event);
+      // TODO(rn-upgrade): Once the example app is on RN 0.86, this can be chained again.
+      // Older React Native declares getEventDispatcher() as a generic <T> T, so we
+      // assign it to a typed local to give Java something to infer T from.
+      EventDispatcher eventDispatcher = uiManager.getEventDispatcher();
+      eventDispatcher.dispatchEvent(event);
     }
 
     protected void cleanupCallbacksAndDestroy() {
