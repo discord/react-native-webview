@@ -2076,7 +2076,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
         return;
       }
 
-      uiManager.getEventDispatcher().dispatchEvent(event);
+      // Older React Native declares getEventDispatcher() as a generic <T> T, so we
+      // assign it to a typed local to give Java something to infer T from.
+      EventDispatcher eventDispatcher = uiManager.getEventDispatcher();
+      eventDispatcher.dispatchEvent(event);
     }
 
     protected void cleanupCallbacksAndDestroy() {
