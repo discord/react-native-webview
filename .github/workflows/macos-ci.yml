@@ -1,9 +1,9 @@
 name: macOS
+# Discord doesn't ship this fork on macOS, and several webViewKey code paths use UIKit-only APIs
+# with no macOS branch, so this build doesn't compile. It only runs when triggered by hand from
+# the Actions tab until someone takes on macOS support.
 on:
-  push:
-    branches:
-      - master
-  pull_request:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: macos-15
