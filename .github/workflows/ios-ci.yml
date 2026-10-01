@@ -21,10 +21,12 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install npm dependencies
         run: yarn --frozen-lockfile
+      # TODO(rn-upgrade): Remove once the example app is on RN 0.86, which already fixes this.
       # Boost moved its release archives off JFrog, so the old URL in this podspec
       # no longer serves the tarball and pod install fails the checksum check.
       - name: Point boost podspec at archives.boost.io
         run: sed -i '' 's#https://boostorg.jfrog.io/artifactory/main/release/#https://archives.boost.io/release/#' node_modules/react-native/third-party-podspecs/boost.podspec
+      # TODO(rn-upgrade): Remove once the example app is on RN 0.86, which already fixes this.
       # Newer Xcode warns about bitwise | on booleans, and Yoga's podspec builds with
       # -Werror, so two hadOverflow() lines in RN 0.68's Yoga break the build.
       - name: Fix Yoga bitwise-or for current Xcode
@@ -32,8 +34,12 @@ jobs:
       - name: Install Pods
         run: pod install
         working-directory: example/ios
+      # TODO(rn-upgrade): Remove once the example app is on RN 0.86, which already fixes this.
+      # Boost 1.76 uses std::unary_function, which Xcode 16's libc++ drops in C++17
+      # mode. This define brings it back for every target, and $(inherited) keeps
+      # each target's own preprocessor definitions.
       - name: Build iOS test app
         run: |
-          xcodebuild -workspace WebviewExample.xcworkspace -scheme ReactTestApp -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build
+          xcodebuild -workspace WebviewExample.xcworkspace -scheme ReactTestApp -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO GCC_PREPROCESSOR_DEFINITIONS='$(inherited) _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION' build
         working-directory: example/ios
     timeout-minutes: 60

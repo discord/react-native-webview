@@ -4,12 +4,15 @@ on: [pull_request]
 jobs:
   run-windows-tests:
     name: Build & run tests
+    # TODO(rn-upgrade): windows-2022 has the Windows SDK 10.0.19041.0 that react-native-windows
+    # 0.68 targets. Revisit once react-native-windows is upgraded.
     runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v7
       name: Checkout Code
 
+    # TODO(rn-upgrade): Remove once react-native-windows is upgraded.
     # The react-native-windows 0.68 CLI spawns .cmd files without a shell, which Node
     # rejects with EINVAL starting in 20.12.2 (CVE-2024-27980). 20.12.1 is the newest
     # release that still allows it.

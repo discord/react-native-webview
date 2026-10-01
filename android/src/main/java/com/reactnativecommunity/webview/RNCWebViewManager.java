@@ -2076,6 +2076,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
         return;
       }
 
+      // TODO(rn-upgrade): Once the example app is on RN 0.86, this can be chained again.
       // Older React Native declares getEventDispatcher() as a generic <T> T, so we
       // assign it to a typed local to give Java something to infer T from.
       EventDispatcher eventDispatcher = uiManager.getEventDispatcher();
