@@ -6,6 +6,9 @@
 
 NSString *const RNCWebViewDidRegisterNotification = @"RNCWebViewDidRegister";
 
+// WebViewTarget relies on UIKit view APIs, so like the other webViewKey features it's a no-op on macOS.
+#if !TARGET_OS_OSX
+
 @implementation RNCWebViewTarget
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -118,3 +121,5 @@ NSString *const RNCWebViewDidRegisterNotification = @"RNCWebViewDidRegister";
 }
 
 @end
+
+#endif // !TARGET_OS_OSX
