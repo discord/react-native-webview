@@ -322,11 +322,7 @@ RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
     WKWebView *wkWebView = sharedWKWebViewDictionary[webViewKey];
     
     if (wkWebView != nil) {
-#if !TARGET_OS_OSX
       UIView *parentView = wkWebView.superview;
-#else
-      NSView *parentView = wkWebView.superview;
-#endif // !TARGET_OS_OSX
       if (parentView != nil) {
         if ([parentView isKindOfClass:[RNCWebView class]]) {
           [(RNCWebView*)parentView cleanUpWebView];
