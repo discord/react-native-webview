@@ -60,6 +60,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.UIManager;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
@@ -488,7 +489,15 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
             FLog.w(TAG, "WebViewAssetLoader error. Skipping Path Handler. Directory is missing for internal handler path");
             continue;
           }
-          builder.addPathHandler(handlerPath, new WebViewAssetLoader.InternalStoragePathHandler(view.getContext(), new File(directory)));
+          WebViewAssetLoader.PathHandler internalHandler =
+            new WebViewAssetLoader.InternalStoragePathHandler(view.getContext(), new File(directory));
+          // Optional fixed response headers (e.g. Permissions-Policy on a locally served document). The default
+          // InternalStoragePathHandler sets none, so wrap it when any are configured.
+          Map<String, String> responseHeaders = readStringMap(handler.getMap("responseHeaders"));
+          if (!responseHeaders.isEmpty()) {
+            internalHandler = new HeaderInjectingPathHandler(internalHandler, responseHeaders);
+          }
+          builder.addPathHandler(handlerPath, internalHandler);
         }
       }
     } else {
@@ -496,6 +505,51 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
 
     return builder.build();
+  }
+
+  private static Map<String, String> readStringMap(@Nullable ReadableMap map) {
+    Map<String, String> result = new HashMap<>();
+    if (map == null) {
+      return result;
+    }
+    ReadableMapKeySetIterator iterator = map.keySetIterator();
+    while (iterator.hasNextKey()) {
+      String key = iterator.nextKey();
+      if (map.getType(key) == ReadableType.String) {
+        result.put(key, map.getString(key));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Wraps a PathHandler and merges a fixed set of response headers onto whatever it serves. InternalStoragePathHandler
+   * sets no headers, so this lets a locally served document (the embedded-app shell) carry a header-based policy such
+   * as Permissions-Policy. A header policy on the top-level document applies to its whole frame tree and cannot be
+   * re-enabled by scripts or a child frame's allow attribute.
+   */
+  private static class HeaderInjectingPathHandler implements WebViewAssetLoader.PathHandler {
+    private final WebViewAssetLoader.PathHandler delegate;
+    private final Map<String, String> extraHeaders;
+
+    HeaderInjectingPathHandler(WebViewAssetLoader.PathHandler delegate, Map<String, String> extraHeaders) {
+      this.delegate = delegate;
+      this.extraHeaders = extraHeaders;
+    }
+
+    @Nullable
+    @Override
+    public WebResourceResponse handle(@NonNull String path) {
+      WebResourceResponse response = delegate.handle(path);
+      if (response == null) {
+        return null;
+      }
+      Map<String, String> headers = response.getResponseHeaders();
+      Map<String, String> merged = headers != null ? new HashMap<>(headers) : new HashMap<>();
+      merged.putAll(extraHeaders);
+      response.setResponseHeaders(merged);
+      return response;
+    }
   }
 
 

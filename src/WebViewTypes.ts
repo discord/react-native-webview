@@ -214,9 +214,20 @@ export interface AndroidAssetLoaderPathHandler {
    * Certain existing subdirectories of getDataDir are also not permitted as they are often sensitive. 
    * These files are ("app_webview/", "databases/", "lib/", "shared_prefs/" and "code_cache/").
    * 
-   * This field is unused for type 'resources' or 'assets' 
+   * This field is unused for type 'resources' or 'assets'
    */
   directory?: string;
+
+  /**
+   * Fixed response headers to merge onto every response this handler serves.
+   *
+   * InternalStoragePathHandler sets no headers of its own, so this is the way to attach a header-based policy
+   * (e.g. `Permissions-Policy`) to a locally served document. A header policy on the top-level document applies to
+   * its whole frame tree and cannot be re-enabled by scripts or a child frame's `allow` attribute.
+   *
+   * Only honored for type 'internal'.
+   */
+  responseHeaders?: {[header: string]: string};
 }
 
 
