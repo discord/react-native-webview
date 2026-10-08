@@ -240,6 +240,23 @@ export interface AndroidAssetLoaderConfig {
   pathHandlers: AndroidAssetLoaderPathHandler[]
 }
 
+/**
+ * A script registered via androidx.webkit.WebViewCompat.addDocumentStartJavaScript.
+ */
+export interface AndroidDocumentStartScript {
+  /**
+   * JavaScript source to run at document start, before any of the page's own scripts.
+   */
+  script: string;
+
+  /**
+   * Origin rules a frame must match for the script to run in it, e.g. `https://*.example.com`.
+   * Matching applies to every frame, including cross-origin iframes.
+   * See https://developer.android.com/reference/androidx/webkit/WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,java.lang.String,java.util.Set%3Cjava.lang.String%3E)
+   */
+  allowedOriginRules: string[];
+}
+
 export interface WebViewSourceUri {
   /**
    * The URI to load in the `WebView`. Can be a local or remote file.
@@ -371,6 +388,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   allowsFullscreenVideo?: boolean;
   allowUniversalAccessFromFileURLs?: boolean;
   androidAssetLoaderConfig?: AndroidAssetLoaderConfig
+  androidDocumentStartScript?: AndroidDocumentStartScript;
   androidHardwareAccelerationDisabled?: boolean;
   androidLayerType?: AndroidLayerType;
   domStorageEnabled?: boolean;
@@ -1099,6 +1117,16 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * assets and resources using http(s):// URLS inside a WebView. 
    */
   androidAssetLoaderConfig?: AndroidAssetLoaderConfig;
+
+  /**
+   * Injects `script` at document start into every frame (main frame and iframes) whose origin
+   * matches `allowedOriginRules`. Unlike `injectedJavaScriptBeforeContentLoaded`, this reaches
+   * cross-origin iframes. Changes take effect on the next navigation of each matching frame.
+   * No-op (with a native warning) when the installed WebView does not support
+   * `WebViewFeature.DOCUMENT_START_SCRIPT`.
+   * @platform android
+   */
+  androidDocumentStartScript?: AndroidDocumentStartScript;
 
   /**
    * Boolean value to enable third party cookies in the `WebView`. Used on

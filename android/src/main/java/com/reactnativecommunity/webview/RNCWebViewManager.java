@@ -49,7 +49,9 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.webkit.WebSettingsCompat;
+import androidx.webkit.ScriptHandler;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
 import com.facebook.common.logging.FLog;
@@ -627,6 +629,19 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
   @ReactProp(name = "injectedJavaScriptBeforeContentLoadedForMainFrameOnly")
   public void setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(RNCWebViewContainer view, boolean enabled) {
     view.ifHasRNCWebView(webView -> webView.setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(enabled));
+  }
+
+  /**
+   * Registers a script that runs at document start in every frame (main frame and subframes) whose
+   * origin matches one of allowedOriginRules, before any of the page's own scripts. Unlike
+   * injectedJavaScriptBeforeContentLoaded, which uses evaluateJavascript and so only ever reaches the
+   * main frame, this can reach cross-origin iframes. Takes effect on the next navigation of each
+   * matching frame; documents that are already loaded are not affected.
+   * See https://developer.android.com/reference/androidx/webkit/WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,java.lang.String,java.util.Set%3Cjava.lang.String%3E)
+   */
+  @ReactProp(name = "androidDocumentStartScript")
+  public void setDocumentStartScript(RNCWebViewContainer view, @Nullable ReadableMap config) {
+    view.ifHasRNCWebView(webView -> webView.setDocumentStartScript(config));
   }
 
   @ReactProp(name = "messagingEnabled")
@@ -1749,6 +1764,8 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     protected ReadableMap source;
     protected @Nullable ReadableMap assetLoaderConfig;
+    protected @Nullable ReadableMap documentStartScriptConfig;
+    protected @Nullable ScriptHandler documentStartScriptHandler;
     protected boolean loadScheduled;
     private static int idCounter = 0;
 
@@ -1843,6 +1860,46 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       if (assetLoaderConfig == null && newConfig == null) return false;
       if (assetLoaderConfig == null || newConfig == null) return true;
       return !assetLoaderConfig.toHashMap().equals(newConfig.toHashMap());
+    }
+
+    public void setDocumentStartScript(@Nullable ReadableMap config) {
+      // Stored on the RNCWebView rather than the container so a keyed WebView that is reparented into a
+      // new container with an equal config keeps its existing registration.
+      if (documentStartScriptConfig == null && config == null) return;
+      if (documentStartScriptConfig != null && config != null
+        && documentStartScriptConfig.toHashMap().equals(config.toHashMap())) return;
+      documentStartScriptConfig = config;
+
+      if (documentStartScriptHandler != null) {
+        documentStartScriptHandler.remove();
+        documentStartScriptHandler = null;
+      }
+
+      if (config == null) return;
+
+      if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+        FLog.w(TAG, "androidDocumentStartScript ignored: DOCUMENT_START_SCRIPT is not supported by this WebView.");
+        return;
+      }
+
+      String script = config.hasKey("script") ? config.getString("script") : null;
+      ReadableArray rules = config.hasKey("allowedOriginRules") ? config.getArray("allowedOriginRules") : null;
+      if (TextUtils.isEmpty(script) || rules == null || rules.size() == 0) {
+        FLog.w(TAG, "androidDocumentStartScript ignored: script and a non-empty allowedOriginRules are required.");
+        return;
+      }
+
+      Set<String> allowedOriginRules = new HashSet<>();
+      for (int i = 0; i < rules.size(); i++) {
+        allowedOriginRules.add(rules.getString(i));
+      }
+
+      try {
+        documentStartScriptHandler = WebViewCompat.addDocumentStartJavaScript(this, script, allowedOriginRules);
+      } catch (IllegalArgumentException e) {
+        // Thrown for malformed origin rules.
+        FLog.e(TAG, "androidDocumentStartScript ignored: invalid allowedOriginRules " + allowedOriginRules, e);
+      }
     }
 
     @Override
