@@ -1765,6 +1765,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     protected ReadableMap source;
     protected @Nullable ReadableMap assetLoaderConfig;
     protected @Nullable ReadableMap documentStartScriptConfig;
+    // ScriptHandler is @RestrictTo(LIBRARY_GROUP) until androidx.webkit 1.9.0, which needs compileSdk 34. The
+    // signatures we use are unchanged from 1.5.0 through 1.13.0, so the restriction is lint-only for us.
+    @SuppressLint("RestrictedApi")
     protected @Nullable ScriptHandler documentStartScriptHandler;
     protected boolean loadScheduled;
     private static int idCounter = 0;
@@ -1862,6 +1865,7 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       return !assetLoaderConfig.toHashMap().equals(newConfig.toHashMap());
     }
 
+    @SuppressLint("RestrictedApi") // See documentStartScriptHandler.
     public void setDocumentStartScript(@Nullable ReadableMap config) {
       // Stored on the RNCWebView rather than the container so a keyed WebView that is reparented into a
       // new container with an equal config keeps its existing registration.
