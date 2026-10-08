@@ -38,7 +38,7 @@ This document lays out the current public properties and methods for the React N
 - [`javaScriptCanOpenWindowsAutomatically`](Reference.md#javascriptcanopenwindowsautomatically)
 - [`androidHardwareAccelerationDisabled`](Reference.md#androidHardwareAccelerationDisabled)
 - [`androidLayerType`](Reference.md#androidLayerType)
-- [`androidDocumentStartScript`](Reference.md#androidDocumentStartScript)
+- [`androidInjectedJavaScriptForOrigins`](Reference.md#androidInjectedJavaScriptForOrigins)
 - [`mixedContentMode`](Reference.md#mixedcontentmode)
 - [`thirdPartyCookiesEnabled`](Reference.md#thirdpartycookiesenabled)
 - [`userAgent`](Reference.md#useragent)
@@ -879,7 +879,7 @@ Avoid setting both `androidLayerType` and `androidHardwareAccelerationDisabled` 
 
 ---
 
-### `androidDocumentStartScript`[⬆](#props-index)<!-- Link generated with jump2header -->
+### `androidInjectedJavaScriptForOrigins`[⬆](#props-index)<!-- Link generated with jump2header -->
 
 Registers a script with [`WebViewCompat.addDocumentStartJavaScript`](https://developer.android.com/reference/androidx/webkit/WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,java.lang.String,java.util.Set%3Cjava.lang.String%3E)). The script runs at document start, before any of the page's own scripts, in every frame whose origin matches one of `allowedOriginRules`, including cross-origin iframes. This differs from `injectedJavaScriptBeforeContentLoaded`, which on Android only ever reaches the main frame.
 
@@ -888,7 +888,7 @@ The script is applied on the next navigation of each matching frame; documents t
 ```jsx
 <WebView
   source={{ uri: 'https://shell.example.net/index.html' }}
-  androidDocumentStartScript={{
+  androidInjectedJavaScriptForOrigins={{
     script: "window.__injected = true;",
     allowedOriginRules: ['https://*.example.com'],
   }}

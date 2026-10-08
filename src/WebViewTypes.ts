@@ -243,7 +243,7 @@ export interface AndroidAssetLoaderConfig {
 /**
  * A script registered via androidx.webkit.WebViewCompat.addDocumentStartJavaScript.
  */
-export interface AndroidDocumentStartScript {
+export interface AndroidInjectedJavaScriptForOrigins {
   /**
    * JavaScript source to run at document start, before any of the page's own scripts.
    */
@@ -388,7 +388,7 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
   allowsFullscreenVideo?: boolean;
   allowUniversalAccessFromFileURLs?: boolean;
   androidAssetLoaderConfig?: AndroidAssetLoaderConfig
-  androidDocumentStartScript?: AndroidDocumentStartScript;
+  androidInjectedJavaScriptForOrigins?: AndroidInjectedJavaScriptForOrigins;
   androidHardwareAccelerationDisabled?: boolean;
   androidLayerType?: AndroidLayerType;
   domStorageEnabled?: boolean;
@@ -1126,7 +1126,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * `WebViewFeature.DOCUMENT_START_SCRIPT`.
    * @platform android
    */
-  androidDocumentStartScript?: AndroidDocumentStartScript;
+  androidInjectedJavaScriptForOrigins?: AndroidInjectedJavaScriptForOrigins;
 
   /**
    * Boolean value to enable third party cookies in the `WebView`. Used on

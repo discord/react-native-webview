@@ -639,9 +639,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
    * matching frame; documents that are already loaded are not affected.
    * See https://developer.android.com/reference/androidx/webkit/WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,java.lang.String,java.util.Set%3Cjava.lang.String%3E)
    */
-  @ReactProp(name = "androidDocumentStartScript")
-  public void setDocumentStartScript(RNCWebViewContainer view, @Nullable ReadableMap config) {
-    view.ifHasRNCWebView(webView -> webView.setDocumentStartScript(config));
+  @ReactProp(name = "androidInjectedJavaScriptForOrigins")
+  public void setInjectedJavaScriptForOrigins(RNCWebViewContainer view, @Nullable ReadableMap config) {
+    view.ifHasRNCWebView(webView -> webView.setInjectedJavaScriptForOrigins(config));
   }
 
   @ReactProp(name = "messagingEnabled")
@@ -1764,11 +1764,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
 
     protected ReadableMap source;
     protected @Nullable ReadableMap assetLoaderConfig;
-    protected @Nullable ReadableMap documentStartScriptConfig;
+    protected @Nullable ReadableMap injectedJavaScriptForOriginsConfig;
     // ScriptHandler is @RestrictTo(LIBRARY_GROUP) until androidx.webkit 1.9.0, which needs compileSdk 34. The
     // signatures we use are unchanged from 1.5.0 through 1.13.0, so the restriction is lint-only for us.
     @SuppressLint("RestrictedApi")
-    protected @Nullable ScriptHandler documentStartScriptHandler;
+    protected @Nullable ScriptHandler injectedJavaScriptForOriginsHandler;
     protected boolean loadScheduled;
     private static int idCounter = 0;
 
@@ -1865,31 +1865,31 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       return !assetLoaderConfig.toHashMap().equals(newConfig.toHashMap());
     }
 
-    @SuppressLint("RestrictedApi") // See documentStartScriptHandler.
-    public void setDocumentStartScript(@Nullable ReadableMap config) {
+    @SuppressLint("RestrictedApi") // See injectedJavaScriptForOriginsHandler.
+    public void setInjectedJavaScriptForOrigins(@Nullable ReadableMap config) {
       // Stored on the RNCWebView rather than the container so a keyed WebView that is reparented into a
       // new container with an equal config keeps its existing registration.
-      if (documentStartScriptConfig == null && config == null) return;
-      if (documentStartScriptConfig != null && config != null
-        && documentStartScriptConfig.toHashMap().equals(config.toHashMap())) return;
-      documentStartScriptConfig = config;
+      if (injectedJavaScriptForOriginsConfig == null && config == null) return;
+      if (injectedJavaScriptForOriginsConfig != null && config != null
+        && injectedJavaScriptForOriginsConfig.toHashMap().equals(config.toHashMap())) return;
+      injectedJavaScriptForOriginsConfig = config;
 
-      if (documentStartScriptHandler != null) {
-        documentStartScriptHandler.remove();
-        documentStartScriptHandler = null;
+      if (injectedJavaScriptForOriginsHandler != null) {
+        injectedJavaScriptForOriginsHandler.remove();
+        injectedJavaScriptForOriginsHandler = null;
       }
 
       if (config == null) return;
 
       if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-        FLog.w(TAG, "androidDocumentStartScript ignored: DOCUMENT_START_SCRIPT is not supported by this WebView.");
+        FLog.w(TAG, "androidInjectedJavaScriptForOrigins ignored: DOCUMENT_START_SCRIPT is not supported by this WebView.");
         return;
       }
 
       String script = config.hasKey("script") ? config.getString("script") : null;
       ReadableArray rules = config.hasKey("allowedOriginRules") ? config.getArray("allowedOriginRules") : null;
       if (TextUtils.isEmpty(script) || rules == null || rules.size() == 0) {
-        FLog.w(TAG, "androidDocumentStartScript ignored: script and a non-empty allowedOriginRules are required.");
+        FLog.w(TAG, "androidInjectedJavaScriptForOrigins ignored: script and a non-empty allowedOriginRules are required.");
         return;
       }
 
@@ -1899,10 +1899,10 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
       }
 
       try {
-        documentStartScriptHandler = WebViewCompat.addDocumentStartJavaScript(this, script, allowedOriginRules);
+        injectedJavaScriptForOriginsHandler = WebViewCompat.addDocumentStartJavaScript(this, script, allowedOriginRules);
       } catch (IllegalArgumentException e) {
         // Thrown for malformed origin rules.
-        FLog.e(TAG, "androidDocumentStartScript ignored: invalid allowedOriginRules " + allowedOriginRules, e);
+        FLog.e(TAG, "androidInjectedJavaScriptForOrigins ignored: invalid allowedOriginRules " + allowedOriginRules, e);
       }
     }
 
