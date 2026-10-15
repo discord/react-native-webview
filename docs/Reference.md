@@ -38,6 +38,7 @@ This document lays out the current public properties and methods for the React N
 - [`javaScriptCanOpenWindowsAutomatically`](Reference.md#javascriptcanopenwindowsautomatically)
 - [`androidHardwareAccelerationDisabled`](Reference.md#androidHardwareAccelerationDisabled)
 - [`androidLayerType`](Reference.md#androidLayerType)
+- [`androidInjectedJavaScriptForOrigins`](Reference.md#androidInjectedJavaScriptForOrigins)
 - [`mixedContentMode`](Reference.md#mixedcontentmode)
 - [`thirdPartyCookiesEnabled`](Reference.md#thirdpartycookiesenabled)
 - [`userAgent`](Reference.md#useragent)
@@ -875,6 +876,28 @@ Avoid setting both `androidLayerType` and `androidHardwareAccelerationDisabled` 
 | Type   | Required | Platform |
 | ------ | -------- | -------- |
 | string | No       | Android  |
+
+---
+
+### `androidInjectedJavaScriptForOrigins`[⬆](#props-index)<!-- Link generated with jump2header -->
+
+Registers a script with [`WebViewCompat.addDocumentStartJavaScript`](https://developer.android.com/reference/androidx/webkit/WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,java.lang.String,java.util.Set%3Cjava.lang.String%3E)). The script runs at document start, before any of the page's own scripts, in every frame whose origin matches one of `allowedOriginRules`, including cross-origin iframes. This differs from `injectedJavaScriptBeforeContentLoaded`, which on Android only ever reaches the main frame.
+
+The script is applied on the next navigation of each matching frame; documents that are already loaded are not affected. Changing the prop replaces the previous registration, and passing `undefined` removes it. If the installed WebView does not support `WebViewFeature.DOCUMENT_START_SCRIPT`, or the origin rules are malformed, the prop is ignored and a native warning is logged.
+
+```jsx
+<WebView
+  source={{ uri: 'https://shell.example.net/index.html' }}
+  androidInjectedJavaScriptForOrigins={{
+    script: "window.__injected = true;",
+    allowedOriginRules: ['https://*.example.com'],
+  }}
+/>
+```
+
+| Type                                                   | Required | Platform |
+| ------------------------------------------------------ | -------- | -------- |
+| `{ script: string, allowedOriginRules: string[] }`     | No       | Android  |
 
 ---
 
