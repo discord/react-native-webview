@@ -459,6 +459,11 @@ RCTAutoInsetsProtocol>
 #else 
       _webView = [[RNCWKWebView alloc] initWithFrame:self.bounds configuration: wkWebViewConfig];
 #endif // !TARGET_OS_OSX
+      // Safari's Web Inspector can attach to every WebView in every build, the way chrome://inspect can on Android, so
+      // developers can debug what they build on Discord inside the app people actually use.
+      if (@available(iOS 16.4, macOS 13.3, *)) {
+        _webView.inspectable = YES;
+      }
     }
     
     if ([self shouldReuseWebView]) {
