@@ -21,11 +21,6 @@ typedef enum RNCWebViewPermissionGrantType : NSUInteger {
 @class RCTBridge;
 
 @protocol RNCWebViewDelegate <NSObject>
-
-- (BOOL)webView:(RNCWebView *_Nonnull)webView
-shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *_Nonnull)request
-   withCallback:(RCTDirectEventBlock _Nonnull)callback;
-
 @end
 
 @interface RNCWeakScriptMessageDelegate : NSObject<WKScriptMessageHandler>
