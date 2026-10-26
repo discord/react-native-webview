@@ -1296,7 +1296,8 @@ RCTAutoInsetsProtocol>
 
   [self sendLoadingStartForRequest:request isTopFrame:isTopFrame navigationType:navigationTypes[@(navigationType)]];
 
-  // Allow all navigation by default
+  // Only a WebView with no onShouldStartLoadWithRequest at all gets here, so there's no guard to answer to. The JS
+  // WebView always registers one, checked against its originWhitelist when the app passes no guard of its own.
   decisionHandler(WKNavigationActionPolicyAllow);
 }
 
