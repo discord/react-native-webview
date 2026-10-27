@@ -14,7 +14,7 @@
 #import "RNCWKWebViewMapManager.h"
 #import <WebKit/WebKit.h>
 
-@interface RNCWebViewManager () <RNCWebViewDelegate>
+@interface RNCWebViewManager ()
 @end
 
 @implementation RCTConvert (WKWebView)
@@ -50,7 +50,6 @@ RCT_EXPORT_MODULE()
 #endif // !TARGET_OS_OSX
 {
   RNCWebView *webView = [RNCWebView new];
-  webView.delegate = self;
   webView.bridge = self.bridge;
   return webView;
 }
