@@ -13,6 +13,7 @@
 #import "RNCWKProcessPoolManager.h"
 #import "RNCWKWebViewMapManager.h"
 #import "RNCWebViewTarget.h"
+#import "RNCWebViewDecisionManager.h"
 #import "RNCScriptMessageManager.h"
 #import "ScriptMessageEventEmitter.h"
 
@@ -1263,7 +1264,20 @@ RCTAutoInsetsProtocol>
   NSURLRequest *request = navigationAction.request;
   BOOL isTopFrame = [request.URL isEqual:request.mainDocumentURL];
   
+  // The navigation waits for JS to decide, rather than blocking the main thread for an answer. Under the New
+  // Architecture, JS's answer comes back on the main thread, so blocking it meant the answer never arrived in time and
+  // every navigation was allowed. Nothing is allowed until JS says so.
   if (_onShouldStartLoadWithRequest) {
+    int lockIdentifier = [[RNCWebViewDecisionManager getInstance] setDecisionHandler:^(BOOL shouldStart) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        if (!shouldStart) {
+          decisionHandler(WKNavigationActionPolicyCancel);
+          return;
+        }
+        [self sendLoadingStartForRequest:request isTopFrame:isTopFrame navigationType:navigationTypes[@(navigationType)]];
+        decisionHandler(WKNavigationActionPolicyAllow);
+      });
+    }];
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     if (request.mainDocumentURL) {
       [event addEntriesFromDictionary: @{
@@ -1273,30 +1287,35 @@ RCTAutoInsetsProtocol>
     [event addEntriesFromDictionary: @{
       @"url": (request.URL).absoluteString,
       @"navigationType": navigationTypes[@(navigationType)],
-      @"isTopFrame": @(isTopFrame)
+      @"isTopFrame": @(isTopFrame),
+      @"lockIdentifier": @(lockIdentifier)
     }];
-    if (![self.delegate webView:self
-      shouldStartLoadForRequest:event
-                   withCallback:_onShouldStartLoadWithRequest]) {
-      decisionHandler(WKNavigationActionPolicyCancel);
-      return;
-    }
+    _onShouldStartLoadWithRequest(event);
+    return;
   }
-  
+
+  [self sendLoadingStartForRequest:request isTopFrame:isTopFrame navigationType:navigationTypes[@(navigationType)]];
+
+  // Only a WebView with no onShouldStartLoadWithRequest at all gets here, so there's no guard to answer to. The JS
+  // WebView always registers one, checked against its originWhitelist when the app passes no guard of its own.
+  decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+- (void)sendLoadingStartForRequest:(NSURLRequest *)request
+                        isTopFrame:(BOOL)isTopFrame
+                    navigationType:(NSString *)navigationType
+{
   if (_onLoadingStart) {
     // We have this check to filter out iframe requests and whatnot
     if (isTopFrame) {
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
       [event addEntriesFromDictionary: @{
         @"url": (request.URL).absoluteString,
-        @"navigationType": navigationTypes[@(navigationType)]
+        @"navigationType": navigationType
       }];
       _onLoadingStart(event);
     }
   }
-  
-  // Allow all navigation by default
-  decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 /**

@@ -6,6 +6,7 @@
  */
 
 #import "RNCWebViewManager.h"
+#import "RNCWebViewDecisionManager.h"
 
 #import <React/RCTUIManager.h>
 #import <React/RCTDefines.h>
@@ -13,7 +14,7 @@
 #import "RNCWKWebViewMapManager.h"
 #import <WebKit/WebKit.h>
 
-@interface RNCWebViewManager () <RNCWebViewDelegate>
+@interface RNCWebViewManager ()
 @end
 
 @implementation RCTConvert (WKWebView)
@@ -38,8 +39,6 @@ RCT_ENUM_CONVERTER(RNCWebViewPermissionGrantType, (@{
 
 @implementation RNCWebViewManager
 {
-  NSConditionLock *_shouldStartLoadLock;
-  BOOL _shouldStartLoad;
 }
 
 RCT_EXPORT_MODULE()
@@ -51,7 +50,6 @@ RCT_EXPORT_MODULE()
 #endif // !TARGET_OS_OSX
 {
   RNCWebView *webView = [RNCWebView new];
-  webView.delegate = self;
   webView.bridge = self.bridge;
   return webView;
 }
@@ -281,38 +279,11 @@ RCT_EXPORT_METHOD(requestFocus:(nonnull NSNumber *)reactTag)
   }];
 }
 
-#pragma mark - Exported synchronous methods
-
-- (BOOL)          webView:(RNCWebView *)webView
-shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
-             withCallback:(RCTDirectEventBlock)callback
-{
-  _shouldStartLoadLock = [[NSConditionLock alloc] initWithCondition:arc4random()];
-  _shouldStartLoad = YES;
-  request[@"lockIdentifier"] = @(_shouldStartLoadLock.condition);
-  callback(request);
-  
-  // Block the main thread for a maximum of 250ms until the JS thread returns
-  if ([_shouldStartLoadLock lockWhenCondition:0 beforeDate:[NSDate dateWithTimeIntervalSinceNow:.25]]) {
-    BOOL returnValue = _shouldStartLoad;
-    [_shouldStartLoadLock unlock];
-    _shouldStartLoadLock = nil;
-    return returnValue;
-  } else {
-    RCTLogWarn(@"Did not receive response to shouldStartLoad in time, defaulting to YES");
-    return YES;
-  }
-}
+#pragma mark - Exported methods
 
 RCT_EXPORT_METHOD(startLoadWithResult:(BOOL)result lockIdentifier:(NSInteger)lockIdentifier)
 {
-  if ([_shouldStartLoadLock tryLockWhenCondition:lockIdentifier]) {
-    _shouldStartLoad = result;
-    [_shouldStartLoadLock unlockWithCondition:0];
-  } else {
-    RCTLogWarn(@"startLoadWithResult invoked with invalid lockIdentifier: "
-               "got %lld, expected %lld", (long long)lockIdentifier, (long long)_shouldStartLoadLock.condition);
-  }
+  [[RNCWebViewDecisionManager getInstance] setResult:result forLockIdentifier:(int)lockIdentifier];
 }
 
 RCT_EXPORT_METHOD(releaseWebView:(nonnull NSString *)webViewKey)
