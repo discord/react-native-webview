@@ -6,7 +6,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -234,10 +233,9 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebViewContainer> {
     }
     setMixedContentMode(wrapper, "never");
 
-    boolean isDebug = ((reactContext.getApplicationInfo().flags &
-      ApplicationInfo.FLAG_DEBUGGABLE) != 0);
-
-    if (isDebug && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    // chrome://inspect can attach to every WebView in every build, the way Safari's Web Inspector can on iOS, so
+    // developers can debug what they build on Discord inside the app people actually use.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
 
